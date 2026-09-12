@@ -86,6 +86,8 @@ export const discoverySchema = z.object({
   meetingUrl: z.string().trim().max(500, "Meeting URL too long").url("Invalid meeting URL").optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
   calendlyEventUri: z.string().trim().max(500, "Calendly URI too long").optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
   calendlyEventUrl: z.string().trim().max(500, "Calendly URL too long").optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
+  attachmentUrl: z.string().trim().max(500, "Attachment URL too long").optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
+  attachmentPublicId: z.string().trim().max(500).optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
 });
 
 export type DiscoveryInput = z.infer<typeof discoverySchema>;

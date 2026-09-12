@@ -6,6 +6,7 @@ import Navbar from "./src/components/Navbar";
 import Hero from "./src/components/Hero";
 import TechMarquee from "./src/components/TechMarquee";
 import Services from "./src/components/Services";
+import Work from "./src/components/Work";
 import ContactForm from "./src/components/ContactForm";
 import Footer from "./src/components/Footer";
 import ErrorBoundary from "./src/components/ErrorBoundary";
@@ -91,6 +92,9 @@ const App = () => {
             </View>
             <View onLayout={handleLayout("services")}>
               <Services />
+            </View>
+            <View onLayout={handleLayout("work")}>
+              <Work />
             </View>
             <View onLayout={handleLayout("contact")}>
               <ContactForm />

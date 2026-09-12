@@ -1,10 +1,12 @@
 import { Router, Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
+import multer from "multer";
 import { discoverySchema, hasNoSQLInjectionDiscovery } from "../schemas/discovery";
 import { purifyString, hasInjectionAttempt } from "../lib/sanitize";
 import { Discovery } from "../models/Discovery";
 import { getConnectionState } from "../config/db";
 import { sendDiscoveryEmails } from "../lib/email";
+import { uploadToCloudinary } from "../config/cloudinary";
 import { env } from "../config/env";
 
 const router = Router();
@@ -17,18 +19,73 @@ const discoveryLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Multer for file attachments (ephemeral FS safe, Cloudinary) - supports any file field (attachment, file)
+const uploadDiscovery = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "application/pdf",
+      "application/zip",
+      "application/x-zip-compressed",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    if (allowed.includes(file.mimetype) || file.mimetype.startsWith("image/") || file.mimetype === "application/octet-stream") {
+      cb(null, true);
+    } else {
+      cb(new Error("Unsupported file type for discovery attachment"));
+    }
+  },
+});
+
 type DiscoveryBody = Record<string, unknown>;
 
-router.post("/discovery", discoveryLimiter, async (req: Request<{}, {}, DiscoveryBody>, res: Response, next: NextFunction): Promise<void> => {
+router.post(
+  "/discovery",
+  discoveryLimiter,
+  uploadDiscovery.single("attachment"),
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    // Handle file attachment via Cloudinary if present (field "attachment" - fallback to "file" via multer)
+    let attachmentUrl: string | null = null;
+    let attachmentPublicId: string | null = null;
+    const file = (req as unknown as { file?: Express.Multer.File }).file;
+    if (file) {
+      try {
+        const result = await uploadToCloudinary(file.buffer, {
+          folder: "shenodev_discovery",
+          resourceType: "auto",
+        });
+        attachmentUrl = result.secure_url;
+        attachmentPublicId = result.public_id;
+        console.log(`[discovery] Uploaded attachment to Cloudinary: ${attachmentUrl}`);
+      } catch (cloudErr: unknown) {
+        const msg: string = cloudErr instanceof Error ? cloudErr.message : String(cloudErr);
+        console.error("[discovery] Cloudinary upload failed for attachment:", msg);
+        res.status(500).json({ error: "Upload Error", message: "Failed to upload attachment to Cloudinary", statusCode: 500 });
+        return;
+      }
+    }
+
+    // Merge attachment URL into body for validation/persistence
+    const bodyWithAttachment: Record<string, unknown> = {
+      ...req.body,
+      ...(attachmentUrl ? { attachmentUrl, attachmentPublicId } : {}),
+    };
+
     // 1. Raw injection check
-    if (hasNoSQLInjectionDiscovery(req.body as Record<string, unknown>) || hasInjectionAttempt(req.body as Record<string, unknown>)) {
+    if (hasNoSQLInjectionDiscovery(bodyWithAttachment as Record<string, unknown>) || hasInjectionAttempt(bodyWithAttachment as Record<string, unknown>)) {
       res.status(400).json({ error: "Validation Error", message: "Invalid payload detected", statusCode: 400 });
       return;
     }
 
     // 2. Zod validation (typesafe)
-    const parsed = discoverySchema.safeParse(req.body);
+    const parsed = discoverySchema.safeParse(bodyWithAttachment);
     if (!parsed.success) {
       const message: string = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ");
       res.status(400).json({ error: "Validation Error", message, statusCode: 400, issues: parsed.error.issues });
@@ -58,6 +115,8 @@ router.post("/discovery", discoveryLimiter, async (req: Request<{}, {}, Discover
       meetingUrl: purifyString((raw as Record<string, string>).meetingUrl ?? ""),
       calendlyEventUri: purifyString((raw as Record<string, string>).calendlyEventUri ?? ""),
       calendlyEventUrl: purifyString((raw as Record<string, string>).calendlyEventUrl ?? ""),
+      attachmentUrl: attachmentUrl ? purifyString(attachmentUrl) : purifyString((raw as Record<string, string>).attachmentUrl ?? ""),
+      attachmentPublicId: attachmentPublicId ? purifyString(attachmentPublicId) : purifyString((raw as Record<string, string>).attachmentPublicId ?? ""),
     };
 
     // Extra injection check after purify

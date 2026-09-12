@@ -76,6 +76,7 @@ const Hero = () => {
         <div className="lg:col-span-5 relative w-full flex items-center justify-center">
           <div className="w-full h-[500px] relative rounded-xl overflow-hidden">
             <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+              <source src="/hero-boomerang.webm" type="video/webm" />
               <source src="/model2.mp4" type="video/mp4" />
             </video>
           </div>

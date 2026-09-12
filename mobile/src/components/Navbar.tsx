@@ -9,6 +9,7 @@ type NavLink = {
 
 const NAV_LINKS: readonly NavLink[] = [
   { label: "Services", target: "services" },
+  { label: "Work", target: "work" },
   { label: "Tech Stack", target: "tech" },
   { label: "Contact", target: "contact" },
 ] as const;

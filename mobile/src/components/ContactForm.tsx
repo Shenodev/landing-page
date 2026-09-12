@@ -63,7 +63,12 @@ const ContactForm = () => {
 
     setStatus("submitting");
     try {
-      const backendUrl: string = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:4000";
+      const backendUrl: string | undefined = process.env.EXPO_PUBLIC_API_URL;
+      if (!backendUrl) {
+        setError("API URL not configured");
+        setStatus("error");
+        return;
+      }
       const res: Response = await fetch(`${backendUrl}/api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

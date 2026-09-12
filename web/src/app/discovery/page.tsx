@@ -33,6 +33,7 @@ type CalendlyEvent = {
 const DiscoveryPage = () => {
   const [step, setStep] = useState<1 | 2>(1);
   const [formData, setFormData] = useState<DiscoveryFormData | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -63,39 +64,30 @@ const DiscoveryPage = () => {
     try {
       const event = e as CalendlyEvent;
       const eventUri: string = event?.event?.uri || "";
-      // Extract date/time from Calendly event if available, else use now
       const now = new Date();
       const meetingDate: string = now.toISOString().split("T")[0];
       const meetingTime: string = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       const meetingUrl: string = eventUri || `https://calendly.com/shenodev/${formData.email}`;
 
-      const payload = {
-        ...formData,
-        meetingDate,
-        meetingTime,
-        meetingUrl,
-        calendlyEventUri: eventUri,
-        calendlyEventUrl: eventUri,
-      };
-
-      const backendUrl: string = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-      // Try correct backend port (4000) with fallback to 5000 per spec
-      const urls = [`${backendUrl}/api/discovery`, "http://localhost:4000/api/discovery", "http://localhost:5000/api/discovery"];
-      let res: Response | null = null;
-      let lastError: string = "";
-      for (const url of urls) {
-        try {
-          res = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-          if (res.ok || res.status === 400) break;
-        } catch (err: unknown) {
-          lastError = err instanceof Error ? err.message : String(err);
+      const backendUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
+      if (!backendUrl) throw new Error("NEXT_PUBLIC_API_URL not configured");
+      const isMultipart: boolean = !!selectedFile;
+      const res: Response = await (async (): Promise<Response> => {
+        if (isMultipart) {
+          const fd = new FormData();
+          Object.entries({ ...formData, meetingDate, meetingTime, meetingUrl, calendlyEventUri: eventUri, calendlyEventUrl: eventUri }).forEach(([k, v]) =>
+            fd.append(k, v as string)
+          );
+          if (selectedFile) fd.append("attachment", selectedFile);
+          return fetch(`${backendUrl}/api/discovery`, { method: "POST", body: fd });
         }
-      }
-      if (!res) throw new Error(lastError || "Failed to connect to backend");
+        const payload = { ...formData, meetingDate, meetingTime, meetingUrl, calendlyEventUri: eventUri, calendlyEventUrl: eventUri };
+        return fetch(`${backendUrl}/api/discovery`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      })();
       if (!res.ok) {
         const data = (await res.json().catch(() => ({ message: "Submission failed" }))) as { message: string };
         throw new Error(data.message || `Server ${res.status}`);
@@ -317,6 +309,28 @@ const DiscoveryPage = () => {
                     <label className="block text-[14px] font-medium text-on-surface">Extra Details</label>
                     <input {...register("extraDetails")} className="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-[15px] text-on-surface placeholder-outline/50 focus:ring-2 focus:ring-primary outline-none" placeholder="NDA, priority, etc." />
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-[14px] font-medium text-on-surface">Additional Files, RFPs, Wireframes, or Specs</label>
+                  <div className="border-2 border-dashed border-outline-variant/50 hover:border-primary/60 bg-surface-container-lowest/60 rounded-xl p-6 text-center transition-colors">
+                    <input
+                      type="file"
+                      accept="image/*,.pdf,.zip,.doc,.docx"
+                      onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
+                      className="hidden"
+                      id="discovery-file"
+                    />
+                    <label htmlFor="discovery-file" className="flex flex-col items-center justify-center gap-2 cursor-pointer">
+                      <span className="material-symbols-outlined text-primary text-2xl">cloud_upload</span>
+                      <span className="text-[13px] text-on-surface font-medium">
+                        {selectedFile ? selectedFile.name : "Drag & drop files or browse"}
+                      </span>
+                      <span className="text-[11px] text-outline">PDF, Figma links, DOCX, ZIP (Max 10MB) — stored via Cloudinary</span>
+                    </label>
+                  </div>
+                  {selectedFile && (
+                    <p className="text-[11px] text-primary">Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)</p>
+                  )}
                 </div>
               </div>
 

@@ -88,19 +88,15 @@ const DiscoveryScreen = ({ onBack }: Props) => {
     setSubmitting(true);
     try {
       const payload = { ...form, ...meeting, calendlyEventUrl: meeting.calendlyEventUrl || meeting.meetingUrl };
-      const backendUrl: string = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:4000";
-      const urls = [`${backendUrl}/api/discovery`, "http://localhost:4000/api/discovery", "http://localhost:5000/api/discovery"];
-      let res: Response | null = null;
-      for (const url of urls) {
-        try {
-          res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-          if (res.ok || res.status === 400) break;
-        } catch (e) {
-          console.warn("[discovery] fetch failed for", url, e);
-        }
-      }
-      if (!res || !res.ok) {
-        const d = res ? ((await res.json().catch(() => ({ message: "Failed" }))) as { message: string }).message : "No response";
+      const backendUrl: string | undefined = process.env.EXPO_PUBLIC_API_URL;
+      if (!backendUrl) throw new Error("EXPO_PUBLIC_API_URL not configured");
+      const res: Response = await fetch(`${backendUrl}/api/discovery`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const d = ((await res.json().catch(() => ({ message: "Failed" }))) as { message: string }).message;
         throw new Error(d);
       }
       Alert.alert("Success", "Discovery submitted! We will review within 24-48 hours and your meeting is confirmed.", [{ text: "OK", onPress: () => onBack?.() }]);

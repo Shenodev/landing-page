@@ -71,7 +71,12 @@ const ContactForm = () => {
       return;
     }
 
-    const backendUrl: string = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+    const backendUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
+    if (!backendUrl) {
+      setErrorMsg("API URL not configured. Set NEXT_PUBLIC_API_URL.");
+      setStatus("error");
+      return;
+    }
 
     try {
       const res: Response = await fetch(`${backendUrl}/api/contact`, {

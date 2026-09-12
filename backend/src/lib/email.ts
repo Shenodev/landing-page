@@ -15,6 +15,76 @@ const getResend = (): InstanceType<typeof Resend> | null => {
   return resendInstance;
 };
 
+// Domain configuration for Resend - primary pending DNS, fallback verified
+export const PRIMARY_DOMAIN = "shenodev.tech";
+export const FALLBACK_DOMAIN = "shenodev.dpdns.org";
+const PRIMARY_FROM = `ShenoDev <hello@${PRIMARY_DOMAIN}>`;
+const FALLBACK_FROM = `ShenoDev <hello@${FALLBACK_DOMAIN}>`;
+const PRIMARY_ADMIN = `admin@${PRIMARY_DOMAIN}`;
+const FALLBACK_ADMIN = `admin@${FALLBACK_DOMAIN}`;
+
+/**
+ * Robust wrapper with dynamic domain fallback for Resend.
+ * TRY primary domain (shenodev.tech), CATCH fallback (shenodev.dpdns.org).
+ * Logs clearly which domain succeeded.
+ */
+export const sendResendEmail = async (params: {
+  to?: string;
+  replyTo?: string;
+  subject: string;
+  htmlContent: string;
+  isAdminNotification: boolean;
+}): Promise<{ id?: string }> => {
+  const { to, replyTo, subject, htmlContent, isAdminNotification } = params;
+  const resend = getResend();
+  if (!resend) {
+    console.warn("[email] Skipping sendResendEmail - no Resend instance");
+    return {};
+  }
+
+  // Determine recipients based on domain and notification type
+  const primaryTo: string = isAdminNotification ? PRIMARY_ADMIN : to ?? replyTo ?? "";
+  const fallbackTo: string = isAdminNotification ? FALLBACK_ADMIN : to ?? replyTo ?? "";
+
+  if (!primaryTo) {
+    console.error("[email] sendResendEmail missing recipient", { isAdminNotification, to, replyTo });
+    return {};
+  }
+
+  // TRY primary domain
+  try {
+    const result = (await resend.emails.send({
+      from: PRIMARY_FROM,
+      to: primaryTo,
+      subject,
+      html: htmlContent,
+      ...(replyTo ? { replyTo } : {}),
+    } as never)) as { id?: string };
+    console.log(`[email] Sent via PRIMARY domain ${PRIMARY_DOMAIN} to ${primaryTo} | subject: ${subject} | id: ${result?.id ?? "unknown"}`);
+    return { id: result?.id };
+  } catch (primaryErr: unknown) {
+    const primaryMsg: string = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
+    console.warn(`[email] Primary domain ${PRIMARY_DOMAIN} failed for ${primaryTo}: ${primaryMsg} — retrying via FALLBACK ${FALLBACK_DOMAIN}`);
+
+    // CATCH retry with fallback domain
+    try {
+      const fallbackResult = (await resend.emails.send({
+        from: FALLBACK_FROM,
+        to: fallbackTo,
+        subject,
+        html: htmlContent,
+        ...(replyTo ? { replyTo } : {}),
+      } as never)) as { id?: string };
+      console.log(`[email] Sent via FALLBACK domain ${FALLBACK_DOMAIN} to ${fallbackTo} | subject: ${subject} | id: ${fallbackResult?.id ?? "unknown"}`);
+      return { id: fallbackResult?.id };
+    } catch (fallbackErr: unknown) {
+      const fallbackMsg: string = fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr);
+      console.error(`[email] Fallback domain ${FALLBACK_DOMAIN} also failed for ${fallbackTo}: ${fallbackMsg}`);
+      throw fallbackErr;
+    }
+  }
+};
+
 export type ContactEmailData = {
   name: string;
   email: string;
@@ -66,19 +136,27 @@ export const sendContactEmails = async (data: ContactEmailData): Promise<{ admin
     `,
   };
 
+  // Refactored to use wrapper for dynamic domain fallback
   try {
-    const results = await Promise.all([
-      resend.emails.send(adminEmail),
-      resend.emails.send(welcomeEmail),
+    const [adminResult, welcomeResult] = await Promise.all([
+      sendResendEmail({
+        replyTo: email,
+        subject: adminEmail.subject,
+        htmlContent: adminEmail.html,
+        isAdminNotification: true,
+      }),
+      sendResendEmail({
+        to: email,
+        subject: welcomeEmail.subject,
+        htmlContent: welcomeEmail.html,
+        isAdminNotification: false,
+      }),
     ]);
-    const adminId = (results[0] as { id?: string })?.id;
-    const welcomeId = (results[1] as { id?: string })?.id;
-    console.log("[email] Sent admin + welcome", { adminId, welcomeId });
-    return { adminId, welcomeId };
+    console.log("[email] Sent contact admin + welcome via wrapper", { adminId: adminResult.id, welcomeId: welcomeResult.id });
+    return { adminId: adminResult.id, welcomeId: welcomeResult.id };
   } catch (err: unknown) {
     const msg: string = err instanceof Error ? err.message : String(err);
-    console.error("[email] Failed to send contact emails:", msg);
-    // Do not throw - degraded UX, still return 201 for contact submission
+    console.error("[email] Failed to send contact emails (wrapper):", msg);
     return {};
   }
 };
@@ -104,6 +182,8 @@ export type DiscoveryEmailData = {
   meetingUrl: string;
   calendlyEventUri: string;
   calendlyEventUrl: string;
+  attachmentUrl: string;
+  attachmentPublicId: string;
 };
 
 export const sendDiscoveryEmails = async (data: DiscoveryEmailData): Promise<{ adminId?: string; welcomeId?: string }> => {
@@ -134,10 +214,13 @@ export const sendDiscoveryEmails = async (data: DiscoveryEmailData): Promise<{ a
     meetingUrl,
     calendlyEventUri,
     calendlyEventUrl,
+    attachmentUrl,
+    attachmentPublicId,
   } = data;
 
   const meetingLink = meetingUrl || calendlyEventUri || calendlyEventUrl || "";
   const meetingDisplay = [meetingDate, meetingTime].filter(Boolean).join(" ") || "-";
+  const attachmentDisplay = attachmentUrl ? `<a href="${attachmentUrl}" style="color:#06B6D4;">${attachmentUrl}</a>` : "-";
 
   const adminHtml = `
       <div style="font-family:system-ui;padding:24px;background:#0F172A;color:#F8FAFC;">
@@ -162,6 +245,7 @@ export const sendDiscoveryEmails = async (data: DiscoveryEmailData): Promise<{ a
           <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Meeting Time</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;">${meetingTime || "-"}</td></tr>
           <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Meeting Link</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;">${meetingLink ? `<a href="${meetingLink}" style="color:#06B6D4;">${meetingLink}</a>` : "-"}</td></tr>
           <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Calendly URI</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;">${calendlyEventUri || calendlyEventUrl || "-"}</td></tr>
+          <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Attachment</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;">${attachmentDisplay}</td></tr>
         </table>
       </div>
     `;
@@ -196,15 +280,27 @@ export const sendDiscoveryEmails = async (data: DiscoveryEmailData): Promise<{ a
     html: welcomeHtml,
   };
 
+  // Refactored to use wrapper for domain fallback (primary shenodev.tech -> fallback shenodev.dpdns.org)
   try {
-    const results = await Promise.all([resend.emails.send(adminEmail), resend.emails.send(welcomeEmail)]);
-    const adminId = (results[0] as { id?: string })?.id;
-    const welcomeId = (results[1] as { id?: string })?.id;
-    console.log("[email] Sent discovery admin + welcome", { adminId, welcomeId });
-    return { adminId, welcomeId };
+    const [adminResult, welcomeResult] = await Promise.all([
+      sendResendEmail({
+        replyTo: email,
+        subject: adminEmail.subject,
+        htmlContent: adminEmail.html,
+        isAdminNotification: true,
+      }),
+      sendResendEmail({
+        to: email,
+        subject: welcomeEmail.subject,
+        htmlContent: welcomeEmail.html,
+        isAdminNotification: false,
+      }),
+    ]);
+    console.log("[email] Sent discovery admin + welcome via wrapper", { adminId: adminResult.id, welcomeId: welcomeResult.id });
+    return { adminId: adminResult.id, welcomeId: welcomeResult.id };
   } catch (err: unknown) {
     const msg: string = err instanceof Error ? err.message : String(err);
-    console.error("[email] Failed to send discovery emails:", msg);
+    console.error("[email] Failed to send discovery emails (wrapper):", msg);
     return {};
   }
 };

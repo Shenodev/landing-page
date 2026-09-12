@@ -3,7 +3,8 @@ const path = require('path');
 
 // Keep window reference to prevent GC
 let mainWindow = null;
-const WEB_URL = process.env.ELECTRON_WEB_URL || 'http://localhost:3000';
+// Future-proof: uses NEXT_PUBLIC_API_URL pattern - switches localhost:3000 <-> https://shenodev.tech
+const WEB_URL = process.env.ELECTRON_WEB_URL || (process.env.NODE_ENV === 'production' ? 'https://shenodev.tech' : 'http://localhost:3000');
 const isDev = process.env.NODE_ENV === 'development';
 
 function createWindow() {

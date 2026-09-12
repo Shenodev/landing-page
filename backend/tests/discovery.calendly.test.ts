@@ -36,7 +36,6 @@ describe("POST /api/discovery - Calendly Integration (TDD)", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.RESEND_API_KEY = "re_test_calendly_123";
-    process.env.CALENDLY_API_TOKEN = "test_calendly_token";
     process.env.NODE_ENV = "test";
   });
 
@@ -100,11 +99,12 @@ describe("POST /api/discovery - Calendly Integration (TDD)", () => {
     expect(nosql.status).toBe(400);
   });
 
-  it("should use CALENDLY_API_TOKEN from env, not hardcoded", async () => {
-    expect(process.env.CALENDLY_API_TOKEN).toBe("test_calendly_token");
+  it("should handle discovery without server Calendly token (client payload only)", async () => {
+    // After cleanup, server does not require CALENDLY_API_TOKEN - relies on client onEventScheduled
     delete process.env.CALENDLY_API_TOKEN;
+    delete process.env.CALENDLY_WEBHOOK_SECRET;
     const res = await request(app).post("/api/discovery").send(validDiscoveryWithMeeting);
-    expect([201, 400]).toContain(res.status);
-    process.env.CALENDLY_API_TOKEN = "test_calendly_token";
+    expect(res.status).toBe(201);
+    expect(res.body.data.meetingDate).toBe("2026-09-20");
   });
 });

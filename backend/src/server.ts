@@ -1,11 +1,12 @@
 import dotenv from 'dotenv';
 import { createApp } from './app';
 import { connectDB } from './config/db';
+import { env } from './config/env';
 
 dotenv.config();
 
-const PORT: number = parseInt(process.env.PORT ?? '4000', 10);
-const NODE_ENV: string = process.env.NODE_ENV ?? 'development';
+const PORT: number = env.PORT ?? parseInt(process.env.PORT ?? '5000', 10);
+const NODE_ENV: string = env.NODE_ENV ?? process.env.NODE_ENV ?? 'development';
 
 const startServer = async (): Promise<void> => {
   try {

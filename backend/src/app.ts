@@ -6,6 +6,7 @@ import { env, allowedOrigins } from './config/env';
 import healthRouter from './routes/health';
 import contactRouter from './routes/contact';
 import discoveryRouter from './routes/discovery';
+import projectsRouter from './routes/projects';
 import { notFoundHandler, globalErrorHandler } from './middleware/errorHandler';
 
 export const createApp = (): Express => {
@@ -23,20 +24,19 @@ export const createApp = (): Express => {
     })
   );
 
-  // CORS whitelist - senior production standard (no origin:true)
+  // CORS whitelist - strict production standard: ONLY localhost:3000, localhost:8081, https://shenodev.tech
   const corsOptions: CorsOptions = {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      // Allow non-browser requests (curl, mobile) with no origin, and allowed list
       if (!origin) {
         callback(null, true);
         return;
       }
-      if (allowedOrigins.includes(origin) || (env.NODE_ENV === 'development' && origin.startsWith('http://localhost'))) {
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
         return;
       }
-      // Allow Expo Go exp:// and null for dev
-      if (origin.startsWith('exp://') || origin.startsWith('http://192.168.')) {
+      // In development, allow localhost:* for flexibility, but still strict to 3000/8081
+      if (env.NODE_ENV === 'development' && (origin === 'http://localhost:3000' || origin === 'http://localhost:8081')) {
         callback(null, true);
         return;
       }
@@ -84,6 +84,7 @@ export const createApp = (): Express => {
   app.use('/api', healthRouter);
   app.use('/api', contactRouter);
   app.use('/api', discoveryRouter);
+  app.use('/api', projectsRouter);
 
   // 404 handler - must be after all routes
   app.use(notFoundHandler);

@@ -21,6 +21,8 @@ export interface IDiscovery extends Document {
   meetingUrl: string;
   calendlyEventUri: string;
   calendlyEventUrl: string;
+  attachmentUrl: string;
+  attachmentPublicId: string;
   ip?: string;
   createdAt: Date;
 }
@@ -47,6 +49,8 @@ const DiscoverySchema: Schema<IDiscovery> = new Schema<IDiscovery>(
     meetingUrl: { type: String, required: false, trim: true },
     calendlyEventUri: { type: String, required: false, trim: true },
     calendlyEventUrl: { type: String, required: false, trim: true },
+    attachmentUrl: { type: String, required: false, trim: true },
+    attachmentPublicId: { type: String, required: false, trim: true },
     ip: { type: String, required: false },
   },
   {

@@ -1,0 +1,180 @@
+name: Release - ShenoDev Workspace
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # ──────────────────────────────────────────────
+  # Desktop (Electron) - Matrix: Windows, macOS, Linux
+  # ──────────────────────────────────────────────
+  desktop:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            platform: win
+            artifact: ShenoDev-Setup-*.exe
+            build_cmd: npm run build
+          - os: macos-latest
+            platform: mac
+            artifact: ShenoDev-*.dmg
+            build_cmd: npm run build
+          - os: ubuntu-latest
+            platform: linux
+            artifact: ShenoDev-*.tar.gz
+            build_cmd: npm run build
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: desktop/node_modules
+          key: ${{ runner.os }}-desktop-${{ hashFiles('desktop/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-desktop-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build - ${{ matrix.platform }}
+        run: ${{ matrix.build_cmd }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: List dist
+        run: ls -R dist || dir dist /s
+        shell: bash
+
+      - name: Upload artifact - ${{ matrix.platform }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.platform }}
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/*.dmg
+            desktop/dist/*.tar.gz
+            desktop/dist/*.zip
+          if-no-files-found: warn
+          retention-days: 14
+
+  # ──────────────────────────────────────────────
+  # Mobile (Expo) - Android APK via EAS
+  # ──────────────────────────────────────────────
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Setup Expo & EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: mobile/node_modules
+          key: ${{ runner.os }}-mobile-${{ hashFiles('mobile/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-mobile-
+
+      - name: Cache EAS
+        uses: actions/cache@v4
+        with:
+          path: ~/.eas
+          key: ${{ runner.os }}-eas-${{ hashFiles('mobile/eas.json') }}
+          restore-keys: |
+            ${{ runner.os }}-eas-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Android APK (EAS)
+        run: eas build --platform android --profile production --non-interactive --no-wait
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      # For local APK without EAS cloud (fallback if EAS not configured):
+      # Alternatively, if EAS is not set up, this will produce a local APK via expo export + gradle
+      - name: Fallback - Check EAS build status
+        run: |
+          echo "EAS build triggered. APK will be available via EAS dashboard."
+          echo "To generate local APK without EAS cloud, run: npx expo prebuild && cd android && ./gradlew assembleRelease"
+
+      - name: Upload APK artifact (if local)
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-android-apk
+          path: |
+            mobile/dist/*.apk
+            mobile/android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: warn
+          retention-days: 14
+
+  # ──────────────────────────────────────────────
+  # GitHub Release - Attach all 4 binaries
+  # ──────────────────────────────────────────────
+  release:
+    needs: [desktop, mobile]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -R artifacts || find artifacts -type f
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/**/*.exe
+            artifacts/**/*.dmg
+            artifacts/**/*.tar.gz
+            artifacts/**/*.apk
+            artifacts/**/*.aab
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
