@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Project Discovery Questionnaire | ShenoDev</title>
+    <!-- Google Fonts: Sora & Inter -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Sora:wght@400;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Material Symbols Outlined -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Tailwind CSS with Forms and Container Queries -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#0b1326",
+                        "surface-bright": "#31394d",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-tint": "#4cd7f6",
+                        "inverse-surface": "#dae2fd",
+                        "on-primary-fixed-variant": "#004e5c",
+                        "on-secondary-container": "#e6ecff",
+                        "error": "#ffb4ab",
+                        "on-tertiary-container": "#00452e",
+                        "tertiary": "#4edea3",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-fixed": "#001f26",
+                        "primary-fixed-dim": "#4cd7f6",
+                        "outline-variant": "#3d494c",
+                        "on-tertiary": "#003824",
+                        "on-background": "#dae2fd",
+                        "inverse-primary": "#00687a",
+                        "primary-container": "#06b6d4",
+                        "error-container": "#93000a",
+                        "primary-fixed": "#acedff",
+                        "surface-container": "#171f33",
+                        "surface-container-lowest": "#060e20",
+                        "surface-container-highest": "#2d3449",
+                        "outline": "#869397",
+                        "on-secondary": "#002e6a",
+                        "surface": "#0b1326",
+                        "on-primary": "#003640",
+                        "surface-dim": "#0b1326",
+                        "on-tertiary-fixed": "#002113",
+                        "primary": "#4cd7f6",
+                        "secondary-container": "#0566d9",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "tertiary-fixed": "#6ffbbe",
+                        "surface-variant": "#2d3449",
+                        "on-surface": "#dae2fd",
+                        "surface-container-low": "#131b2e",
+                        "on-secondary-fixed-variant": "#004395",
+                        "inverse-on-surface": "#283044",
+                        "on-secondary-fixed": "#001a42",
+                        "on-primary-container": "#00424f",
+                        "surface-container-high": "#222a3d",
+                        "on-surface-variant": "#bcc9cd",
+                        "secondary-fixed": "#d8e2ff",
+                        "tertiary-container": "#1bbd85",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "on-error": "#690005",
+                        "secondary": "#adc6ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "space-md": "1rem",
+                        "space-sm": "0.5rem",
+                        "margin": "3rem",
+                        "space-lg": "1.5rem",
+                        "space-xs": "0.25rem",
+                        "gutter": "1.5rem",
+                        "gutter-mobile": "1rem",
+                        "margin-mobile": "1.25rem",
+                        "space-xl": "2.5rem"
+                    },
+                    "fontFamily": {
+                        "display-hero": ["Sora"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-hero-mobile": ["Sora"],
+                        "label-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Sora"],
+                        "title-md": ["Sora"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Sora"],
+                        "headline-sm": ["Sora"],
+                        "headline-lg-mobile": ["Sora"]
+                    },
+                    "fontSize": {
+                        "display-hero": ["64px", { "lineHeight": "72px", "fontWeight": "800" }],
+                        "body-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-hero-mobile": ["40px", { "lineHeight": "48px", "fontWeight": "800" }],
+                        "label-sm": ["11px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "body-md": ["15px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["30px", { "lineHeight": "38px", "fontWeight": "600" }],
+                        "title-md": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "headline-lg": ["48px", { "lineHeight": "56px", "fontWeight": "700" }],
+                        "headline-sm": ["22px", { "lineHeight": "30px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 20px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Subtle radial background atmosphere */
+        .glow-radial {
+            background: radial-gradient(circle 800px at 50% -100px, rgba(6, 182, 212, 0.12), transparent 80%);
+        }
+
+        /* Glass card highlight accent line */
+        .card-top-glow {
+            background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.4), transparent);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background text-on-surface antialiased min-h-screen flex flex-col selection:bg-primary/20 selection:text-primary">
+    <!-- TopNavBar (Shared Component) -->
+    <header class="docked full-width top-0 sticky z-50 bg-surface/80 dark:bg-surface/80 backdrop-blur-md shadow-sm">
+        <div class="flex justify-between items-center w-full px-6 md:px-12 max-w-[1320px] mx-auto h-20">
+            <!-- Brand Logo -->
+            <a class="flex items-center gap-1 group" href="#">
+                <span
+                    class="text-title-md font-title-md font-bold text-on-surface dark:text-on-surface tracking-tight">ShenoDev</span>
+                <span
+                    class="h-2 w-2 rounded-full bg-primary inline-block group-hover:scale-125 transition-transform duration-200"></span>
+            </a>
+            <!-- Desktop Nav Links -->
+            <nav class="hidden md:flex items-center gap-8">
+                <a class="text-label-md font-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-on-surface transition-colors hover:text-primary transition-colors duration-200"
+                    href="#services">Services</a>
+                <a class="text-label-md font-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-on-surface transition-colors hover:text-primary transition-colors duration-200"
+                    href="#work">Work</a>
+                <a class="text-label-md font-label-md text-primary dark:text-primary font-medium hover:text-primary transition-colors duration-200"
+                    href="#contact">Contact</a>
+            </nav>
+            <!-- Trailing Action -->
+            <div class="flex items-center gap-4">
+                <a class="px-5 py-2.5 rounded-lg bg-surface-container-high border border-outline-variant/30 text-label-md font-label-md text-on-surface hover:border-primary/50 transition-colors active:scale-95 duration-150"
+                    href="#contact">
+                    Get a Quote
+                </a>
+            </div>
+        </div>
+    </header>
+    <!-- Main Canvas -->
+    <main class="flex-grow glow-radial relative overflow-hidden py-12 md:py-20 px-4 md:px-8">
+        <div class="max-w-[880px] mx-auto">
+            <!-- Hero Header Section -->
+            <div class="text-center space-y-4 mb-14">
+                <!-- Badge -->
+                <div
+                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container-low border border-outline-variant/40 shadow-inner">
+                    <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                    <span class="text-label-sm font-label-sm text-primary tracking-wide">SHENODEV ONBOARDING | Project
+                        Discovery</span>
+                </div>
+                <!-- Headline -->
+                <h1 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg text-on-surface tracking-tight">
+                    Tell Us About Your Vision
+                </h1>
+                <!-- Subheading -->
+                <p class="text-body-md md:text-body-lg font-body-lg text-on-surface-variant max-w-2xl mx-auto">
+                    Help us engineer the ideal digital architecture for your business. Fill out this discovery
+                    questionnaire to get a precise scope, roadmap, and proposal.
+                </p>
+                <!-- Progress Indicator & Estimated Time -->
+                <div
+                    class="pt-4 flex flex-wrap items-center justify-center gap-6 text-label-sm font-label-sm text-outline">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-base">schedule</span>
+                        <span>~5-7 minutes completion</span>
+                    </div>
+                    <span class="text-outline-variant/50 hidden sm:inline">•</span>
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-tertiary text-base">verified</span>
+                        <span>5 Core Architecture Steps</span>
+                    </div>
+                    <span class="text-outline-variant/50 hidden sm:inline">•</span>
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-base">lock</span>
+                        <span>NDA Protected &amp; Confidential</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Discovery Multi-Section Form -->
+            <form class="space-y-10" onsubmit="event.preventDefault();">
+                <!-- SECTION 1: Basic Information -->
+                <div
+                    class="relative bg-surface-container-low/70 backdrop-blur-md border border-outline-variant/30 hover:border-primary/40 transition-colors p-6 md:p-10 rounded-xl space-y-6">
+                    <div class="absolute top-0 left-0 right-0 h-[1px] card-top-glow rounded-t-xl"></div>
+                    <div class="flex items-center justify-between pb-4 border-b border-outline-variant/20">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="flex items-center justify-center w-8 h-8 rounded-lg bg-surface-container-high text-primary font-headline-sm text-sm border border-outline-variant/40">01</span>
+                            <div>
+                                <h2 class="text-title-md font-title-md text-on-surface">Basic Information</h2>
+                                <p class="text-body-sm font-body-sm text-on-surface-variant">Primary point of contact
+                                    for architectural review</p>
+                            </div>
+                        </div>
+                        <span
+                            class="text-label-sm font-label-sm text-primary bg-primary/10 px-2.5 py-1 rounded">Required</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Full Name -->
+                        <div class="space-y-2">
+                            <label class="block text-label-md font-label-md text-on-surface" for="fullName">
+                                Full Name <span class="text-primary">*</span>
+                            </label>
+                            <div class="relative">
+                                <input
+                                    class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-body-md font-body-md text-on-surface placeholder-outline/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-all"
+                                    id="fullName" placeholder="Alex Vance" required="" type="text" />
+                            </div>
+                        </div>
+                        <!-- Company Name -->
+                        <div class="space-y-2">
+                            <label class="block text-label-md font-label-md text-on-surface" for="companyName">
+                                Company / Project Name <span class="text-primary">*</span>
+                            </label>
+                            <div class="relative">
+                                <input
+                                    class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-body-md font-body-md text-on-surface placeholder-outline/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-all"
+                                    id="companyName" placeholder="Vance Dynamics Corp" required="" type="text" />
+                            </div>
+                        </div>
+                        <!-- Work Email -->
+                        <div class="space-y-2">
+                            <label class="block text-label-md font-label-md text-on-surface" for="workEmail">
+                                Work Email <span class="text-primary">*</span>
+                            </label>
+                            <div class="relative">
+                                <input
+                                    class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-body-md font-body-md text-on-surface placeholder-outline/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-all"
+                                    id="workEmail" placeholder="alex@vancedynamics.io" required="" type="email" />
+                            </div>
+                        </div>
+                        <!-- Phone / WhatsApp -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="block text-label-md font-label-md text-on-surface" for="phoneWhatsApp">
+                                    Phone / WhatsApp
+                                </label>
+                                <span class="text-label-sm font-label-sm text-outline">Direct line for sync</span>
+                            </div>
+                            <div class="relative">
+                                <input
+                                    class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-body-md font-body-md text-on-surface placeholder-outline/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-all"
+                                    id="phoneWhatsApp" placeholder="+20 100 000 0000 / +1 (555) 019-2831" type="tel" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- SECTION 2: Business & Audience -->
+                <div
+                    class="relative bg-surface-container-low/70 backdrop-blur-md border border-outline-variant/30 hover:border-primary/40 transition-colors p-6 md:p-10 rounded-xl space-y-6">
+                    <div class="absolute top-0 left-0 right-0 h-[1px] card-top-glow rounded-t-xl"></div>
+                    <div class="flex items-center justify-between pb-4 border-b border-outline-variant/20">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="flex items-center justify-center w-8 h-8 rounded-lg bg-surface-container-high text-primary font-headline-sm text-sm border border-outline-variant/40">02</span>
+                            <div>
+                                <h2 class="text-title-md font-title-md text-on-surface">Business &amp; Audience</h2>
+                                <p class="text-body-sm font-body-sm text-on-surface-variant">Defining your value
+                                    proposition and market ecosystem</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <!-- Core Product/Service Description -->
+                        <div class="space-y-2">
+                            <label class="block text-label-md font-label-md text-on-surface" for="productDescription">
+                                Core Product / Service Description
+                            </label>
+                            <textarea
+                                class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-body-md font-body-md text-on-surface placeholder-outline/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-all"
+                                id="productDescription"
+                                placeholder="Briefly describe what your organization does, the core problem it solves, and the main product or offering..."
+                                rows="3"></textarea>
+                        </div>
+                        <!-- Target Audience -->
+                        <div class="space-y-2">
+                            <label class="block text-label-md font-label-md text-on-surface" for="targetAudience">
+                                Target Audience &amp; Ideal Customer Profile (ICP)
+                            </label>
+                            <textarea
+                                class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-body-md font-body-md text-on-surface placeholder-outline/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-all"
+                                id="targetAudience"
+                                placeholder="Who is the ultimate decision maker or consumer? (e.g. B2B enterprise procurement leads, seed-stage founders, tech-savvy Gen Z...)"
+                                rows="2"></textarea>
+                        </div>
+                        <!-- Top Competitors -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="block text-label-md font-label-md text-on-surface" for="competitors">
+                                    Top 2-3 Competitors or Category Benchmarks
+                                </label>
+                                <span class="text-label-sm font-label-sm text-outline">URLs &amp; Notes</span>
+                            </div>
+                            <textarea
+                                class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-body-md font-body-md text-on-surface placeholder-outline/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-all"
+                                id="competitors" placeholder="1. https://competitor-one.com (Fast checkout flow)
+2. https://competitor-two.com (Great feature comparison matrix)" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <!-- SECTION 3: Design & Branding -->
+                <div
+                    class="relative bg-surface-container-low/70 backdrop-blur-md border border-outline-variant/30 hover:border-primary/40 transition-colors p-6 md:p-10 rounded-xl space-y-6">
+                    <div class="absolute top-0 left-0 right-0 h-[1px] card-top-glow rounded-t-xl"></div>
+                    <div class="flex items-center justify-between pb-4 border-b border-outline-variant/20">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="flex items-center justify-center w-8 h-8 rounded-lg bg-surface-container-high text-primary font-headline-sm text-sm border border-outline-variant/40">03</span>
+                            <div>
+                                <h2 class="text-title-md font-title-md text-on-surface">Design &amp; Branding</h2>
+                                <p class="text-body-sm font-body-sm text-on-surface-variant">Visual guidelines,
+                                    aesthetic tone, and design preferences</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Brand Identity Status -->
+                    <div class="space-y-3">
+                        <label class="block text-label-md font-label-md text-on-surface">
+                            Current Brand Identity Status
+                        </label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Option 1 -->
+                            <label
+                                class="relative flex flex-col p-4 rounded-xl border border-outline-variant/40 bg-surface-container-lowest/80 cursor-pointer hover:border-primary/60 transition-all">
+                                <input checked="" class="sr-only peer" name="brand_status" type="radio" value="ready" />
+                                <div class="flex items-center justify-between mb-2">
+                                    <span
+                                        class="text-title-md font-title-md text-on-surface peer-checked:text-primary">Ready
+                                        &amp; Documented</span>
+                                    <span
+                                        class="w-4 h-4 rounded-full border border-outline-variant peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center"></span>
+                                </div>
+                                <p class="text-body-sm font-body-sm text-on-surface-variant">Full design system, vector
+                                    logos, typography &amp; color guidelines available.</p>
+                                <div
+                                    class="absolute inset-0 rounded-xl border-2 border-primary opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity">
+                                </div>
+                            </label>
+                            <!-- Option 2 -->
+                            <label
+                                class="relative flex flex-col p-4 rounded-xl border border-outline-variant/40 bg-surface-container-lowest/80 cursor-pointer hover:border-primary/60 transition-all">
+                                <input class="sr-only peer" name="brand_status" type="radio" value="logo_only" />
+                                <div class="flex items-center justify-between mb-2">
+                                    <span
+                                        class="text-title-md font-title-md text-on-surface peer-checked:text-primary">Logo
+                                        Only</span>
+                                    <span
+                                        class="w-4 h-4 rounded-full border border-outline-variant peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center"></span>
+                                </div>
+                                <p class="text-body-sm font-body-sm text-on-surface-variant">We have a logo asset but
+                                    require digital styling and cohesive design palette.</p>
+                                <div
+                                    class="absolute inset-0 rounded-xl border-2 border-primary opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity">
+                                </div>
+                            </label>
+                            <!-- Option 3 -->
+                            <label
+                                class="relative flex flex-col p-4 rounded-xl border border-outline-variant/40 bg-surface-container-lowest/80 cursor-pointer hover:border-primary/60 transition-all">
+                                <input class="sr-only peer" name="brand_status" type="radio" value="need_identity" />
+                                <div class="flex items-center justify-between mb-2">
+                                    <span
+                                        class="text-title-md font-title-md text-on-surface peer-checked:text-primary">Need
+                                        Identity</span>
+                                    <span
+                                        class="w-4 h-4 rounded-full border border-outline-variant peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center"></span>
+                                </div>
+                                <p class="text-body-sm font-body-sm text-on-surface-variant">Complete brand identity
+                                    creation required from ground zero.</p>
+                                <div
+                                    class="absolute inset-0 rounded-xl border-2 border-primary opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <!-- Reference Websites -->
+                    <div class="space-y-2">
+                        <label class="block text-label-md font-label-md text-on-surface" for="referenceWebsites">
+                            Reference Websites and Why You Like Them
+                        </label>
+                        <textarea
+                            class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-body-md font-body-md text-on-surface placeholder-outline/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-all"
+                            id="referenceWebsites"
+                            placeholder="e.g. linear.app for smooth UX and keyboard shortcuts, stripe.com for visual hierarchy, raycast.com for dark aesthetic..."
+                            rows="3"></textarea>
+                    </div>
+                    <!-- Disliked Aesthetics -->
+                    <div class="space-y-2">
+                        <label class="block text-label-md font-label-md text-on-surface" for="dislikedStyles">
+                            Disliked Colors, Styles, or Aesthetics to Avoid
+                        </label>
+                        <textarea
+                            class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-body-md font-body-md text-on-surface placeholder-outline/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-all"
+                            id="dislikedStyles"
+                            placeholder="e.g. Avoid overly bright neon pinks, excessive decorative illustrations, cluttered dense sidebars..."
+                            rows="2"></textarea>
+                    </div>
+                </div>
+                <!-- SECTION 4: Technical Needs & Scope -->
+                <div
+                    class="relative bg-surface-container-low/70 backdrop-blur-md border border-outline-variant/30 hover:border-primary/40 transition-colors p-6 md:p-10 rounded-xl space-y-6">
+                    <div class="absolute top-0 left-0 right-0 h-[1px] card-top-glow rounded-t-xl"></div>
+                    <div class="flex items-center justify-between pb-4 border-b border-outline-variant/20">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="flex items-center justify-center w-8 h-8 rounded-lg bg-surface-container-high text-primary font-headline-sm text-sm border border-outline-variant/40">04</span>
+                            <div>
+                                <h2 class="text-title-md font-title-md text-on-surface">Technical Needs &amp; Scope</h2>
+                                <p class="text-body-sm font-body-sm text-on-surface-variant">Architecture packages,
+                                    critical features, and system integrations</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Target Package Selection -->
+                    <div class="space-y-3">
+                        <label class="block text-label-md font-label-md text-on-surface">
+                            Select Your Target Architecture Package
+                        </label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Tier 1 -->
+                            <label
+                                class="relative flex flex-col justify-between p-5 rounded-xl border border-outline-variant/40 bg-surface-container-lowest/80 cursor-pointer hover:border-primary/60 transition-all group">
+                                <input class="sr-only peer" name="pricing_tier" type="radio" value="corporate" />
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-title-md font-title-md text-on-surface">Corporate Site</span>
+                                        <span class="text-label-sm font-label-sm text-primary font-mono">10,000
+                                            EGP</span>
+                                    </div>
+                                    <p class="text-body-sm font-body-sm text-on-surface-variant">Fast, high-conversion,
+                                        SEO-engineered 3-5 page technical storefront.</p>
+                                </div>
+                                <div
+                                    class="mt-4 pt-3 border-t border-outline-variant/20 flex items-center justify-between">
+                                    <span class="text-label-sm font-label-sm text-outline">Turnaround: 7-10 Days</span>
+                                    <span
+                                        class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">check_circle</span>
+                                </div>
+                                <div
+                                    class="absolute inset-0 rounded-xl border-2 border-primary opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity">
+                                </div>
+                            </label>
+                            <!-- Tier 2 -->
+                            <label
+                                class="relative flex flex-col justify-between p-5 rounded-xl border border-primary/40 bg-surface-container-lowest/80 cursor-pointer hover:border-primary/80 transition-all group">
+                                <input checked="" class="sr-only peer" name="pricing_tier" type="radio"
+                                    value="dashboard" />
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-title-md font-title-md text-on-surface">Business
+                                            Dashboard</span>
+                                        <span class="text-label-sm font-label-sm text-primary font-mono">25,000
+                                            EGP</span>
+                                    </div>
+                                    <p class="text-body-sm font-body-sm text-on-surface-variant">Custom portal with
+                                        authentication, CRUD architecture, and data controls.</p>
+                                </div>
+                                <div
+                                    class="mt-4 pt-3 border-t border-outline-variant/20 flex items-center justify-between">
+                                    <span class="text-label-sm font-label-sm text-outline">Turnaround: 2-3 Weeks</span>
+                                    <span class="material-symbols-outlined text-primary">check_circle</span>
+                                </div>
+                                <div
+                                    class="absolute inset-0 rounded-xl border-2 border-primary opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity">
+                                </div>
+                            </label>
+                            <!-- Tier 3 -->
+                            <label
+                                class="relative flex flex-col justify-between p-5 rounded-xl border border-outline-variant/40 bg-surface-container-lowest/80 cursor-pointer hover:border-primary/60 transition-all group">
+                                <input class="sr-only peer" name="pricing_tier" type="radio" value="platform" />
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-title-md font-title-md text-on-surface">Full-Stack
+                                            Platform</span>
+                                        <span class="text-label-sm font-label-sm text-primary font-mono">45,000
+                                            EGP</span>
+                                    </div>
+                                    <p class="text-body-sm font-body-sm text-on-surface-variant">Bespoke distributed
+                                        system, automated jobs, robust database and API layer.</p>
+                                </div>
+                                <div
+                                    class="mt-4 pt-3 border-t border-outline-variant/20 flex items-center justify-between">
+                                    <span class="text-label-sm font-label-sm text-outline">Turnaround: 4-6 Weeks</span>
+                                    <span
+                                        class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">check_circle</span>
+                                </div>
+                                <div
+                                    class="absolute inset-0 rounded-xl border-2 border-primary opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <!-- Essential Features -->
+                    <div class="space-y-2">
+                        <label class="block text-label-md font-label-md text-on-surface" for="essentialFeatures">
+                            Top 3 Essential Features Needed
+                        </label>
+                        <textarea
+                            class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-body-md font-body-md text-on-surface placeholder-outline/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-all font-mono text-sm"
+                            id="essentialFeatures" placeholder="1. Magic link auth and role-based permissions
+2. Stripe / Paymob automated recurring billing checkout
+3. Real-time telemetry dashboard with exportable reports" rows="3"></textarea>
+                    </div>
+                    <!-- External Integrations -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="block text-label-md font-label-md text-on-surface" for="externalApis">
+                                External Integrations &amp; Third-Party APIs
+                            </label>
+                            <span class="text-label-sm font-label-sm text-outline">CRMs, Gateways, Auth</span>
+                        </div>
+                        <textarea
+                            class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-body-md font-body-md text-on-surface placeholder-outline/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-all"
+                            id="externalApis"
+                            placeholder="e.g. Resend (transactional email), HubSpot CRM, Stripe, Google Cloud Storage, OpenAI API..."
+                            rows="2"></textarea>
+                    </div>
+                </div>
+                <!-- SECTION 5: Project Logistics & Timeline -->
+                <div
+                    class="relative bg-surface-container-low/70 backdrop-blur-md border border-outline-variant/30 hover:border-primary/40 transition-colors p-6 md:p-10 rounded-xl space-y-6">
+                    <div class="absolute top-0 left-0 right-0 h-[1px] card-top-glow rounded-t-xl"></div>
+                    <div class="flex items-center justify-between pb-4 border-b border-outline-variant/20">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="flex items-center justify-center w-8 h-8 rounded-lg bg-surface-container-high text-primary font-headline-sm text-sm border border-outline-variant/40">05</span>
+                            <div>
+                                <h2 class="text-title-md font-title-md text-on-surface">Project Logistics &amp; Timeline
+                                </h2>
+                                <p class="text-body-sm font-body-sm text-on-surface-variant">Deadlines, wireframes, and
+                                    documentation handover</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Target Launch Date -->
+                        <div class="space-y-2">
+                            <label class="block text-label-md font-label-md text-on-surface" for="launchDate">
+                                Target Launch Date
+                            </label>
+                            <div class="relative">
+                                <input
+                                    class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-body-md font-body-md text-on-surface placeholder-outline/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-all [color-scheme:dark]"
+                                    id="launchDate" type="date" />
+                            </div>
+                            <p class="text-label-sm font-label-sm text-outline">Ideal delivery or deployment sprint end.
+                            </p>
+                        </div>
+                        <!-- Priority Focus -->
+                        <div class="space-y-2">
+                            <label class="block text-label-md font-label-md text-on-surface" for="priorityMetric">
+                                Primary Development Priority
+                            </label>
+                            <select
+                                class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-body-md font-body-md text-on-surface focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-all [color-scheme:dark]"
+                                id="priorityMetric">
+                                <option value="speed">Fastest Time to Market (MVP speed)</option>
+                                <option value="scalability">High Scalability &amp; Cloud Architecture</option>
+                                <option value="design">Pixel-Perfect Visual Craft &amp; Conversion</option>
+                                <option value="security">Enterprise-Grade Security &amp; Compliance</option>
+                            </select>
+                            <p class="text-label-sm font-label-sm text-outline">Informs our architectural trade-offs.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Dropzone & Wireframe Specs -->
+                    <div class="space-y-2">
+                        <label class="block text-label-md font-label-md text-on-surface">
+                            Additional Files, RFPs, Wireframes, or Specs
+                        </label>
+                        <div
+                            class="border-2 border-dashed border-outline-variant/50 hover:border-primary/60 bg-surface-container-lowest/60 rounded-xl p-8 text-center transition-colors cursor-pointer group">
+                            <div class="flex flex-col items-center justify-center gap-2">
+                                <div
+                                    class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                    <span class="material-symbols-outlined text-2xl">cloud_upload</span>
+                                </div>
+                                <span class="text-body-md font-body-md text-on-surface font-medium">Drag &amp; drop
+                                    files or <span class="text-primary underline">browse</span></span>
+                                <span class="text-label-sm font-label-sm text-outline">PDF, Figma links, DOCX, ZIP (Max
+                                    25MB)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- SUBMISSION AREA -->
+                <div class="pt-6 space-y-6">
+                    <!-- Submit Button -->
+                    <button
+                        class="w-full py-4 px-8 rounded-xl bg-gradient-to-r from-primary-container to-secondary-container text-surface-container-lowest font-headline-sm text-base tracking-wide flex items-center justify-center gap-3 shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.99] font-bold"
+                        type="submit">
+                        <span>Submit Project Details</span>
+                        <span class="material-symbols-outlined text-xl">arrow_forward</span>
+                    </button>
+                    <!-- Security / Response Guarantee Notice -->
+                    <div
+                        class="flex flex-col sm:flex-row items-center justify-center gap-4 text-center text-body-sm font-body-sm text-outline">
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-tertiary text-sm">lock</span>
+                            <span>Encrypted 256-bit transmission</span>
+                        </div>
+                        <span class="hidden sm:inline">•</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-primary text-sm">bolt</span>
+                            <span>Response guaranteed within 24 hours</span>
+                        </div>
+                        <span class="hidden sm:inline">•</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-secondary text-sm">send</span>
+                            <span>Powered by Resend API</span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+    <!-- Footer (Shared Component) -->
+    <footer
+        class="bg-surface-container-lowest dark:bg-surface-container-lowest full-width border-t border-outline-variant/30">
+        <div
+            class="flex flex-col md:flex-row justify-between items-center w-full px-6 md:px-12 py-12 max-w-[1320px] mx-auto gap-6">
+            <!-- Brand & Tagline -->
+            <div class="flex flex-col items-center md:items-start gap-1">
+                <span class="text-title-md font-title-md font-bold text-on-surface dark:text-on-surface">ShenoDev</span>
+                <span class="text-body-sm font-body-sm text-on-surface-variant dark:text-on-surface-variant">© 2026
+                    ShenoDev. All rights reserved. Think it, Sheno it.</span>
+            </div>
+            <!-- Links -->
+            <div class="flex flex-wrap items-center justify-center gap-6">
+                <a class="text-label-sm font-label-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface transition-colors hover:text-primary transition-colors duration-200"
+                    href="#services">Services</a>
+                <a class="text-label-sm font-label-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface transition-colors hover:text-primary transition-colors duration-200"
+                    href="#work">Work</a>
+                <a class="text-label-sm font-label-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface transition-colors hover:text-primary transition-colors duration-200"
+                    href="#pricing">Pricing</a>
+                <a class="text-label-sm font-label-sm text-primary dark:text-primary hover:text-primary transition-colors duration-200"
+                    href="#contact">Contact</a>
+                <a class="text-label-sm font-label-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface transition-colors hover:text-primary transition-colors duration-200"
+                    href="#privacy">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

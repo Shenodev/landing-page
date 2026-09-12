@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+
+<html class="dark scroll-smooth" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ShenoDev | Premium Full-Stack Web Development Agency</title>
+    <!-- Google Fonts: Sora & Inter -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Sora:wght@400;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Material Symbols Outlined -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-container": "#0566d9",
+                        "on-error": "#690005",
+                        "on-primary-container": "#00424f",
+                        "on-primary": "#003640",
+                        "primary-fixed": "#acedff",
+                        "surface-bright": "#31394d",
+                        "secondary-fixed": "#d8e2ff",
+                        "inverse-on-surface": "#283044",
+                        "surface-container-high": "#222a3d",
+                        "inverse-surface": "#dae2fd",
+                        "tertiary-fixed": "#6ffbbe",
+                        "on-tertiary": "#003824",
+                        "background": "#0b1326",
+                        "surface-container-low": "#131b2e",
+                        "on-surface": "#dae2fd",
+                        "error": "#ffb4ab",
+                        "secondary": "#adc6ff",
+                        "error-container": "#93000a",
+                        "primary-container": "#06b6d4",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "outline-variant": "#3d494c",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-lowest": "#060e20",
+                        "on-tertiary-fixed": "#002113",
+                        "on-primary-fixed-variant": "#004e5c",
+                        "inverse-primary": "#00687a",
+                        "on-secondary-container": "#e6ecff",
+                        "surface-tint": "#4cd7f6",
+                        "tertiary": "#4edea3",
+                        "primary-fixed-dim": "#4cd7f6",
+                        "on-tertiary-container": "#00452e",
+                        "outline": "#869397",
+                        "surface-container": "#171f33",
+                        "on-secondary": "#002e6a",
+                        "surface": "#0b1326",
+                        "on-secondary-fixed-variant": "#004395",
+                        "surface-container-highest": "#2d3449",
+                        "tertiary-container": "#1bbd85",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-surface-variant": "#bcc9cd",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "primary": "#4cd7f6",
+                        "surface-dim": "#0b1326",
+                        "surface-variant": "#2d3449",
+                        "on-primary-fixed": "#001f26",
+                        "on-background": "#dae2fd",
+                        "on-secondary-fixed": "#001a42"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "space-xs": "0.25rem",
+                        "margin": "3rem",
+                        "gutter-mobile": "1rem",
+                        "margin-mobile": "1.25rem",
+                        "space-sm": "0.5rem",
+                        "space-lg": "1.5rem",
+                        "space-xl": "2.5rem",
+                        "gutter": "1.5rem",
+                        "space-md": "1rem"
+                    },
+                    fontFamily: {
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-hero-mobile": ["Sora"],
+                        "headline-lg": ["Sora"],
+                        "body-sm": ["Inter"],
+                        "headline-lg-mobile": ["Sora"],
+                        "body-lg": ["Inter"],
+                        "display-hero": ["Sora"],
+                        "title-md": ["Sora"],
+                        "headline-sm": ["Sora"],
+                        "headline-md": ["Sora"]
+                    },
+                    fontSize: {
+                        "body-md": ["15px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "label-sm": ["11px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "display-hero-mobile": ["40px", { "lineHeight": "48px", "fontWeight": "800" }],
+                        "headline-lg": ["48px", { "lineHeight": "56px", "fontWeight": "700" }],
+                        "body-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-hero": ["64px", { "lineHeight": "72px", "fontWeight": "800" }],
+                        "title-md": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+                        "headline-sm": ["22px", { "lineHeight": "30px", "fontWeight": "600" }],
+                        "headline-md": ["30px", { "lineHeight": "38px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        @keyframes marquee {
+            0% {
+                transform: translateX(0%);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .animate-marquee-infinite {
+            display: flex;
+            width: max-content;
+            animation: marquee 24s linear infinite;
+        }
+
+        .animate-marquee-infinite:hover {
+            animation-play-state: paused;
+        }
+
+        .glow-cyan-card {
+            box-shadow: 0 0 30px -4px rgba(6, 182, 212, 0.18), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .glow-button {
+            box-shadow: 0 0 24px 0 rgba(6, 182, 212, 0.45);
+        }
+
+        .cyan-ambient-radial {
+            background: radial-gradient(circle 500px at 50% 20%, rgba(6, 182, 212, 0.12), transparent 70%);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background text-on-surface antialiased overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col justify-between">
+    <!-- Atmospheric Background Glow -->
+    <div class="fixed inset-0 pointer-events-none cyan-ambient-radial -z-10"></div>
+    <div class="fixed top-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <div
+        class="fixed bottom-1/4 left-1/3 w-[500px] h-[500px] bg-secondary-container/10 rounded-full blur-[120px] pointer-events-none -z-10">
+    </div>
+    <!-- 1. NAVBAR (Sticky Web Header via Shared Component TopNavBar) -->
+    <header
+        class="docked full-width top-0 sticky z-50 bg-surface/80 dark:bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm">
+        <div class="flex justify-between items-center w-full px-6 md:px-12 max-w-[1320px] mx-auto h-20">
+            <!-- Brand Logo Anchor -->
+            <a class="flex items-center gap-2 group" href="#">
+                <span
+                    class="text-title-md font-title-md font-bold text-on-surface dark:text-on-surface tracking-tight flex items-center">
+                    ShenoDev
+                    <span
+                        class="inline-block w-2 h-2 ml-1.5 rounded-full bg-primary-container shadow-[0_0_10px_#06b6d4] group-hover:scale-125 transition-transform duration-200"></span>
+                </span>
+            </a>
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center gap-8">
+                <a class="text-label-md font-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-on-surface transition-colors hover:text-primary duration-200"
+                    href="#services">Services</a>
+                <a class="text-label-md font-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-on-surface transition-colors hover:text-primary duration-200"
+                    href="#work">Work</a>
+                <a class="text-label-md font-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-on-surface transition-colors hover:text-primary duration-200"
+                    href="#contact">Contact</a>
+            </nav>
+            <!-- Trailing Action -->
+            <div class="flex items-center gap-4">
+                <a class="hidden sm:inline-flex items-center justify-center bg-primary-container hover:bg-primary text-on-primary-container font-label-md text-label-md px-5 py-2.5 rounded-lg font-semibold glow-button hover:scale-[1.02] active:scale-95 transition-all duration-150"
+                    href="#contact">
+                    Get a Quote
+                </a>
+                <!-- Mobile Nav Trigger -->
+                <button aria-label="Toggle Menu" class="md:hidden text-on-surface p-2 focus:outline-none"
+                    onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                    <span class="material-symbols-outlined" data-icon="menu">menu</span>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Dropdown Navigation -->
+        <div class="hidden md:hidden px-6 py-4 bg-surface-container-high border-b border-outline-variant/30 flex flex-col gap-4"
+            id="mobile-menu">
+            <a class="text-label-md font-label-md text-on-surface-variant hover:text-primary transition-colors"
+                href="#services">Services</a>
+            <a class="text-label-md font-label-md text-on-surface-variant hover:text-primary transition-colors"
+                href="#work">Work</a>
+            <a class="text-label-md font-label-md text-on-surface-variant hover:text-primary transition-colors"
+                href="#contact">Contact</a>
+            <a class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-label-md text-label-md px-4 py-2 rounded-lg font-semibold text-center glow-button"
+                href="#contact">
+                Get a Quote
+            </a>
+        </div>
+    </header>
+    <main>
+        <!-- 2. HERO SECTION (Split Layout) -->
+        <section class="relative pt-12 pb-20 md:py-24 max-w-[1320px] mx-auto px-6 md:px-12 overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                <!-- Left Side: Text & CTA -->
+                <div class="lg:col-span-7 flex flex-col items-start z-10">
+                    <!-- Pill Tag -->
+                    <div
+                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container-high border border-outline-variant/40 shadow-inner mb-6">
+                        <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                        <span class="font-label-sm text-label-sm text-primary uppercase tracking-wider">Think it, Sheno
+                            it</span>
+                        <span class="text-outline text-label-sm font-label-sm">|</span>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant">Full-Stack Development
+                            Studio</span>
+                    </div>
+                    <!-- Main Heading -->
+                    <h1 class="hidden md:block font-display-hero text-display-hero text-on-surface tracking-tight mb-6">
+                        Empowering Your Business with <span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary-container to-secondary">High-Performance</span>
+                        Web Solutions.
+                    </h1>
+                    <h1
+                        class="md:hidden font-display-hero-mobile text-display-hero-mobile text-on-surface tracking-tight mb-6">
+                        Empowering Your Business with <span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary-container to-secondary">High-Performance</span>
+                        Web Solutions.
+                    </h1>
+                    <!-- Sub-heading -->
+                    <p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl mb-10 leading-relaxed">
+                        We build fast, scalable, and intelligent web applications engineered for authoritative
+                        performance, exceptional precision, and seamless user experiences.
+                    </p>
+                    <!-- CTAs -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto mb-12">
+                        <a class="inline-flex items-center justify-center bg-primary-container hover:bg-primary text-on-primary-container font-label-md text-label-md px-8 py-4 rounded-xl font-semibold glow-button hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
+                            href="#contact">
+                            Start Your Project
+                            <span class="material-symbols-outlined ml-2 text-base"
+                                data-icon="arrow_forward">arrow_forward</span>
+                        </a>
+                        <a class="inline-flex items-center justify-center bg-surface-container/60 hover:bg-surface-container-high text-on-surface border border-outline-variant/50 hover:border-primary/50 font-label-md text-label-md px-7 py-4 rounded-xl transition-all duration-200 backdrop-blur-sm active:scale-95"
+                            href="#services">
+                            View Our Work
+                        </a>
+                    </div>
+                    <!-- Trust Metrics / Indicators -->
+                    <div class="grid grid-cols-3 gap-6 pt-6 border-t border-outline-variant/30 w-full max-w-lg">
+                        <div>
+                            <div class="font-title-md text-title-md font-bold text-on-surface">99.9%</div>
+                            <div class="font-body-sm text-body-sm text-on-surface-variant">Uptime Architecture</div>
+                        </div>
+                        <div>
+                            <div class="font-title-md text-title-md font-bold text-on-surface">&lt;100ms</div>
+                            <div class="font-body-sm text-body-sm text-on-surface-variant">Edge Latency</div>
+                        </div>
+                        <div>
+                            <div class="font-title-md text-title-md font-bold text-on-surface">100%</div>
+                            <div class="font-body-sm text-body-sm text-on-surface-variant">Clean Code Delivery</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right Side: 3D Placeholder -->
+                <div class="lg:col-span-5 relative w-full flex items-center justify-center">
+                    <div class="w-full h-[500px] flex items-center justify-center relative">
+                        <!-- SPLINE 3D COMPONENT GOES HERE --></div>
+                </div>
+            </div>
+        </section>
+        <!-- 3. TECH STACK MARQUEE SECTION -->
+        <section
+            class="py-12 border-y border-outline-variant/30 bg-surface-container-lowest/40 relative overflow-hidden">
+            <!-- Gradient Fades on Left & Right -->
+            <div
+                class="absolute top-0 bottom-0 left-0 w-24 md:w-48 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none">
+            </div>
+            <div
+                class="absolute top-0 bottom-0 right-0 w-24 md:w-48 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none">
+            </div>
+            <div class="flex overflow-x-hidden">
+                <div class="animate-marquee-infinite items-center gap-12 md:gap-16 pr-12 md:pr-16">
+                    <!-- Stack Items 1 -->
+                    <div
+                        class="flex items-center gap-3 bg-surface-container-high/60 border border-outline-variant/40 rounded-xl px-5 py-2.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-primary-container"></span>
+                        <span class="font-title-md text-title-md text-on-surface tracking-wide">Next.js</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 bg-surface-container-high/60 border border-outline-variant/40 rounded-xl px-5 py-2.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-primary"></span>
+                        <span class="font-title-md text-title-md text-on-surface tracking-wide">React</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 bg-surface-container-high/60 border border-outline-variant/40 rounded-xl px-5 py-2.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-tertiary"></span>
+                        <span class="font-title-md text-title-md text-on-surface tracking-wide">Node.js</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 bg-surface-container-high/60 border border-outline-variant/40 rounded-xl px-5 py-2.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-secondary"></span>
+                        <span class="font-title-md text-title-md text-on-surface tracking-wide">Express</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 bg-surface-container-high/60 border border-outline-variant/40 rounded-xl px-5 py-2.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+                        <span class="font-title-md text-title-md text-on-surface tracking-wide">MongoDB</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 bg-surface-container-high/60 border border-outline-variant/40 rounded-xl px-5 py-2.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-primary-fixed-dim"></span>
+                        <span class="font-title-md text-title-md text-on-surface tracking-wide">Tailwind CSS</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 bg-surface-container-high/60 border border-outline-variant/40 rounded-xl px-5 py-2.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-secondary-fixed"></span>
+                        <span class="font-title-md text-title-md text-on-surface tracking-wide">Zod</span>
+                    </div>
+                    <!-- Stack Items 2 (Duplicate for continuous loop) -->
+                    <div
+                        class="flex items-center gap-3 bg-surface-container-high/60 border border-outline-variant/40 rounded-xl px-5 py-2.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-primary-container"></span>
+                        <span class="font-title-md text-title-md text-on-surface tracking-wide">Next.js</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 bg-surface-container-high/60 border border-outline-variant/40 rounded-xl px-5 py-2.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-primary"></span>
+                        <span class="font-title-md text-title-md text-on-surface tracking-wide">React</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 bg-surface-container-high/60 border border-outline-variant/40 rounded-xl px-5 py-2.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-tertiary"></span>
+                        <span class="font-title-md text-title-md text-on-surface tracking-wide">Node.js</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 bg-surface-container-high/60 border border-outline-variant/40 rounded-xl px-5 py-2.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-secondary"></span>
+                        <span class="font-title-md text-title-md text-on-surface tracking-wide">Express</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 bg-surface-container-high/60 border border-outline-variant/40 rounded-xl px-5 py-2.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+                        <span class="font-title-md text-title-md text-on-surface tracking-wide">MongoDB</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 bg-surface-container-high/60 border border-outline-variant/40 rounded-xl px-5 py-2.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-primary-fixed-dim"></span>
+                        <span class="font-title-md text-title-md text-on-surface tracking-wide">Tailwind CSS</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 bg-surface-container-high/60 border border-outline-variant/40 rounded-xl px-5 py-2.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-secondary-fixed"></span>
+                        <span class="font-title-md text-title-md text-on-surface tracking-wide">Zod</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- 4. SERVICES & PRICING SECTION -->
+        <section class="py-24 max-w-[1320px] mx-auto px-6 md:px-12" id="services">
+            <!-- Section Header -->
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high border border-outline-variant/30 text-primary font-label-sm text-label-sm uppercase tracking-wider mb-4">
+                    Flexible Engagements
+                </div>
+                <h2 class="hidden md:block font-headline-lg text-headline-lg text-on-surface tracking-tight mb-4">
+                    Transparent Pricing &amp; High-Impact Services
+                </h2>
+                <h2
+                    class="md:hidden font-headline-lg-mobile text-headline-lg-mobile text-on-surface tracking-tight mb-4">
+                    Transparent Pricing &amp; High-Impact Services
+                </h2>
+                <p class="font-body-md text-body-md text-on-surface-variant">
+                    Tailored engineering solutions designed to turn complex business architectures into seamless,
+                    scalable, and conversion-ready digital platforms.
+                </p>
+            </div>
+            <!-- 3-Column Pricing Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+                <!-- Card 1: Corporate Website -->
+                <div
+                    class="bg-surface-container/70 border border-outline-variant/40 rounded-xl p-8 flex flex-col justify-between backdrop-blur-md hover:border-primary/40 transition-all duration-300">
+                    <div>
+                        <div class="font-headline-sm text-headline-sm text-on-surface mb-2">Smart Corporate Website
+                        </div>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant mb-6">Engineered for brand eminence,
+                            customer trust, and speed.</p>
+                        <div class="mb-8">
+                            <span class="font-title-md text-title-md text-on-surface-variant">Starting at</span>
+                            <div class="font-headline-md text-headline-md text-primary font-bold">10,000 EGP</div>
+                        </div>
+                        <ul class="space-y-3.5 mb-8">
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg"
+                                    data-icon="check_circle">check_circle</span>
+                                Fast, SEO-Optimized
+                            </li>
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg"
+                                    data-icon="check_circle">check_circle</span>
+                                3-5 Tailored Core Pages
+                            </li>
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg"
+                                    data-icon="check_circle">check_circle</span>
+                                CMS Ready &amp; Configured
+                            </li>
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg"
+                                    data-icon="check_circle">check_circle</span>
+                                Responsive Mobile-First UI
+                            </li>
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg"
+                                    data-icon="check_circle">check_circle</span>
+                                Analytics &amp; Tag Setup
+                            </li>
+                        </ul>
+                    </div>
+                    <a class="w-full inline-flex items-center justify-center bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/60 text-on-surface font-label-md text-label-md py-3 rounded-lg font-medium transition-all active:scale-95"
+                        href="#contact">
+                        Choose Plan
+                    </a>
+                </div>
+                <!-- Card 2: Business Dashboard (POPULAR HIGHLIGHT) -->
+                <div
+                    class="relative bg-surface-container/90 border border-primary-container/60 rounded-xl p-8 flex flex-col justify-between backdrop-blur-lg glow-cyan-card md:-translate-y-2">
+                    <!-- Top Popular Badge -->
+                    <div
+                        class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold uppercase tracking-wider px-4 py-1 rounded-full shadow-[0_0_15px_rgba(6,182,212,0.6)]">
+                        Most Popular
+                    </div>
+                    <div>
+                        <div class="font-headline-sm text-headline-sm text-on-surface mb-2 mt-1">Business Dashboard
+                        </div>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant mb-6">Centralized intelligence, data
+                            control, and authenticated access.</p>
+                        <div class="mb-8">
+                            <span class="font-title-md text-title-md text-on-surface-variant">Starting at</span>
+                            <div class="font-headline-md text-headline-md text-primary font-bold">25,000 EGP</div>
+                        </div>
+                        <ul class="space-y-3.5 mb-8">
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle"
+                                    data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Secure Auth &amp; Session Vault
+                            </li>
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle"
+                                    data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Dynamic CRUD Operations
+                            </li>
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle"
+                                    data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Data Management &amp; Filters
+                            </li>
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle"
+                                    data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Role-Based Access Control (RBAC)
+                            </li>
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle"
+                                    data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Third-Party API Integrations
+                            </li>
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle"
+                                    data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Real-time Telemetry &amp; Charts
+                            </li>
+                        </ul>
+                    </div>
+                    <a class="w-full inline-flex items-center justify-center bg-primary-container hover:bg-primary text-on-primary-container font-label-md text-label-md py-3.5 rounded-lg font-bold glow-button transition-all active:scale-95"
+                        href="#contact">
+                        Get Started
+                    </a>
+                </div>
+                <!-- Card 3: Full-Stack Platform -->
+                <div
+                    class="bg-surface-container/70 border border-outline-variant/40 rounded-xl p-8 flex flex-col justify-between backdrop-blur-md hover:border-primary/40 transition-all duration-300">
+                    <div>
+                        <div class="font-headline-sm text-headline-sm text-on-surface mb-2">Full-Stack Platform</div>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant mb-6">Bespoke distributed
+                            applications engineered for massive scale.</p>
+                        <div class="mb-8">
+                            <span class="font-title-md text-title-md text-on-surface-variant">Starting at</span>
+                            <div class="font-headline-md text-headline-md text-primary font-bold">45,000 EGP</div>
+                        </div>
+                        <ul class="space-y-3.5 mb-8">
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg"
+                                    data-icon="check_circle">check_circle</span>
+                                Custom Architecture Design
+                            </li>
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg"
+                                    data-icon="check_circle">check_circle</span>
+                                Scalable Database (SQL/NoSQL)
+                            </li>
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg"
+                                    data-icon="check_circle">check_circle</span>
+                                End-to-End Automation Pipelines
+                            </li>
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg"
+                                    data-icon="check_circle">check_circle</span>
+                                High-Concurrency Support
+                            </li>
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg"
+                                    data-icon="check_circle">check_circle</span>
+                                Microservices / Serverless Engine
+                            </li>
+                            <li class="flex items-center gap-3 font-body-sm text-body-sm text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-lg"
+                                    data-icon="check_circle">check_circle</span>
+                                Dedicated SLA &amp; Deployment Care
+                            </li>
+                        </ul>
+                    </div>
+                    <a class="w-full inline-flex items-center justify-center bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/60 text-on-surface font-label-md text-label-md py-3 rounded-lg font-medium transition-all active:scale-95"
+                        href="#contact">
+                        Scale Up
+                    </a>
+                </div>
+            </div>
+        </section>
+        <!-- 5. CONTACT FORM SECTION -->
+        <section class="py-24 max-w-[1320px] mx-auto px-6 md:px-12" id="contact">
+            <div class="max-w-2xl mx-auto">
+                <!-- Header -->
+                <div class="text-center mb-10">
+                    <div
+                        class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-surface-container-high border border-outline-variant/30 text-primary font-label-sm text-label-sm uppercase tracking-wider mb-4">
+                        Direct Engineering Line
+                    </div>
+                    <h2 class="hidden md:block font-headline-lg text-headline-lg text-on-surface tracking-tight mb-3">
+                        Let's Build Something Extraordinary
+                    </h2>
+                    <h2
+                        class="md:hidden font-headline-lg-mobile text-headline-lg-mobile text-on-surface tracking-tight mb-3">
+                        Let's Build Something Extraordinary
+                    </h2>
+                    <p class="font-body-md text-body-md text-on-surface-variant">
+                        Reach out directly with your parameters. We respond with a comprehensive architectural review
+                        and timeline within 24 hours.
+                    </p>
+                </div>
+                <!-- Glassmorphism Form Container -->
+                <div
+                    class="bg-surface-container/80 border border-primary-container/20 rounded-xl p-8 md:p-10 backdrop-blur-xl shadow-2xl relative">
+                    <!-- Subtle Top Highlight Line -->
+                    <div
+                        class="absolute top-0 left-12 right-12 h-px bg-gradient-to-r from-transparent via-primary-container/40 to-transparent">
+                    </div>
+                    <form action="#" class="space-y-6" method="POST" onsubmit="event.preventDefault();">
+                        <!-- Name Input -->
+                        <div>
+                            <label class="block font-label-md text-label-md text-on-surface mb-2" for="name">Full
+                                Name</label>
+                            <input
+                                class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-on-surface font-body-md text-body-md placeholder-outline focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all outline-none"
+                                id="name" name="name" placeholder="Alex Vance" required="" type="text" />
+                        </div>
+                        <!-- Email Input -->
+                        <div>
+                            <label class="block font-label-md text-label-md text-on-surface mb-2" for="email">Work
+                                Email</label>
+                            <input
+                                class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-on-surface font-body-md text-body-md placeholder-outline focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all outline-none"
+                                id="email" name="email" placeholder="alex@enterprise.com" required="" type="email" />
+                        </div>
+                        <!-- Project Details Textarea -->
+                        <div>
+                            <label class="block font-label-md text-label-md text-on-surface mb-2" for="details">Project
+                                Details</label>
+                            <textarea
+                                class="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-on-surface font-body-md text-body-md placeholder-outline focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all outline-none resize-none"
+                                id="details" name="details"
+                                placeholder="Detail your operational scope, target stack, timeline expectations, or system requirements..."
+                                required="" rows="4"></textarea>
+                        </div>
+                        <!-- Resend API Integration Badge / Indicator -->
+                        <div
+                            class="flex items-center gap-2.5 px-3.5 py-2 rounded-lg bg-surface-container-lowest/50 border border-outline-variant/20">
+                            <span class="material-symbols-outlined text-primary text-base" data-icon="bolt">bolt</span>
+                            <span class="font-body-sm text-body-sm text-on-surface-variant">
+                                Automated Welcome Email Powered by Resend API
+                            </span>
+                        </div>
+                        <!-- Submit Button -->
+                        <button
+                            class="w-full inline-flex items-center justify-center bg-primary-container hover:bg-primary text-on-primary-container font-label-md text-label-md py-4 rounded-lg font-bold glow-button active:scale-[0.99] transition-all duration-150 cursor-pointer"
+                            type="submit">
+                            Send Message / Get Started
+                            <span class="material-symbols-outlined ml-2 text-lg" data-icon="send">send</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- 6. FOOTER (Shared Component Footer) -->
+    <footer
+        class="full-width bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline-variant/30">
+        <div
+            class="flex flex-col md:flex-row justify-between items-center w-full px-6 md:px-12 py-12 max-w-[1320px] mx-auto gap-6">
+            <!-- Brand & Copyright -->
+            <div class="flex flex-col items-center md:items-start gap-1">
+                <div class="flex items-center gap-1.5">
+                    <span
+                        class="text-title-md font-title-md font-bold text-on-surface dark:text-on-surface">ShenoDev</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                </div>
+                <p class="text-body-sm font-body-sm text-on-surface-variant dark:text-on-surface-variant">
+                    © 2026 ShenoDev. All rights reserved. Think it, Sheno it.
+                </p>
+            </div>
+            <!-- Navigation Links -->
+            <div class="flex flex-wrap items-center justify-center gap-6">
+                <a class="text-label-sm font-label-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:text-primary transition-colors duration-200"
+                    href="#services">Services</a>
+                <a class="text-label-sm font-label-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:text-primary transition-colors duration-200"
+                    href="#work">Work</a>
+                <a class="text-label-sm font-label-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:text-primary transition-colors duration-200"
+                    href="#services">Pricing</a>
+                <a class="text-label-sm font-label-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:text-primary transition-colors duration-200"
+                    href="#contact">Contact</a>
+                <a class="text-label-sm font-label-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:text-primary transition-colors duration-200"
+                    href="#">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

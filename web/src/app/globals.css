@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee-infinite {
+  display: flex;
+  width: max-content;
+  animation: marquee 24s linear infinite;
+}
+.animate-marquee-infinite:hover { animation-play-state: paused; }
+.glow-cyan-card {
+  box-shadow: 0 0 30px -4px rgba(6,182,212,0.18), inset 0 1px 1px 0 rgba(255,255,255,0.1);
+}
+.glow-button { box-shadow: 0 0 24px 0 rgba(6,182,212,0.45); }
+.cyan-ambient-radial { background: radial-gradient(circle 500px at 50% 20%, rgba(6,182,212,0.12), transparent 70%); }
+
+html { scroll-behavior: smooth; }
