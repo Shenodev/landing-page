@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import UnhandledReporter from "@/components/UnhandledReporter";
 
@@ -14,6 +15,24 @@ const sora = Sora({
   variable: "--font-sora",
   display: "swap",
 });
+
+// Safari/iOS < 14 has no `BigInt`. Zod 4's coercion module eagerly evaluates
+// BigInt("...") at load (and React's RSC flight parser may too), which crashes
+// the page with "Can't find variable: BigInt". This shim defines BigInt as a
+// Number-based function ONLY when the global is missing. Our schemas never use
+// int64/uint64 coercion, so Number(Math.trunc()) is a safe stand-in.
+const BIGINT_SHIM = `if (typeof BigInt === "undefined") {
+  window.BigInt = function BigInt(value) {
+    var n = Number(value);
+    return Number.isFinite(n) ? Math.trunc(n) : 0;
+  };
+  window.BigInt.asIntN = function (bits, value) { return window.BigInt(value) % Math.pow(2, bits); };
+  window.BigInt.asUintN = function (bits, value) {
+    var v = window.BigInt(value) % Math.pow(2, bits);
+    return v < 0 ? v + Math.pow(2, bits) : v;
+  };
+  window.BigInt.prototype = Object.create(Number.prototype);
+}`;
 
 export const metadata: Metadata = {
   title: "ShenoDev | Premium Full-Stack Web Development Agency",
@@ -38,6 +57,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <body
         className={`${inter.variable} ${sora.variable} bg-background text-on-surface antialiased overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col justify-between font-sans`}
       >
+        <Script id="bigint-shim" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: BIGINT_SHIM }} />
         <UnhandledReporter />
         {/* Atmospheric Background Glow */}
         <div className="fixed inset-0 pointer-events-none cyan-ambient-radial -z-10" />
