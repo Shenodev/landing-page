@@ -23,6 +23,7 @@ export interface IDiscovery extends Document {
   calendlyEventUrl: string;
   attachmentUrl: string;
   attachmentPublicId: string;
+  attachments?: Array<{ url: string; publicId?: string; fileName?: string; mimeType?: string; size?: number }>;
   ip?: string;
   createdAt: Date;
 }
@@ -51,6 +52,22 @@ const DiscoverySchema: Schema<IDiscovery> = new Schema<IDiscovery>(
     calendlyEventUrl: { type: String, required: false, trim: true },
     attachmentUrl: { type: String, required: false, trim: true },
     attachmentPublicId: { type: String, required: false, trim: true },
+    attachments: {
+      type: [
+        new Schema(
+          {
+            url: { type: String, required: true, trim: true, maxlength: 500 },
+            publicId: { type: String, required: false, trim: true, maxlength: 500 },
+            fileName: { type: String, required: false, trim: true, maxlength: 200 },
+            mimeType: { type: String, required: false, trim: true, maxlength: 100 },
+            size: { type: Number, required: false, min: 0 },
+          },
+          { _id: false }
+        ),
+      ],
+      required: false,
+      default: [],
+    },
     ip: { type: String, required: false },
   },
   {

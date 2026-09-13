@@ -188,6 +188,7 @@ export type DiscoveryEmailData = {
   calendlyEventUrl: string;
   attachmentUrl: string;
   attachmentPublicId: string;
+  attachments?: Array<{ url: string; publicId?: string; fileName?: string; mimeType?: string; size?: number }>;
 };
 
 export const sendDiscoveryEmails = async (data: DiscoveryEmailData): Promise<{ adminId?: string; welcomeId?: string }> => {
@@ -220,11 +221,26 @@ export const sendDiscoveryEmails = async (data: DiscoveryEmailData): Promise<{ a
     calendlyEventUrl,
     attachmentUrl,
     attachmentPublicId,
+    attachments,
   } = data;
 
   const meetingLink = meetingUrl || calendlyEventUri || calendlyEventUrl || "";
   const meetingDisplay = [meetingDate, meetingTime].filter(Boolean).join(" ") || "-";
-  const attachmentDisplay = attachmentUrl ? `<a href="${attachmentUrl}" style="color:#06B6D4;">${attachmentUrl}</a>` : "-";
+
+  const attachmentItems: Array<{ url: string; fileName: string; size?: number }> =
+    attachments && attachments.length
+      ? attachments.map((a) => ({ url: a.url, fileName: a.fileName || a.publicId || a.url, size: a.size }))
+      : attachmentUrl
+        ? [{ url: attachmentUrl, fileName: attachmentPublicId || attachmentUrl }]
+        : [];
+  const attachmentList = attachmentItems.length
+    ? `<ul style="margin:0;padding-left:16px;">${attachmentItems
+        .map(
+          (a) =>
+            `<li style="padding:4px 0;"><a href="${escapeHtml(a.url)}" style="color:#06B6D4;">${escapeHtml(a.fileName)}</a>${a.size ? ` (${(a.size / 1024).toFixed(1)} KB)` : ""}</li>`
+        )
+        .join("")}</ul>`
+    : "<span>-</span>";
 
   const adminHtml = `
       <div style="font-family:system-ui;padding:24px;background:#0F172A;color:#F8FAFC;">
@@ -249,7 +265,7 @@ export const sendDiscoveryEmails = async (data: DiscoveryEmailData): Promise<{ a
           <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Meeting Time</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;">${meetingTime || "-"}</td></tr>
           <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Meeting Link</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;">${meetingLink ? `<a href="${meetingLink}" style="color:#06B6D4;">${meetingLink}</a>` : "-"}</td></tr>
           <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Calendly URI</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;">${calendlyEventUri || calendlyEventUrl || "-"}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Attachment</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;">${attachmentDisplay}</td></tr>
+          <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Attachments</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;font-size:12px;">${attachmentList}</td></tr>
         </table>
       </div>
     `;

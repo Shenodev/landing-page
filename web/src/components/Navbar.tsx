@@ -62,7 +62,7 @@ const Navbar = () => {
         <div className="flex items-center gap-4">
           <a
             className="hidden sm:inline-flex items-center justify-center bg-primary-container hover:bg-primary text-on-primary-container text-[14px] leading-[20px] font-medium px-5 py-2.5 rounded-lg font-semibold glow-button hover:scale-[1.02] active:scale-95 transition-all duration-150"
-            href="/#contact"
+            href="/discovery"
           >
             Get a Quote
           </a>

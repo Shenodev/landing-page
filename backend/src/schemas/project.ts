@@ -13,30 +13,45 @@ const urlOrEmpty = z
   .or(z.literal(""))
   .transform((v) => (v ? v.trim() : ""));
 
-export const projectSchema = z.object({
-  title: z
-    .string({ error: "Title is required" })
-    .trim()
-    .min(2, "Title must be at least 2 characters")
-    .max(100, "Title must be under 100 characters")
-    .refine((v: string) => !noNoSQLPattern.test(v), "Invalid title")
-    .transform(sanitizeField),
-  description: z
-    .string({ error: "Description is required" })
-    .trim()
-    .min(10, "Description must be at least 10 characters")
-    .max(1000, "Description must be under 1000 characters")
-    .transform(sanitizeField),
-  imageUrl: z
-    .string({ error: "Image URL is required" })
-    .trim()
-    .max(500, "Image URL too long")
-    .refine((v: string) => /^https?:\/\/.+/.test(v), "Invalid image URL")
-    .transform(sanitizeField),
-  techStack: z.array(z.string().trim().min(1).max(30)).min(1, "At least one tech is required").max(20, "Too many techs"),
-  demoUrl: urlOrEmpty,
-  githubUrl: urlOrEmpty,
-});
+export const projectSchema = z
+  .object({
+    title: z
+      .string({ error: "Title is required" })
+      .trim()
+      .min(2, "Title must be at least 2 characters")
+      .max(100, "Title must be under 100 characters")
+      .refine((v: string) => !noNoSQLPattern.test(v), "Invalid title")
+      .transform(sanitizeField),
+    description: z
+      .string({ error: "Description is required" })
+      .trim()
+      .min(10, "Description must be at least 10 characters")
+      .max(1000, "Description must be under 1000 characters")
+      .transform(sanitizeField),
+    imageUrl: urlOrEmpty,
+    images: z
+      .array(
+        z.object({
+          url: z.string().trim().max(500, "Image URL too long").refine((v) => /^https?:\/\/.+/.test(v), "Invalid image URL"),
+          publicId: z.string().trim().max(500, "Image public ID too long").optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
+        })
+      )
+      .max(10, "Too many images")
+      .optional()
+      .default([]),
+    techStack: z.array(z.string().trim().min(1).max(30)).min(1, "At least one tech is required").max(20, "Too many techs"),
+    demoUrl: urlOrEmpty,
+    githubUrl: urlOrEmpty,
+  })
+  .superRefine((val, ctx) => {
+    if (!val.imageUrl && !(val.images && val.images.length > 0)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["imageUrl"],
+        message: "Image is required - provide imageUrl or upload at least one image",
+      });
+    }
+  });
 
 export type ProjectInput = z.infer<typeof projectSchema>;
 

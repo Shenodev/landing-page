@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
+import { useCalendlyEventListener, type EventScheduledEvent } from "react-calendly";
 
 const InlineWidget = dynamic(() => import("react-calendly").then((m) => m.InlineWidget), { ssr: false });
 
@@ -26,15 +27,12 @@ type DiscoveryFormData = {
   extraDetails: string;
 };
 
-type CalendlyEvent = {
-  event: { uri: string };
-  invitee: { uri: string; name: string; email: string };
-};
+const MAX_FILES = 10;
 
 const DiscoveryPage = () => {
   const [step, setStep] = useState<1 | 2>(1);
   const [formData, setFormData] = useState<DiscoveryFormData | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -60,31 +58,42 @@ const DiscoveryPage = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleCalendlyScheduled = async (e: unknown): Promise<void> => {
+  const handleCalendlyScheduled = async (e: EventScheduledEvent): Promise<void> => {
     if (!formData) return;
     setSubmitting(true);
     setError("");
     try {
-      const event = e as CalendlyEvent;
-      const eventUri: string = event?.event?.uri || "";
+      // react-calendly delivers a MessageEvent where e.data is
+      // { event: "calendly.event_scheduled", payload: { event: { uri }, invitee: { uri } } }
+      const data = e.data as { event?: string; payload?: { event?: { uri?: string }; invitee?: { uri?: string } } };
+      if (!data || data.event !== "calendly.event_scheduled" || !data.payload) {
+        return;
+      }
+      // Defensive: only trust messages that actually come from Calendly's embed
+      const origin: string = typeof e.origin === "string" ? e.origin : "";
+      if (origin && !origin.includes("calendly.com")) {
+        console.warn("[discovery] Ignoring calendar event from non-Calendly origin:", origin);
+        return;
+      }
+      const eventUri: string = data.payload.event?.uri || "";
+      const inviteeUri: string = data.payload.invitee?.uri || "";
       const now = new Date();
       const meetingDate: string = now.toISOString().split("T")[0];
       const meetingTime: string = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      const meetingUrl: string = eventUri || "";
 
       const backendUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
       if (!backendUrl) throw new Error("NEXT_PUBLIC_API_URL not configured");
-      const isMultipart: boolean = !!selectedFile;
+      const isMultipart: boolean = selectedFiles.length > 0;
       const res: Response = await (async (): Promise<Response> => {
         if (isMultipart) {
           const fd = new FormData();
-          Object.entries({ ...formData, meetingDate, meetingTime, meetingUrl, calendlyEventUri: eventUri, calendlyEventUrl: eventUri }).forEach(([k, v]) =>
+          Object.entries({ ...formData, meetingDate, meetingTime, meetingUrl: eventUri, calendlyEventUri: eventUri, calendlyEventUrl: inviteeUri }).forEach(([k, v]) =>
             fd.append(k, v as string)
           );
-          if (selectedFile) fd.append("attachment", selectedFile);
+          selectedFiles.forEach((file) => fd.append("attachments", file));
           return fetch(`${backendUrl}/api/discovery`, { method: "POST", body: fd });
         }
-        const payload = { ...formData, meetingDate, meetingTime, meetingUrl, calendlyEventUri: eventUri, calendlyEventUrl: eventUri };
+        const payload = { ...formData, meetingDate, meetingTime, meetingUrl: eventUri, calendlyEventUri: eventUri, calendlyEventUrl: inviteeUri };
         return fetch(`${backendUrl}/api/discovery`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -104,6 +113,20 @@ const DiscoveryPage = () => {
       setSubmitting(false);
     }
   };
+
+  const handleFilesChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    const files: File[] = Array.from(e.target.files ?? []);
+    setSelectedFiles((prev) => [...prev, ...files].slice(0, MAX_FILES));
+    e.target.value = "";
+  };
+
+  const removeFile = (index: number): void => {
+    setSelectedFiles((prev) => prev.filter((_: File, i: number) => i !== index));
+  };
+
+  useCalendlyEventListener({
+    onEventScheduled: handleCalendlyScheduled,
+  });
 
   if (success) {
     return (
@@ -312,28 +335,42 @@ const DiscoveryPage = () => {
                     <input {...register("extraDetails")} className="w-full bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-4 py-3 text-[15px] text-on-surface placeholder-outline/50 focus:ring-2 focus:ring-primary outline-none" placeholder="NDA, priority, etc." />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="block text-[14px] font-medium text-on-surface">Additional Files, RFPs, Wireframes, or Specs</label>
-                  <div className="border-2 border-dashed border-outline-variant/50 hover:border-primary/60 bg-surface-container-lowest/60 rounded-xl p-6 text-center transition-colors">
-                    <input
-                      type="file"
-                      accept="image/*,.pdf,.zip,.doc,.docx"
-                      onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
-                      className="hidden"
-                      id="discovery-file"
-                    />
-                    <label htmlFor="discovery-file" className="flex flex-col items-center justify-center gap-2 cursor-pointer">
-                      <span className="material-symbols-outlined text-primary text-2xl">cloud_upload</span>
-                      <span className="text-[13px] text-on-surface font-medium">
-                        {selectedFile ? selectedFile.name : "Drag & drop files or browse"}
-                      </span>
-                      <span className="text-[11px] text-outline">PDF, Figma links, DOCX, ZIP (Max 10MB) — stored via Cloudinary</span>
-                    </label>
+<div className="space-y-2">
+                    <label className="block text-[14px] font-medium text-on-surface">Additional Files, RFPs, Wireframes, or Specs</label>
+                    <div className="border-2 border-dashed border-outline-variant/50 hover:border-primary/60 bg-surface-container-lowest/60 rounded-xl p-6 text-center transition-colors">
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*,.pdf,.zip,.doc,.docx"
+                        onChange={handleFilesChange}
+                        className="hidden"
+                        id="discovery-file"
+                      />
+                      <label htmlFor="discovery-file" className="flex flex-col items-center justify-center gap-2 cursor-pointer">
+                        <span className="material-symbols-outlined text-primary text-2xl">cloud_upload</span>
+                        <span className="text-[13px] text-on-surface font-medium">
+                          {selectedFiles.length > 0 ? `${selectedFiles.length} file${selectedFiles.length > 1 ? "s" : ""} selected` : "Drag & drop files or browse"}
+                        </span>
+                        <span className="text-[11px] text-outline">PDF, images, DOCX, ZIP (up to {MAX_FILES} files, 10MB each) — stored via Cloudinary</span>
+                      </label>
+                    </div>
+                    {selectedFiles.length > 0 && (
+                      <ul className="space-y-2">
+                        {selectedFiles.map((f, i) => (
+                          <li key={`${f.name}-${i}`} className="flex items-center justify-between gap-3 bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-3 py-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="material-symbols-outlined text-primary text-base">attach_file</span>
+                              <span className="text-[13px] text-on-surface truncate">{f.name}</span>
+                              <span className="text-[11px] text-outline whitespace-nowrap">({(f.size / 1024).toFixed(1)} KB)</span>
+                            </div>
+                            <button type="button" onClick={() => removeFile(i)} className="text-[12px] text-error hover:text-error/80" aria-label={`Remove ${f.name}`}>
+                              Remove
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
-                  {selectedFile && (
-                    <p className="text-[11px] text-primary">Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)</p>
-                  )}
-                </div>
               </div>
 
               <button type="submit" className="w-full py-4 px-8 rounded-xl bg-gradient-to-r from-primary-container to-secondary-container text-surface-container-lowest font-bold tracking-wide flex items-center justify-center gap-3 shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5 transition-all active:scale-[0.99]">
@@ -352,8 +389,6 @@ const DiscoveryPage = () => {
                       url={calendlyUrl}
                       styles={{ height: "100%", width: "100%" }}
                       pageSettings={{ hideEventTypeDetails: false, hideLandingPageDetails: false }}
-                      // @ts-ignore - react-calendly types missing onEventScheduled
-                      onEventScheduled={handleCalendlyScheduled}
                     />
                   </div>
                 ) : (

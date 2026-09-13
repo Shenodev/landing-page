@@ -33,6 +33,14 @@
       "target": "nsis",
       "icon": "assets/Logo Icon.png"
     },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "icon": "assets/Logo Icon.png"
+    },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,

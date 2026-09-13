@@ -70,6 +70,7 @@ type PurifiedDiscovery = {
   calendlyEventUrl: string;
   attachmentUrl: string;
   attachmentPublicId: string;
+  attachments?: Array<{ url: string; publicId: string; fileName: string; mimeType: string; size: number }>;
 };
 
 /**
@@ -136,22 +137,36 @@ const enrichDiscoveryMeeting = async (
 router.post(
   "/discovery",
   discoveryLimiter,
-  uploadDiscovery.single("attachment"),
+  uploadDiscovery.fields([
+    { name: "attachments", maxCount: 10 },
+    { name: "attachment", maxCount: 1 },
+  ]),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    // Handle file attachment via Cloudinary if present (field "attachment" - fallback to "file" via multer)
+    // Handle multiple file attachments via Cloudinary if present
+    // Fields: "attachments" (multiple, up to 10) + legacy "attachment" (single)
+    const files: Express.Multer.File[] = ((req as unknown as { files?: Express.Multer.File[] }).files ?? []) as Express.Multer.File[];
     let attachmentUrl: string | null = null;
     let attachmentPublicId: string | null = null;
-    const file = (req as unknown as { file?: Express.Multer.File }).file;
-    if (file) {
+    const attachments: Array<{ url: string; publicId: string; fileName: string; mimeType: string; size: number }> = [];
+    for (const file of files) {
       try {
         const result = await uploadToCloudinary(file.buffer, {
           folder: "shenodev_discovery",
           resourceType: "auto",
         });
-        attachmentUrl = result.secure_url;
-        attachmentPublicId = result.public_id;
-        console.log(`[discovery] Uploaded attachment to Cloudinary: ${attachmentUrl}`);
+        attachments.push({
+          url: result.secure_url,
+          publicId: result.public_id,
+          fileName: file.originalname,
+          mimeType: file.mimetype,
+          size: file.size,
+        });
+        if (!attachmentUrl) {
+          attachmentUrl = result.secure_url;
+          attachmentPublicId = result.public_id;
+        }
+        console.log(`[discovery] Uploaded attachment to Cloudinary: ${result.secure_url}`);
       } catch (cloudErr: unknown) {
         const msg: string = cloudErr instanceof Error ? cloudErr.message : String(cloudErr);
         console.error("[discovery] Cloudinary upload failed for attachment:", msg);
@@ -160,10 +175,11 @@ router.post(
       }
     }
 
-    // Merge attachment URL into body for validation/persistence
+    // Merge attachments into body for validation/persistence
     const bodyWithAttachment: Record<string, unknown> = {
       ...req.body,
       ...(attachmentUrl ? { attachmentUrl, attachmentPublicId } : {}),
+      ...(attachments.length ? { attachments } : {}),
     };
 
     // 1. Raw injection check
@@ -198,13 +214,28 @@ router.post(
       integrations: purifyString(raw.integrations ?? ""),
       launchDate: (raw.launchDate ?? "").trim(),
       extraDetails: purifyString(raw.extraDetails ?? ""),
-      meetingDate: purifyString((raw as Record<string, string>).meetingDate ?? ""),
-      meetingTime: purifyString((raw as Record<string, string>).meetingTime ?? ""),
-      meetingUrl: purifyString((raw as Record<string, string>).meetingUrl ?? ""),
-      calendlyEventUri: purifyString((raw as Record<string, string>).calendlyEventUri ?? ""),
-      calendlyEventUrl: purifyString((raw as Record<string, string>).calendlyEventUrl ?? ""),
-      attachmentUrl: attachmentUrl ? purifyString(attachmentUrl) : purifyString((raw as Record<string, string>).attachmentUrl ?? ""),
-      attachmentPublicId: attachmentPublicId ? purifyString(attachmentPublicId) : purifyString((raw as Record<string, string>).attachmentPublicId ?? ""),
+      meetingDate: purifyString((raw as unknown as Record<string, string>).meetingDate ?? ""),
+      meetingTime: purifyString((raw as unknown as Record<string, string>).meetingTime ?? ""),
+      meetingUrl: purifyString((raw as unknown as Record<string, string>).meetingUrl ?? ""),
+      calendlyEventUri: purifyString((raw as unknown as Record<string, string>).calendlyEventUri ?? ""),
+      calendlyEventUrl: purifyString((raw as unknown as Record<string, string>).calendlyEventUrl ?? ""),
+      attachmentUrl: attachmentUrl ? purifyString(attachmentUrl) : purifyString((raw as unknown as Record<string, string>).attachmentUrl ?? ""),
+      attachmentPublicId: attachmentPublicId ? purifyString(attachmentPublicId) : purifyString((raw as unknown as Record<string, string>).attachmentPublicId ?? ""),
+      attachments: attachments.length
+        ? attachments.map((a) => ({
+            url: purifyString(a.url),
+            publicId: purifyString(a.publicId),
+            fileName: purifyString(a.fileName),
+            mimeType: purifyString(a.mimeType),
+            size: a.size,
+          }))
+        : (raw.attachments ?? []).map((a) => ({
+            url: purifyString(a.url),
+            publicId: purifyString(a.publicId ?? ""),
+            fileName: purifyString(a.fileName ?? ""),
+            mimeType: purifyString(a.mimeType ?? ""),
+            size: a.size ?? 0,
+          })),
     };
 
     // Extra injection check after purify

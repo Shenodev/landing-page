@@ -88,6 +88,19 @@ export const discoverySchema = z.object({
   calendlyEventUrl: z.string().trim().max(500, "Calendly URL too long").optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
   attachmentUrl: z.string().trim().max(500, "Attachment URL too long").optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
   attachmentPublicId: z.string().trim().max(500).optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
+  attachments: z
+    .array(
+      z.object({
+        url: z.string().trim().max(500, "Attachment URL too long"),
+        publicId: z.string().trim().max(500, "Attachment public ID too long").optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
+        fileName: z.string().trim().max(200, "File name too long").optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
+        mimeType: z.string().trim().max(100, "MIME type too long").optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
+        size: z.number().int().nonnegative().max(10 * 1024 * 1024).optional(),
+      })
+    )
+    .max(10, "Too many attachments")
+    .optional()
+    .default([]),
 });
 
 export type DiscoveryInput = z.infer<typeof discoverySchema>;

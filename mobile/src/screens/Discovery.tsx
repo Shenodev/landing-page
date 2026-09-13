@@ -1,8 +1,28 @@
 import { useState, useRef } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from "react-native";
 import { WebView } from "react-native-webview";
+import * as DocumentPicker from "expo-document-picker";
+import type { DocumentPickerAsset } from "expo-document-picker";
 import { COLORS, RADIUS } from "../theme";
 import { discoverySchema } from "../schemas/discovery";
+
+const MAX_PICKED_FILES = 10;
+
+type PickedFile = {
+  uri: string;
+  name: string;
+  mimeType?: string;
+  size?: number;
+};
+
+const PICKER_TYPES = [
+  "image/*",
+  "application/pdf",
+  "application/zip",
+  "application/x-zip-compressed",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
 
 type Props = {
   onBack?: () => void;
@@ -30,6 +50,32 @@ const DiscoveryScreen = ({ onBack }: Props) => {
     extraDetails: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [attachments, setAttachments] = useState<PickedFile[]>([]);
+
+  const pickFiles = async (): Promise<void> => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: PICKER_TYPES,
+        multiple: true,
+        copyToCacheDirectory: true,
+      });
+      if (result.canceled) return;
+      const picked: PickedFile[] = (result.assets as DocumentPickerAsset[]).map((a) => ({
+        uri: a.uri,
+        name: a.name,
+        mimeType: a.mimeType,
+        size: a.size,
+      }));
+      setAttachments((prev) => [...prev, ...picked].slice(0, MAX_PICKED_FILES));
+    } catch (err) {
+      console.error("[discovery] file pick failed", err);
+      Alert.alert("Error", "Could not open file picker");
+    }
+  };
+
+  const removePickedFile = (index: number): void => {
+    setAttachments((prev) => prev.filter((_: PickedFile, i: number) => i !== index));
+  };
 
   const handleChange = (key: string, value: string): void => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -92,11 +138,26 @@ const DiscoveryScreen = ({ onBack }: Props) => {
       const payload = { ...form, ...meeting, calendlyEventUrl: meeting.calendlyEventUrl || meeting.meetingUrl };
       const backendUrl: string | undefined = process.env.EXPO_PUBLIC_API_URL;
       if (!backendUrl) throw new Error("EXPO_PUBLIC_API_URL not configured");
-      const res: Response = await fetch(`${backendUrl}/api/discovery`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      let res: Response;
+      if (attachments.length > 0) {
+        const fd = new FormData();
+        Object.entries(payload).forEach(([k, v]) => fd.append(k, v as string));
+        attachments.forEach((a) => {
+          const file = {
+            uri: a.uri,
+            name: a.name,
+            type: a.mimeType || "application/octet-stream",
+          } as unknown as Blob;
+          fd.append("attachments", file);
+        });
+        res = await fetch(`${backendUrl}/api/discovery`, { method: "POST", body: fd });
+      } else {
+        res = await fetch(`${backendUrl}/api/discovery`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
       if (!res.ok) {
         const d = ((await res.json().catch(() => ({ message: "Failed" }))) as { message: string }).message;
         throw new Error(d);
@@ -113,14 +174,39 @@ const DiscoveryScreen = ({ onBack }: Props) => {
 
   const calendlyUrl: string = (process.env.EXPO_PUBLIC_CALENDLY_URL ?? "").trim();
 
-  const injectedJS = `
-    window.addEventListener('message', function(e) {
-      if (e.data.event && e.data.event.indexOf('calendly') !== -1) {
-        window.ReactNativeWebView.postMessage(JSON.stringify(e.data));
-      }
-    });
-    true;
-  `;
+  // Official Calendly inline embed inside the WebView. The `embed_domain=1` param makes the
+  // embed post `calendly.*` messages to the host page, which we forward to React Native here.
+  const calendlyEmbedHtml = (): string => {
+    const url: string = calendlyUrl;
+    const sep: string = url.includes("?") ? "&" : "?";
+    const embedUrl: string = `${url}${sep}embed_domain=1`;
+    const safeUrl: string = embedUrl.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+    return `<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <style>
+      html, body { margin: 0; padding: 0; height: 100%; background: #fff; }
+      #calendly-wrap { height: 100%; }
+      .calendly-inline-widget { min-width: 320px; height: 100%; }
+    </style>
+  </head>
+  <body>
+    <div id="calendly-wrap">
+      <div class="calendly-inline-widget" data-url="${safeUrl}"></div>
+    </div>
+    <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+    <script type="text/javascript">
+      window.addEventListener('message', function (e) {
+        if (e && e.data && e.data.event && String(e.data.event).indexOf('calendly') !== -1) {
+          window.ReactNativeWebView.postMessage(JSON.stringify(e.data));
+        }
+      });
+      true;
+    </script>
+  </body>
+</html>`;
+  };
 
   if (step === 2) {
     return (
@@ -134,8 +220,7 @@ const DiscoveryScreen = ({ onBack }: Props) => {
         </View>
         {calendlyUrl ? (
           <WebView
-            source={{ uri: calendlyUrl }}
-            injectedJavaScript={injectedJS}
+            source={{ html: calendlyEmbedHtml(), baseUrl: "https://calendly.com" }}
             onMessage={handleCalendlyMessage}
             onNavigationStateChange={handleNavStateChange}
             startInLoadingState
@@ -321,6 +406,26 @@ const DiscoveryScreen = ({ onBack }: Props) => {
           </View>
         </View>
 
+        {/* 06 — Additional Files */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>06 — Additional Files</Text>
+          <Text style={styles.hint}>Attach RFPs, wireframes, specs (up to {MAX_PICKED_FILES} files).</Text>
+          <Pressable onPress={pickFiles} style={styles.uploadBtn}>
+            <Text style={styles.uploadBtnText}>+ Add Files</Text>
+          </Pressable>
+          {attachments.map((a, i) => (
+            <View key={`${a.name}-${i}`} style={styles.fileRow}>
+              <Text style={styles.fileName} numberOfLines={1}>
+                {a.name}
+              </Text>
+              {typeof a.size === "number" && <Text style={styles.fileSize}>{(a.size / 1024).toFixed(1)} KB</Text>}
+              <Pressable onPress={() => removePickedFile(i)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <Text style={styles.removeText}>Remove</Text>
+              </Pressable>
+            </View>
+          ))}
+        </View>
+
         <Pressable onPress={handleContinue} style={styles.submit}>
           <Text style={styles.submitText}>Continue to Scheduling →</Text>
         </Pressable>
@@ -356,6 +461,13 @@ const styles = StyleSheet.create({
   radioActive: { borderColor: COLORS.primary, backgroundColor: "rgba(6,182,212,0.15)" },
   radioText: { color: COLORS.onSurfaceVariant, fontSize: 12, fontWeight: "600", textAlign: "center" },
   radioTextActive: { color: COLORS.primary },
+  hint: { color: COLORS.onSurfaceVariant, fontSize: 12 },
+  uploadBtn: { backgroundColor: "rgba(6,182,212,0.12)", borderWidth: 1, borderColor: "rgba(6,182,212,0.25)", borderRadius: 8, paddingVertical: 10, paddingHorizontal: 12, alignItems: "center" },
+  uploadBtnText: { color: COLORS.primary, fontSize: 13, fontWeight: "700" },
+  fileRow: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "rgba(2,6,23,0.6)", borderWidth: 1, borderColor: "rgba(51,65,85,0.3)", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8 },
+  fileName: { flex: 1, color: COLORS.text, fontSize: 13 },
+  fileSize: { color: COLORS.onSurfaceVariant, fontSize: 11 },
+  removeText: { color: "#F87171", fontSize: 12, fontWeight: "700" },
   submit: { backgroundColor: COLORS.primary, borderRadius: 12, paddingVertical: 16, alignItems: "center", marginTop: 8 },
   submitText: { color: "#003640", fontSize: 15, fontWeight: "800" },
   backLink: { alignItems: "center", paddingVertical: 12 },

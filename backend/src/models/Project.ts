@@ -4,6 +4,7 @@ export interface IProject extends Document {
   title: string;
   description: string;
   imageUrl: string;
+  images?: Array<{ url: string; publicId?: string }>;
   techStack: string[];
   demoUrl: string;
   githubUrl: string;
@@ -16,6 +17,19 @@ const ProjectSchema: Schema<IProject> = new Schema<IProject>(
     title: { type: String, required: true, trim: true, maxlength: 100, minlength: 2 },
     description: { type: String, required: true, trim: true, maxlength: 1000, minlength: 10 },
     imageUrl: { type: String, required: true, trim: true, maxlength: 500 },
+    images: {
+      type: [
+        new Schema(
+          {
+            url: { type: String, required: true, trim: true, maxlength: 500 },
+            publicId: { type: String, required: false, trim: true, maxlength: 500 },
+          },
+          { _id: false }
+        ),
+      ],
+      required: false,
+      default: [],
+    },
     techStack: { type: [String], required: true, validate: (v: string[]) => v.length > 0 },
     demoUrl: { type: String, required: false, trim: true, maxlength: 500 },
     githubUrl: { type: String, required: false, trim: true, maxlength: 500 },

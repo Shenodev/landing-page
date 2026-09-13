@@ -131,4 +131,36 @@ describe("POST /api/discovery - Project Discovery (TDD)", () => {
       .send({ ...validDiscoveryPayload, "a.b": "injection" } as unknown as Record<string, unknown>);
     expect([400, 201]).toContain(dotRes.status);
   });
+
+  it("should accept multiple attachments and list them in the admin email", async () => {
+    const res = await request(app)
+      .post("/api/discovery")
+      .send({
+        ...validDiscoveryPayload,
+        attachments: [
+          { url: "https://res.cloudinary.com/shenodev/shenodev_discovery/specs.pdf", publicId: "specs.pdf" },
+          { url: "https://res.cloudinary.com/shenodev/shenodev_discovery/wireframe.png", publicId: "wireframe.png" },
+        ],
+      });
+    expect(res.status).toBe(201);
+    expect(Array.isArray(res.body.data.attachments)).toBe(true);
+    expect(res.body.data.attachments).toHaveLength(2);
+    expect(res.body.data.attachments[0].url).toContain("specs.pdf");
+
+    expect(mockSend).toHaveBeenCalledTimes(2);
+    const adminCall = mockSend.mock.calls.find((c: unknown[]) => {
+      const arg = c[0] as Record<string, unknown>;
+      return arg.to === "admin@contact.shenodev.dpdns.org" || (Array.isArray(arg.to) && (arg.to as string[]).includes("admin@contact.shenodev.dpdns.org"));
+    });
+    expect(adminCall).toBeDefined();
+    const adminHtml = String((adminCall![0] as Record<string, unknown>).html ?? "");
+    expect(adminHtml).toContain("specs.pdf");
+    expect(adminHtml).toContain("wireframe.png");
+  });
+
+  it("should reject too many attachments with 400", async () => {
+    const tooMany = Array.from({ length: 11 }, (_, i) => ({ url: `https://res.cloudinary.com/shenodev/f-${i}.pdf`, publicId: `f-${i}` }));
+    const res = await request(app).post("/api/discovery").send({ ...validDiscoveryPayload, attachments: tooMany });
+    expect(res.status).toBe(400);
+  });
 });

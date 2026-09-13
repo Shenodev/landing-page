@@ -111,5 +111,32 @@ describe("Projects API - TDD (Portfolio)", () => {
         expect(res.body.data.title).toBe("Bearer Auth Project");
       }
     });
+
+    it("should create project with multiple images and derive imageUrl from first image", async () => {
+      const res = await request(app)
+        .post("/api/projects")
+        .set("x-admin-secret", adminSecret)
+        .send({
+          title: "Gallery Project",
+          description: "Project showcasing multiple uploaded images.",
+          techStack: ["Next.js", "MongoDB"],
+          images: [
+            { url: "https://cdn.shenodev.tech/projects/gallery-a.jpg", publicId: "gallery-a" },
+            { url: "https://cdn.shenodev.tech/projects/gallery-b.jpg", publicId: "gallery-b" },
+          ],
+        });
+      expect(res.status).toBe(201);
+      expect(Array.isArray(res.body.data.images)).toBe(true);
+      expect(res.body.data.images).toHaveLength(2);
+      expect(res.body.data.imageUrl).toBe("https://cdn.shenodev.tech/projects/gallery-a.jpg");
+    });
+
+    it("should reject project with no imageUrl and no images with 400", async () => {
+      const res = await request(app)
+        .post("/api/projects")
+        .set("x-admin-secret", adminSecret)
+        .send({ title: "No Image", description: "This project has no image at all anywhere.", techStack: ["Node.js"] });
+      expect(res.status).toBe(400);
+    });
   });
 });

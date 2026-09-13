@@ -79,20 +79,20 @@ router.post(
   "/projects",
   projectsLimiter,
   checkAdminSecret,
-  upload.single("image"),
+  upload.array("images", 10),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // Handle file upload via Cloudinary if present, else use imageUrl from body
-      let cloudinaryUrl: string | null = null;
-      const file = (req as unknown as { file?: Express.Multer.File }).file;
-      if (file) {
+      // Handle multiple image uploads via Cloudinary if present
+      const files: Express.Multer.File[] = ((req as unknown as { files?: Express.Multer.File[] }).files ?? []) as Express.Multer.File[];
+      const uploadedImages: Array<{ url: string; publicId: string }> = [];
+      for (const file of files) {
         try {
           const result = await uploadToCloudinary(file.buffer, {
             folder: "shenodev_projects",
             resourceType: "image",
           });
-          cloudinaryUrl = result.secure_url;
-          console.log(`[projects] Uploaded to Cloudinary: ${cloudinaryUrl}`);
+          uploadedImages.push({ url: result.secure_url, publicId: result.public_id });
+          console.log(`[projects] Uploaded to Cloudinary: ${result.secure_url}`);
         } catch (cloudErr: unknown) {
           const msg: string = cloudErr instanceof Error ? cloudErr.message : String(cloudErr);
           console.error("[projects] Cloudinary upload failed:", msg);
@@ -101,7 +101,7 @@ router.post(
         }
       }
 
-      // Merge cloudinary URL into body for validation (if file uploaded, use its URL)
+      // Merge cloudinary URLs into body for validation (if files uploaded, use their URLs)
       let parsedTechStack: unknown = req.body.techStack;
       if (typeof req.body.techStack === "string") {
         try {
@@ -111,9 +111,22 @@ router.post(
           parsedTechStack = req.body.techStack;
         }
       }
+      let parsedBodyImages: unknown = req.body.images;
+      if (typeof req.body.images === "string") {
+        try {
+          parsedBodyImages = JSON.parse(req.body.images as string);
+        } catch {
+          // Keep as string to let zod validation fail with 400, not 500
+          parsedBodyImages = req.body.images;
+        }
+      }
+      const bodyImages: Array<{ url: string; publicId?: string }> = Array.isArray(parsedBodyImages) ? (parsedBodyImages as Array<{ url: string; publicId?: string }>) : [];
+      const images: Array<{ url: string; publicId?: string }> = uploadedImages.length ? uploadedImages : bodyImages;
+      const imageUrl: string = String(req.body.imageUrl ?? "").trim() || (images[0]?.url ?? "");
       const bodyForValidation: Record<string, unknown> = {
         ...req.body,
-        ...(cloudinaryUrl ? { imageUrl: cloudinaryUrl } : {}),
+        ...(images.length ? { images } : {}),
+        imageUrl,
         techStack: parsedTechStack,
       };
 
@@ -133,6 +146,10 @@ router.post(
         title: purifyString(parsed.data.title),
         description: purifyString(parsed.data.description),
         imageUrl: purifyString(parsed.data.imageUrl),
+        images: parsed.data.images.map((im: { url: string; publicId?: string }) => ({
+          url: purifyString(im.url),
+          publicId: purifyString(im.publicId ?? ""),
+        })),
         techStack: parsed.data.techStack.map((t: string) => purifyString(t)),
         demoUrl: purifyString(parsed.data.demoUrl ?? ""),
         githubUrl: purifyString(parsed.data.githubUrl ?? ""),
