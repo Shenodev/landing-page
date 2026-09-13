@@ -34,8 +34,7 @@ jobs:
         with:
           node-version: 20
       - run: npm install
-      - run: npm run build
-      - name: Build & Publish Linux Installer
+      - name: Build & Publish Linux AppImage & deb
         run: npx electron-builder --linux -p always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -51,7 +50,6 @@ jobs:
         with:
           node-version: 20
       - run: npm install
-      - run: npm run build
       - name: Build & Publish Mac (Intel & ARM)
         run: npx electron-builder --mac --x64 --arm64 -p always
         env:
@@ -61,29 +59,39 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./mobile # تأكد من اسم مجلد تطبيق الهاتف
+        working-directory: ./mobile
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          
+
       - name: Setup Expo
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           packager: npm
           token: ${{ secrets.EXPO_TOKEN }}
-          
+
       - run: npm install
-      
+
+      # Cloud builds run on EAS servers. --output is only allowed for LOCAL builds,
+      # so we build+wait with --json, capture the build ID, then download the APK.
       - name: Build Android APK on EAS Cloud
-        # نستخدم خوادم EAS للقيام بالبناء الثقيل، ثم ننتظر استلام الملف الجاهز
-        run: eas build --platform android --profile production --non-interactive --wait --output ./shenodev-android-production.apk
-        
+        id: eas-build
+        run: |
+          eas build --platform android --profile production --non-interactive --wait --json > eas-build-output.json
+          echo "EAS_BUILD_ID=$(jq -r '.[0].id' eas-build-output.json)" >> "$GITHUB_ENV"
+
+      - name: Download APK from EAS
+        id: eas-download
+        run: |
+          eas build:download --build-id "$EAS_BUILD_ID" --json --non-interactive > eas-download-output.json
+          echo "APK_PATH=$(jq -r '.path' eas-download-output.json)" >> "$GITHUB_ENV"
+
       - name: Upload APK to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ./mobile/shenodev-android-production.apk
+          files: ${{ env.APK_PATH }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
