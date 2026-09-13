@@ -268,7 +268,7 @@ export const sendDiscoveryEmails = async (data: DiscoveryEmailData): Promise<{ a
           <tr><td style="padding:8px;border:1px solid #334155;"><strong>Extra</strong></td><td style="padding:8px;border:1px solid #334155;">${extraDetails || "-"}</td></tr>
           <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Meeting Date</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;">${meetingDate || "-"}</td></tr>
           <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Meeting Time</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;">${meetingTime || "-"}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Meeting Link</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;">${meetingLink ? `<a href="${meetingLink}" style="color:#06B6D4;">${meetingLink}</a>` : meetingLinkFallback || "-"}</td></tr>
+          <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Meeting Link</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;">${meetingLink ? `<a href="${escapeHtml(meetingLink)}" style="color:#06B6D4;">${escapeHtml(meetingLink)}</a>` : meetingLinkFallback || "-"}</td></tr>
           <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Calendly URI</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;">${calendlyEventUri || calendlyEventUrl || "-"}</td></tr>
           <tr><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;"><strong>Attachments</strong></td><td style="padding:8px;border:1px solid #06B6D4;background:#1E293B;font-size:12px;">${attachmentList}</td></tr>
         </table>
@@ -283,7 +283,7 @@ export const sendDiscoveryEmails = async (data: DiscoveryEmailData): Promise<{ a
   };
 
   const meetingInfo = meetingDate || meetingTime || meetingLinkFallback
-    ? `<p>Your scheduled meeting: <strong>${meetingDisplay}</strong>${meetingLink ? ` - <a href="${meetingLink}" style="color:#06B6D4;">${meetingLink}</a>` : meetingLinkFallback ? ` - ${meetingLinkFallback}` : ""}</p>`
+    ? `<p>Your scheduled meeting: <strong>${meetingDisplay}</strong>${meetingLink ? ` - <a href="${escapeHtml(meetingLink)}" style="color:#06B6D4;">${escapeHtml(meetingLink)}</a>` : meetingLinkFallback ? ` - ${meetingLinkFallback}` : ""}</p>`
     : "";
 
   const welcomeHtml = `
@@ -293,7 +293,7 @@ export const sendDiscoveryEmails = async (data: DiscoveryEmailData): Promise<{ a
         <p>We’ve received your full business and technical requirements (package: <strong>${targetPackage}</strong>).</p>
         ${meetingInfo}
         <p>Our team will review your project details and get back to you within <strong>24-48 hours</strong> with a precise scope, roadmap, and proposal.</p>
-        ${meetingLink ? `<p>Meeting Link: <a href="${meetingLink}" style="color:#06B6D4;">${meetingLink}</a></p>` : meetingLinkFallback ? `<p>Meeting Link: ${meetingLinkFallback}</p>` : ""}
+        ${meetingLink ? `<p>Meeting Link: <a href="${escapeHtml(meetingLink)}" style="color:#06B6D4;">${escapeHtml(meetingLink)}</a></p>` : meetingLinkFallback ? `<p>Meeting Link: ${meetingLinkFallback}</p>` : ""}
         <p style="color:#94A3B8;font-size:13px;">— ShenoDev Team<br/>Think it, Sheno it.</p>
       </div>
     `;

@@ -232,4 +232,18 @@ describe("POST /api/discovery - Calendly Integration (TDD)", () => {
     expect(res.body.data.meetingUrl).toBe("https://calendly.com/shenodev/alex-vance");
     expect(mockSend).toHaveBeenCalledTimes(2);
   });
+
+  it("should neutralize quotes in a client-supplied meeting URL (no attribute breakout)", async () => {
+    delete process.env.CALENDLY_API_TOKEN;
+    const res = await request(app).post("/api/discovery").send({
+      ...validDiscoveryWithMeeting,
+      meetingUrl: `https://calendly.com/x?a=" onmouseover="alert(1)`,
+    });
+    expect(res.status).toBe(201);
+    const calls = mockSend.mock.calls.map((c: unknown[]) => (c[0] as Record<string, unknown>));
+    const welcomeHtml = String(calls.find((c) => c.to === "alex@vancedynamics.io")?.html ?? "");
+    // Quotes are HTML-escaped, so no on* attribute can break out of the href
+    expect(welcomeHtml).not.toMatch(/" onmouseover=/);
+    expect(welcomeHtml).toMatch(/&quot;/);
+  });
 });
