@@ -40,8 +40,8 @@ const Navbar = () => {
           <Image
             src="/assets/Logo Horizontal without slugan.svg"
             alt="ShenoDev"
-            width={160}
-            height={36}
+            width={180}
+            height={40}
             priority
             style={{ height: 30, width: "auto", objectFit: "contain" }}
           />
