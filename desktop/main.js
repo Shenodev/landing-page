@@ -4,7 +4,7 @@ const path = require('path');
 // Keep window reference to prevent GC
 let mainWindow = null;
 // Future-proof: uses NEXT_PUBLIC_API_URL pattern - switches localhost:3000 <-> https://shenodev.tech
-const WEB_URL = process.env.ELECTRON_WEB_URL || (process.env.NODE_ENV === 'production' ? 'https://shenodev.tech' : 'http://localhost:3000');
+const WEB_URL = process.env.ELECTRON_WEB_URL || (process.env.NODE_ENV === 'production' ? 'https://shenodev.dpdns.org' : 'http://localhost:3000');
 const isDev = process.env.NODE_ENV === 'development';
 
 function createWindow() {
@@ -125,6 +125,8 @@ app.on('web-contents-created', (_event, contents) => {
 process.on('unhandledRejection', (reason) => {
   const msg = reason instanceof Error ? reason.message : String(reason);
   console.error('[desktop] Unhandled Rejection:', msg);
+  // Exit so process manager (PM2/Render) can restart cleanly
+  process.exit(1);
 });
 process.on('uncaughtException', (err) => {
   console.error('[desktop] Uncaught Exception:', err.message, err.stack);

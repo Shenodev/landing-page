@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+
+type WorkProps = {
+  showViewAll?: boolean;
+};
 
 type Project = {
   _id: string;
@@ -12,7 +18,7 @@ type Project = {
   githubUrl?: string;
 };
 
-const Work = () => {
+const Work = ({ showViewAll = true }: WorkProps) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
@@ -46,6 +52,14 @@ const Work = () => {
             Our Work
           </div>
           <h2 className="font-display text-[32px] md:text-[48px] font-bold text-on-surface tracking-tight mb-4">My Works</h2>
+          {showViewAll && (
+            <div className="mt-5">
+              <Link href="/work" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-primary hover:text-primary-container transition-colors">
+                View All Projects
+                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </Link>
+            </div>
+          )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
           {[1, 2, 3].map((i) => (
@@ -62,6 +76,14 @@ const Work = () => {
         <div className="text-center max-w-2xl mx-auto">
           <h2 className="font-display text-[32px] font-bold text-on-surface mb-4">My Works</h2>
           <p className="text-[13px] text-error">Unable to load projects: {error}</p>
+          {showViewAll && (
+            <div className="mt-5">
+              <Link href="/work" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-primary hover:text-primary-container transition-colors">
+                View All Projects
+                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </Link>
+            </div>
+          )}
         </div>
       </section>
     );
@@ -76,6 +98,14 @@ const Work = () => {
           </div>
           <h2 className="font-display text-[32px] md:text-[48px] font-bold text-on-surface tracking-tight mb-4">My Works</h2>
           <p className="text-[15px] text-on-surface-variant">A curated collection of our recent builds.</p>
+          {showViewAll && (
+            <div className="mt-5">
+              <Link href="/work" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-primary hover:text-primary-container transition-colors">
+                View All Projects
+                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </Link>
+            </div>
+          )}
         </div>
         <div className="relative overflow-hidden rounded-xl bg-surface-container/50 border border-primary/20 backdrop-blur-md p-12 md:p-16 text-center">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary-container/5 pointer-events-none" />
@@ -104,6 +134,14 @@ const Work = () => {
         </div>
         <h2 className="font-display text-[32px] md:text-[48px] font-bold text-on-surface tracking-tight mb-4">My Works</h2>
         <p className="text-[15px] text-on-surface-variant">A curated collection of high-performance builds.</p>
+        {showViewAll && (
+          <div className="mt-5">
+            <Link href="/work" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-primary hover:text-primary-container transition-colors">
+              View All Projects
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </Link>
+          </div>
+        )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {projects.map((project: Project) => (
@@ -113,8 +151,13 @@ const Work = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary-container/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <div className="h-48 overflow-hidden bg-surface-container-lowest">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <Image
+                src={project.imageUrl}
+                alt={project.title}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              />
             </div>
             <div className="p-6 space-y-4">
               <h3 className="font-display text-[18px] font-semibold text-on-surface group-hover:text-primary transition-colors">{project.title}</h3>

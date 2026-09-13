@@ -9,9 +9,9 @@ type NavLink = {
 };
 
 const NAV_LINKS: readonly NavLink[] = [
-  { label: "Services", href: "#services" },
-  { label: "Work", href: "#work" },
-  { label: "Contact", href: "#contact" },
+  { label: "Services", href: "/#services" },
+  { label: "Work", href: "/#work" },
+  { label: "Contact", href: "/#contact" },
 ] as const;
 
 const Navbar = () => {
@@ -38,7 +38,7 @@ const Navbar = () => {
           aria-label="ShenoDev - Back to top"
         >
           <Image
-            src="/assets/Logo Horizontal without slugan.png"
+            src="/assets/Logo Horizontal without slugan.svg"
             alt="ShenoDev"
             width={160}
             height={36}
@@ -62,7 +62,7 @@ const Navbar = () => {
         <div className="flex items-center gap-4">
           <a
             className="hidden sm:inline-flex items-center justify-center bg-primary-container hover:bg-primary text-on-primary-container text-[14px] leading-[20px] font-medium px-5 py-2.5 rounded-lg font-semibold glow-button hover:scale-[1.02] active:scale-95 transition-all duration-150"
-            href="#contact"
+            href="/#contact"
           >
             Get a Quote
           </a>
@@ -94,13 +94,6 @@ const Navbar = () => {
             {link.label}
           </a>
         ))}
-        <a
-          className="inline-flex items-center justify-center bg-primary-container text-on-primary-container text-[14px] leading-[20px] font-medium px-4 py-2 rounded-lg font-semibold text-center glow-button"
-          href="#contact"
-          onClick={closeMobile}
-        >
-          Get a Quote
-        </a>
       </div>
     </header>
   );

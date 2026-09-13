@@ -12,7 +12,7 @@ const WorkPage = () => {
     <>
       <Navbar />
       <main>
-        <Work />
+        <Work showViewAll={false} />
       </main>
       <Footer />
     </>

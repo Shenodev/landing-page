@@ -153,10 +153,14 @@ router.post(
       } catch (dbErr: unknown) {
         const msg: string = dbErr instanceof Error ? dbErr.message : String(dbErr);
         console.error("[projects] DB create failed, fallback to memory:", msg);
+        // Fall through to degraded
       }
     }
 
     // Fallback in-memory for test/degraded
+    // NOTE: Email failure does NOT rollback DB — project is still created/queued.
+    // Admin/DevOps can monitor Cloudinary upload status and email failures via logs,
+    // and retry notifications via admin panel if needed.
     const memDoc = {
       _id: `mem_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
       ...purified,

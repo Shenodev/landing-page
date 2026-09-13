@@ -45,6 +45,8 @@ const startServer = async (): Promise<void> => {
   process.on('unhandledRejection', (reason: unknown) => {
     const msg = reason instanceof Error ? reason.message : String(reason);
     console.error(`[server] Unhandled Rejection: ${msg}`);
+    // Exit process so process manager (PM2/Render) can restart cleanly
+    process.exit(1);
   });
 
   process.on('uncaughtException', (err: Error) => {

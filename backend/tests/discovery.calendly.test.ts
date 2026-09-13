@@ -8,6 +8,13 @@ jest.mock("resend", () => ({
   })),
 }));
 
+const mockFetch = jest.fn();
+jest.spyOn(global, "fetch").mockImplementation(mockFetch as unknown as typeof fetch);
+
+afterAll(() => {
+  jest.restoreAllMocks();
+});
+
 const validDiscoveryWithMeeting = {
   fullName: "Alex Vance",
   companyName: "Vance Dynamics Corp",
@@ -37,6 +44,8 @@ describe("POST /api/discovery - Calendly Integration (TDD)", () => {
     jest.clearAllMocks();
     process.env.RESEND_API_KEY = "re_test_calendly_123";
     process.env.NODE_ENV = "test";
+    delete process.env.CALENDLY_API_TOKEN;
+    mockFetch.mockReset().mockResolvedValue({ ok: false, status: 404, json: async () => ({}) });
   });
 
   it("should accept payload with meeting fields and return 201", async () => {
@@ -53,7 +62,7 @@ describe("POST /api/discovery - Calendly Integration (TDD)", () => {
     expect(mockSend).toHaveBeenCalledTimes(2);
     const adminCall = mockSend.mock.calls.find((c: unknown[]) => {
       const arg = c[0] as Record<string, unknown>;
-      return arg.to === "admin@shenodev.tech" || arg.to === "admin@sheno.dev";
+      return arg.to === "admin@contact.shenodev.dpdns.org" || (Array.isArray(arg.to) && (arg.to as string[]).includes("admin@contact.shenodev.dpdns.org"));
     });
     expect(adminCall).toBeDefined();
     const html = String((adminCall![0] as Record<string, unknown>).html ?? "");
@@ -106,5 +115,45 @@ describe("POST /api/discovery - Calendly Integration (TDD)", () => {
     const res = await request(app).post("/api/discovery").send(validDiscoveryWithMeeting);
     expect(res.status).toBe(201);
     expect(res.body.data.meetingDate).toBe("2026-09-20");
+  });
+
+  it("should enrich unreliable client meeting time from Calendly API when token is set", async () => {
+    process.env.CALENDLY_API_TOKEN = "cal_test_enrichment_token";
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        resource: {
+          uri: "https://api.calendly.com/scheduled_events/EVT2026",
+          name: "Discovery Call",
+          status: "active",
+          start_time: "2026-09-20T14:30:00.000Z",
+          end_time: "2026-09-20T15:00:00.000Z",
+          event_type: "https://api.calendly.com/event_types/ET1",
+          scheduling_url: "https://calendly.com/shenodev/discovery",
+        },
+      }),
+    });
+    const res = await request(app).post("/api/discovery").send({
+      ...validDiscoveryWithMeeting,
+      meetingDate: "2026-09-21",
+      meetingTime: "09:00",
+      calendlyEventUri: "https://api.calendly.com/scheduled_events/EVT2026",
+    });
+    expect(res.status).toBe(201);
+    // Client-captured values are overwritten with the authoritative Calendly start time
+    expect(res.body.data.meetingDate).toBe("2026-09-20");
+    expect(res.body.data.meetingTime).toBe("14:30");
+  });
+
+  it("should keep client meeting fields when Calendly API token is missing (degraded)", async () => {
+    const res = await request(app).post("/api/discovery").send({
+      ...validDiscoveryWithMeeting,
+      calendlyEventUri: "https://api.calendly.com/scheduled_events/EVT2026",
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.meetingDate).toBe("2026-09-20");
+    expect(res.body.data.meetingTime).toBe("14:30");
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 });

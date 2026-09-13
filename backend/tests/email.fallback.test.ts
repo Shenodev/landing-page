@@ -11,6 +11,9 @@ describe("sendResendEmail - Domain Fallback", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.RESEND_API_KEY = "re_test_fallback_123";
+    process.env.RESEND_FROM_EMAIL = "hello@contact.shenodev.dpdns.org";
+    process.env.ADMIN_EMAIL = "admin@contact.shenodev.dpdns.org";
+    process.env.RESEND_FALLBACK_DOMAIN = "shenodev.dpdns.org";
   });
 
   it("should try primary domain first and succeed", async () => {
@@ -23,13 +26,13 @@ describe("sendResendEmail - Domain Fallback", () => {
     });
     expect(mockSend).toHaveBeenCalledTimes(1);
     const firstCall = mockSend.mock.calls[0][0] as Record<string, unknown>;
-    expect(firstCall.from).toMatch(/hello@shenodev\.tech/);
-    expect(firstCall.to).toMatch(/admin@shenodev\.tech/);
+    expect(firstCall.from).toMatch(/hello@contact\.shenodev\.dpdns\.org/);
+    expect(firstCall.to).toMatch(/admin@contact\.shenodev\.dpdns\.org/);
     expect(result.id).toBe("primary-id");
   });
 
   it("should fallback to shenodev.dpdns.org when primary fails", async () => {
-    mockSend.mockRejectedValueOnce(new Error("Domain not verified: shenodev.tech")).mockResolvedValueOnce({ id: "fallback-id" });
+    mockSend.mockRejectedValueOnce(new Error("Domain not verified: contact.shenodev.dpdns.org")).mockResolvedValueOnce({ id: "fallback-id" });
     const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
     const consoleLogSpy = jest.spyOn(console, "log").mockImplementation(() => {});
 
@@ -43,8 +46,8 @@ describe("sendResendEmail - Domain Fallback", () => {
     expect(mockSend).toHaveBeenCalledTimes(2);
     const firstCall = mockSend.mock.calls[0][0] as Record<string, unknown>;
     const secondCall = mockSend.mock.calls[1][0] as Record<string, unknown>;
-    expect(firstCall.from).toMatch(/hello@shenodev\.tech/);
-    expect(firstCall.to).toMatch(/admin@shenodev\.tech/);
+    expect(firstCall.from).toMatch(/hello@contact\.shenodev\.dpdns\.org/);
+    expect(firstCall.to).toMatch(/admin@contact\.shenodev\.dpdns\.org/);
     expect(secondCall.from).toMatch(/hello@shenodev\.dpdns\.org/);
     expect(secondCall.to).toMatch(/admin@shenodev\.dpdns\.org/);
     expect(result.id).toBe("fallback-id");
@@ -64,7 +67,7 @@ describe("sendResendEmail - Domain Fallback", () => {
     expect(mockSend).toHaveBeenCalledTimes(1);
     const call = mockSend.mock.calls[0][0] as Record<string, unknown>;
     expect(call.to).toBe("client@example.com");
-    expect(call.from).toMatch(/hello@shenodev\.tech/);
+    expect(call.from).toMatch(/hello@contact\.shenodev\.dpdns\.org/);
   });
 
   it("should fallback for user email as well", async () => {

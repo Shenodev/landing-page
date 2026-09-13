@@ -2,6 +2,15 @@
 const nextConfig = {
   reactStrictMode: true,
   typedRoutes: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+    ],
+  },
   async headers() {
     return [
       {

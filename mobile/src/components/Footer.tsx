@@ -1,5 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { COLORS } from "../theme";
+import Logo from "./Logo";
 
 type FooterLink = {
   label: string;
@@ -16,10 +17,7 @@ const Footer = () => {
   return (
     <View style={styles.container}>
       <View style={styles.brand}>
-        <View style={styles.brandRow}>
-          <Text style={styles.brandText}>ShenoDev</Text>
-          <View style={styles.dot} />
-        </View>
+        <Logo width={132} />
         <Text style={styles.copy}>© 2026 ShenoDev. All rights reserved. Think it, Sheno it.</Text>
       </View>
       <View style={styles.links}>
@@ -46,22 +44,6 @@ const styles = StyleSheet.create({
   brand: {
     alignItems: "center",
     gap: 6,
-  },
-  brandRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  brandText: {
-    color: COLORS.text,
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: COLORS.primary,
   },
   copy: {
     color: COLORS.onSurfaceVariant,

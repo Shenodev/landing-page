@@ -109,6 +109,9 @@ const Work = () => {
           </View>
           <Text style={styles.h2}>My Works</Text>
           <Text style={styles.sub}>A curated collection of our recent builds.</Text>
+          <Pressable style={styles.viewAllBtn} onPress={() => Linking.openURL("https://shenodev.dpdns.org/work")}>
+            <Text style={styles.viewAllText}>View All on Web ↗</Text>
+          </Pressable>
         </View>
         <Animated.View style={[styles.emptyCard, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
           <View style={styles.emptyGlow} />
@@ -137,6 +140,9 @@ const Work = () => {
         </View>
         <Text style={styles.h2}>My Works</Text>
         <Text style={styles.sub}>A curated collection of high-performance builds.</Text>
+        <Pressable style={styles.viewAllBtn} onPress={() => Linking.openURL("https://shenodev.dpdns.org/work")}>
+          <Text style={styles.viewAllText}>View All on Web ↗</Text>
+        </Pressable>
       </View>
       <View style={styles.grid}>
         {projects.map((project: Project) => (
@@ -213,6 +219,19 @@ const styles = StyleSheet.create({
     color: COLORS.onSurfaceVariant,
     fontSize: 13,
     textAlign: "center",
+  },
+  viewAllBtn: {
+    backgroundColor: "rgba(30,41,59,0.9)",
+    borderWidth: 1,
+    borderColor: "rgba(6,182,212,0.35)",
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  viewAllText: {
+    color: COLORS.primary,
+    fontSize: 12,
+    fontWeight: "700",
   },
   loadingGrid: {
     gap: 12,

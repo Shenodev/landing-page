@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from "react-native";
 import { WebView } from "react-native-webview";
 import { COLORS, RADIUS } from "../theme";
@@ -11,6 +11,7 @@ type Props = {
 const DiscoveryScreen = ({ onBack }: Props) => {
   const [step, setStep] = useState<1 | 2>(1);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const submittingRef = useRef<boolean>(false);
   const [form, setForm] = useState<Record<string, string>>({
     fullName: "",
     companyName: "",
@@ -61,7 +62,7 @@ const DiscoveryScreen = ({ onBack }: Props) => {
         const now = new Date();
         const meetingDate: string = now.toISOString().split("T")[0];
         const meetingTime: string = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        const meetingUrl: string = eventUri || "https://calendly.com/shenodev/discovery";
+        const meetingUrl: string = eventUri || "";
 
         await submitDiscovery({ meetingDate, meetingTime, meetingUrl, calendlyEventUri: eventUri, calendlyEventUrl: inviteeUri });
       }
@@ -84,7 +85,8 @@ const DiscoveryScreen = ({ onBack }: Props) => {
   };
 
   const submitDiscovery = async (meeting: { meetingDate: string; meetingTime: string; meetingUrl: string; calendlyEventUri?: string; calendlyEventUrl?: string }): Promise<void> => {
-    if (submitting) return;
+    if (submitting || submittingRef.current) return;
+    submittingRef.current = true;
     setSubmitting(true);
     try {
       const payload = { ...form, ...meeting, calendlyEventUrl: meeting.calendlyEventUrl || meeting.meetingUrl };
@@ -105,10 +107,11 @@ const DiscoveryScreen = ({ onBack }: Props) => {
       Alert.alert("Error", msg);
     } finally {
       setSubmitting(false);
+      submittingRef.current = false;
     }
   };
 
-  const calendlyUrl: string = process.env.EXPO_PUBLIC_CALENDLY_URL || "https://calendly.com/shenodev/discovery";
+  const calendlyUrl: string = (process.env.EXPO_PUBLIC_CALENDLY_URL ?? "").trim();
 
   const injectedJS = `
     window.addEventListener('message', function(e) {
@@ -129,20 +132,30 @@ const DiscoveryScreen = ({ onBack }: Props) => {
           <Text style={styles.headerTitle}>Schedule Your Call</Text>
           <Text style={styles.headerSub}>Pick a time — we&apos;ll auto-submit your discovery + meeting.</Text>
         </View>
-        <WebView
-          source={{ uri: calendlyUrl }}
-          injectedJavaScript={injectedJS}
-          onMessage={handleCalendlyMessage}
-          onNavigationStateChange={handleNavStateChange}
-          startInLoadingState
-          renderLoading={() => (
-            <View style={styles.loading}>
-              <ActivityIndicator color={COLORS.primary} />
-              <Text style={styles.loadingText}>Loading Calendly...</Text>
-            </View>
-          )}
-          style={styles.webview}
-        />
+        {calendlyUrl ? (
+          <WebView
+            source={{ uri: calendlyUrl }}
+            injectedJavaScript={injectedJS}
+            onMessage={handleCalendlyMessage}
+            onNavigationStateChange={handleNavStateChange}
+            startInLoadingState
+            renderLoading={() => (
+              <View style={styles.loading}>
+                <ActivityIndicator color={COLORS.primary} />
+                <Text style={styles.loadingText}>Loading Calendly...</Text>
+              </View>
+            )}
+            style={styles.webview}
+          />
+        ) : (
+          <View style={styles.notConfigured}>
+            <Text style={styles.notConfiguredTitle}>Scheduling link not configured</Text>
+            <Text style={styles.notConfiguredSub}>
+              Set EXPO_PUBLIC_CALENDLY_URL to your real Calendly event link
+              (e.g. https://calendly.com/YOUR_USERNAME/your-event-type) to enable scheduling.
+            </Text>
+          </View>
+        )}
         {submitting && (
           <View style={styles.submittingOverlay}>
             <ActivityIndicator color={COLORS.primary} size="large" />
@@ -353,6 +366,9 @@ const styles = StyleSheet.create({
   backBtn: { alignSelf: "flex-start", paddingVertical: 6 },
   backText: { color: COLORS.primary, fontSize: 13, fontWeight: "600" },
   webview: { flex: 1, height: 700, backgroundColor: "#fff" },
+  notConfigured: { flex: 1, alignItems: "center", justifyContent: "center", gap: 10, padding: 24 },
+  notConfiguredTitle: { color: COLORS.text, fontSize: 15, fontWeight: "700" },
+  notConfiguredSub: { color: COLORS.onSurfaceVariant, fontSize: 13, textAlign: "center", lineHeight: 18 },
   loading: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, justifyContent: "center", alignItems: "center", gap: 12, backgroundColor: COLORS.background },
   loadingText: { color: COLORS.onSurfaceVariant, fontSize: 13 },
   submittingOverlay: { position: "absolute", left: 0, right: 0, bottom: 0, top: 0, backgroundColor: "rgba(15,23,42,0.85)", justifyContent: "center", alignItems: "center", gap: 12 },

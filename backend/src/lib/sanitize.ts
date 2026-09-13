@@ -1,5 +1,5 @@
 /**
- * Purify string for DOM injection prevention.
+ * String sanitization for DOM injection prevention.
  * Strips HTML tags via regex (lightweight, Jest-safe) then trims.
  * No `any` types per rules.
  */
@@ -10,7 +10,25 @@ export const purifyString = (input: string): string => {
   return withoutTags.trim();
 };
 
-export const purifyContactInput = (data: { name: string; email: string; message: string }): { name: string; email: string; message: string; details: string } => {
+/**
+ * Escape HTML special characters for safe interpolation into HTML templates.
+ * Prevents XSS when user data is interpolated into email HTML.
+ */
+const HTML_ESCAPES: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+};
+
+export const escapeHtml = (s: string): string => s.replace(/[&<>"']/g, (m) => HTML_ESCAPES[m] ?? m);
+
+export const purifyContactInput = (data: {
+  name: string;
+  email: string;
+  message: string;
+}): { name: string; email: string; message: string; details: string } => {
   const purified = {
     name: purifyString(data.name),
     email: purifyString(data.email).toLowerCase(),
@@ -24,7 +42,8 @@ export const purifyContactInput = (data: { name: string; email: string; message:
  * Rejects keys with $ or . and values with $where, $gt etc.
  */
 export const hasInjectionAttempt = (obj: Record<string, unknown>): boolean => {
-  const forbiddenKey = (k: string): boolean => k.startsWith("$") || k.includes(".") || k.includes("__proto__");
+  const forbiddenKey = (k: string): boolean =>
+    k.startsWith("$") || k.includes(".") || k.includes("__proto__");
   const forbiddenValue = (v: unknown): boolean => {
     if (typeof v === "string") {
       return v.includes("$where") || v.includes("$gt") || v.includes("$ne") || v.trim().startsWith("$");

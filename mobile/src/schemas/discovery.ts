@@ -3,11 +3,11 @@ import { z } from "zod";
 const sanitizeField = (val: string): string => val.trim();
 
 export const discoverySchema = z.object({
-  fullName: z.string({ required_error: "Full name required" }).trim().min(2).max(100).regex(/^[a-zA-Z\s'\-]+$/).transform(sanitizeField),
-  companyName: z.string({ required_error: "Company required" }).trim().min(2).max(100).transform(sanitizeField),
-  email: z.string({ required_error: "Email required" }).trim().max(200).email().toLowerCase().transform(sanitizeField),
+  fullName: z.string("Full name required").trim().min(2).max(100).regex(/^[a-zA-Z\s'\-]+$/).transform(sanitizeField),
+  companyName: z.string("Company required").trim().min(2).max(100).transform(sanitizeField),
+  email: z.string("Email required").trim().max(200).email().toLowerCase().transform(sanitizeField),
   phone: z.string().trim().max(30).regex(/^[\+\d\s\-\(\)]*$/).optional().or(z.literal("")).transform((v) => (v ? sanitizeField(v) : "")),
-  businessDesc: z.string({ required_error: "Business desc required" }).trim().min(10).max(2000).transform(sanitizeField),
+  businessDesc: z.string("Business desc required").trim().min(10).max(2000).transform(sanitizeField),
   targetAudience: z.string().trim().max(1000).optional().or(z.literal("")).transform((v) => (v ? sanitizeField(v) : "")),
   competitors: z.string().trim().max(1000).optional().or(z.literal("")).transform((v) => (v ? sanitizeField(v) : "")),
   brandStatus: z.enum(["ready", "logo_only", "need_identity"]),

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import Image from "next/image";
 
 const InlineWidget = dynamic(() => import("react-calendly").then((m) => m.InlineWidget), { ssr: false });
 
@@ -38,6 +39,8 @@ const DiscoveryPage = () => {
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
+  const calendlyUrl: string = (process.env.NEXT_PUBLIC_CALENDLY_URL ?? "").trim();
+
   const {
     register,
     handleSubmit,
@@ -67,7 +70,7 @@ const DiscoveryPage = () => {
       const now = new Date();
       const meetingDate: string = now.toISOString().split("T")[0];
       const meetingTime: string = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      const meetingUrl: string = eventUri || `https://calendly.com/shenodev/${formData.email}`;
+      const meetingUrl: string = eventUri || "";
 
       const backendUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
       if (!backendUrl) throw new Error("NEXT_PUBLIC_API_URL not configured");
@@ -129,8 +132,7 @@ const DiscoveryPage = () => {
       <header className="sticky top-0 z-50 bg-surface/80 backdrop-blur-md shadow-sm">
         <div className="flex justify-between items-center w-full px-6 md:px-12 max-w-[1320px] mx-auto h-20">
           <Link href={"/" as never} className="flex items-center gap-1 group">
-            <span className="text-[18px] font-bold text-on-surface tracking-tight">ShenoDev</span>
-            <span className="h-2 w-2 rounded-full bg-primary inline-block group-hover:scale-125 transition-transform" />
+            <Image src="/assets/Logo Horizontal without slugan.svg" alt="ShenoDev" width={160} height={36} priority style={{ height: 28, width: "auto", objectFit: "contain" }} />
           </Link>
           <nav className="hidden md:flex items-center gap-8">
             <Link href={"/#services" as never} className="text-[14px] font-medium text-on-surface-variant hover:text-primary">Services</Link>
@@ -344,15 +346,27 @@ const DiscoveryPage = () => {
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-t-xl" />
                 <h2 className="text-[18px] font-semibold text-on-surface">Schedule Your Discovery Call</h2>
                 <p className="text-[13px] text-on-surface-variant">Pick a time that works for you. Your project details for <strong className="text-on-surface">{formData?.companyName}</strong> are saved — scheduling will auto-submit.</p>
-                <div className="rounded-xl overflow-hidden border border-outline-variant/30 bg-white" style={{ height: 700 }}>
-                  <InlineWidget
-                    url={process.env.NEXT_PUBLIC_CALENDLY_URL || "https://calendly.com/shenodev/discovery"}
-                    styles={{ height: "100%", width: "100%" }}
-                    pageSettings={{ hideEventTypeDetails: false, hideLandingPageDetails: false }}
-                    // @ts-ignore - react-calendly types missing onEventScheduled
-                    onEventScheduled={handleCalendlyScheduled}
-                  />
-                </div>
+                {calendlyUrl ? (
+                  <div className="rounded-xl overflow-hidden border border-outline-variant/30 bg-white" style={{ height: 700 }}>
+                    <InlineWidget
+                      url={calendlyUrl}
+                      styles={{ height: "100%", width: "100%" }}
+                      pageSettings={{ hideEventTypeDetails: false, hideLandingPageDetails: false }}
+                      // @ts-ignore - react-calendly types missing onEventScheduled
+                      onEventScheduled={handleCalendlyScheduled}
+                    />
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest/60 p-8 text-center space-y-3">
+                    <span className="material-symbols-outlined text-outline text-3xl mx-auto block">event_busy</span>
+                    <p className="text-[14px] font-semibold text-on-surface">Scheduling link not configured</p>
+                    <p className="text-[13px] text-on-surface-variant max-w-md mx-auto">
+                      Set <code className="text-primary bg-primary/10 px-1.5 py-0.5 rounded">NEXT_PUBLIC_CALENDLY_URL</code> to your real Calendly
+                      event link (e.g. <code className="text-primary bg-primary/10 px-1.5 py-0.5 rounded">https://calendly.com/YOUR_USERNAME/your-event-type</code>)
+                      to enable scheduling.
+                    </p>
+                  </div>
+                )}
                 {submitting && <p className="text-[13px] text-primary animate-pulse">Submitting your discovery + meeting details...</p>}
                 {error && <p className="text-[13px] text-error bg-error-container/20 border border-error/30 rounded-lg p-3">{error}</p>}
                 <button onClick={() => setStep(1)} className="text-[13px] text-on-surface-variant underline">← Back to form</button>

@@ -83,17 +83,9 @@ const ContactForm = () => {
       setTimeout(() => setStatus("idle"), 3000);
     } catch (err: unknown) {
       const msg: string = err instanceof Error ? err.message : String(err);
-      // Network fallback for demo, but only for network errors, not validation
-      if (msg.includes("fetch") || msg.includes("Network request failed") || msg.includes("ECONNREFUSED")) {
-        console.warn("[ContactForm] Backend unreachable, simulating success (purified):", purified);
-        await new Promise<void>((resolve) => setTimeout(resolve, 800));
-        setStatus("success");
-        setForm({ name: "", email: "", details: "" });
-        setTimeout(() => setStatus("idle"), 3000);
-        return;
-      }
-      console.error("[ContactForm] error (purified):", msg, err);
-      setError(msg);
+      // No fake success on network failure - show error and allow retry
+      console.error("[ContactForm] Submission error (purified):", msg);
+      setError("Network error. Please check connection and retry.");
       setStatus("error");
     }
   };

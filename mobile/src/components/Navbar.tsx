@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { View, Text, Pressable, StyleSheet, Animated, Easing, Dimensions, Image } from "react-native";
+import { View, Text, Pressable, StyleSheet, Animated, Easing, Dimensions } from "react-native";
 import { COLORS, RADIUS } from "../theme";
+import Logo from "./Logo";
 
 type NavLink = {
   label: string;
@@ -105,11 +106,7 @@ const Navbar = ({ onNavigate }: NavbarProps) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Pressable onPress={() => onNavigate?.("top")} style={styles.brand} accessibilityLabel="ShenoDev - Back to top">
-          <Image
-            source={require("../../assets/Logo Horizontal without slugan.png")}
-            style={styles.brandImage}
-            resizeMode="contain"
-          />
+          <Logo width={112} />
         </Pressable>
 
         <Pressable
@@ -174,10 +171,6 @@ const styles = StyleSheet.create({
   brand: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  brandImage: {
-    width: 128,
-    height: 28,
   },
   menuBtn: {
     padding: 8,

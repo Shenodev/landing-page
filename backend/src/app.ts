@@ -7,6 +7,7 @@ import healthRouter from './routes/health';
 import contactRouter from './routes/contact';
 import discoveryRouter from './routes/discovery';
 import projectsRouter from './routes/projects';
+import calendlyRouter from './routes/calendly';
 import { notFoundHandler, globalErrorHandler } from './middleware/errorHandler';
 
 export const createApp = (): Express => {
@@ -24,6 +25,12 @@ export const createApp = (): Express => {
     })
   );
 
+  // Calendly webhooks - mounted BEFORE CORS and the global JSON parser because:
+  // 1. Server-to-server POSTs from Calendly carry no Origin header (CORS would reject them in prod).
+  // 2. HMAC signature verification needs the RAW body bytes, not parsed JSON.
+  app.use('/api/calendly/webhook', express.raw({ type: 'application/json', limit: '10kb' }));
+  app.use('/api/calendly', calendlyRouter);
+
   // CORS whitelist - strict production standard: ONLY allowed origins + FRONTEND_URL env var
   // Also supports Vercel preview deployments (e.g., https://shenodev-*.vercel.app)
   const corsOptions: CorsOptions = {
@@ -40,6 +47,8 @@ export const createApp = (): Express => {
             /^https:\/\/shenodev-.*\.vercel\.app$/,
             // Support any shenodev.tech subdomain
             /^https:\/\/.*\.shenodev\.tech$/,
+            // Support shenodev.dpdns.org and its subdomains (new production domains)
+            /^https:\/\/.*\.shenodev\.dpdns\.org$/,
           ]
         : [
             ...allowedOrigins, // from ALLOWED_ORIGINS env var (includes localhost for dev)
@@ -48,6 +57,8 @@ export const createApp = (): Express => {
             /^https:\/\/shenodev-.*\.vercel\.app$/,
             // Support any shenodev.tech subdomain
             /^https:\/\/.*\.shenodev\.tech$/,
+            // Support shenodev.dpdns.org and its subdomains (new production domains)
+            /^https:\/\/.*\.shenodev\.dpdns\.org$/,
           ];
 
       // In production, reject requests with no origin

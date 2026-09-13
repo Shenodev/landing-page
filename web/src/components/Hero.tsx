@@ -55,7 +55,7 @@ const Hero = () => {
             </Link>
             <a
               className="inline-flex items-center justify-center bg-surface-container/60 hover:bg-surface-container-high text-on-surface border border-outline-variant/50 hover:border-primary/50 text-[14px] leading-[20px] font-medium px-7 py-4 rounded-xl transition-all duration-200 backdrop-blur-sm active:scale-95"
-              href="#services"
+              href="#work"
             >
               View Our Work
             </a>

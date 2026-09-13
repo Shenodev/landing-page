@@ -51,24 +51,24 @@ describe("POST /api/contact - Email Automation (TDD, Resend)", () => {
     expect(mockSend).toHaveBeenCalledTimes(2);
 
     const calls = mockSend.mock.calls;
-    // Email 1: Notification to admin@shenodev.tech containing name, email, message
+    // Email 1: Notification to ADMIN_EMAIL containing name, email, message
     const adminCall = calls.find((c: unknown[]) => {
       const arg = c[0] as Record<string, unknown>;
-      return arg.to === "admin@shenodev.tech" || (Array.isArray(arg.to) && (arg.to as string[]).includes("admin@shenodev.tech"));
+      return arg.to === "admin@contact.shenodev.dpdns.org" || (Array.isArray(arg.to) && (arg.to as string[]).includes("admin@contact.shenodev.dpdns.org"));
     });
     expect(adminCall).toBeDefined();
     const adminArg = adminCall![0] as Record<string, unknown>;
     expect(String(adminArg.html ?? adminArg.text ?? "")).toMatch(/Alex Vance/);
     expect(String(adminArg.html ?? adminArg.text ?? "")).toMatch(/alex@enterprise\.com/);
 
-    // Email 2: Welcome/Auto-reply to user's email from hello@shenodev.tech
+    // Email 2: Welcome/Auto-reply to user's email from RESEND_FROM_EMAIL
     const welcomeCall = calls.find((c: unknown[]) => {
       const arg = c[0] as Record<string, unknown>;
       return arg.to === "alex@enterprise.com";
     });
     expect(welcomeCall).toBeDefined();
     const welcomeArg = welcomeCall![0] as Record<string, unknown>;
-    expect(String(welcomeArg.from)).toMatch(/hello@shenodev\.tech/);
+    expect(String(welcomeArg.from)).toMatch(/hello@contact\.shenodev\.dpdns\.org/);
     // Should thank them
     expect(String(welcomeArg.html ?? welcomeArg.text ?? welcomeArg.subject ?? "")).toMatch(/thank/i);
   });

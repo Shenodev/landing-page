@@ -8,6 +8,8 @@ import { getConnectionState } from "../config/db";
 import { sendDiscoveryEmails } from "../lib/email";
 import { uploadToCloudinary } from "../config/cloudinary";
 import { env } from "../config/env";
+import { getScheduledEvent, extractUuidFromUri, formatMeetingLocal } from "../lib/calendly";
+import { ScheduledMeeting, IScheduledMeeting } from "../models/ScheduledMeeting";
 
 const router = Router();
 
@@ -35,7 +37,7 @@ const uploadDiscovery = multer({
       "application/msword",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ];
-    if (allowed.includes(file.mimetype) || file.mimetype.startsWith("image/") || file.mimetype === "application/octet-stream") {
+    if (allowed.includes(file.mimetype) || file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
       cb(new Error("Unsupported file type for discovery attachment"));
@@ -44,6 +46,92 @@ const uploadDiscovery = multer({
 });
 
 type DiscoveryBody = Record<string, unknown>;
+
+type PurifiedDiscovery = {
+  fullName: string;
+  companyName: string;
+  email: string;
+  phone: string;
+  businessDesc: string;
+  targetAudience: string;
+  competitors: string;
+  brandStatus: string;
+  references: string;
+  dislikes: string;
+  targetPackage: string;
+  requiredFeatures: string;
+  integrations: string;
+  launchDate: string;
+  extraDetails: string;
+  meetingDate: string;
+  meetingTime: string;
+  meetingUrl: string;
+  calendlyEventUri: string;
+  calendlyEventUrl: string;
+  attachmentUrl: string;
+  attachmentPublicId: string;
+};
+
+/**
+ * Replace the client-captured meeting fields with AUTHORITATIVE data from Calendly:
+ * 1. Prefer a `ScheduledMeeting` persisted by the webhook (has invitee timezone).
+ * 2. Fall back to the Calendly API (GET /scheduled_events/{uuid}) via the token.
+ * Client-side `new Date()` values are unreliable (they capture the callback moment,
+ * not the actual booking time) - this overwrites them so emails carry the true time.
+ */
+const enrichDiscoveryMeeting = async (
+  data: PurifiedDiscovery
+): Promise<{ enriched: PurifiedDiscovery; scheduledId: unknown }> => {
+  const enriched: PurifiedDiscovery = { ...data };
+  let scheduledId: unknown = undefined;
+  let merged: IScheduledMeeting | null = null;
+
+  if (getConnectionState() === 1 && enriched.email) {
+    try {
+      const email: string = enriched.email.toLowerCase();
+      let candidate: IScheduledMeeting | null = await ScheduledMeeting.findOne({ email, status: "scheduled" })
+        .sort({ createdAt: -1 })
+        .exec();
+      const eventUuid: string | null = extractUuidFromUri(enriched.calendlyEventUri);
+      if (candidate && eventUuid && candidate.eventUuid && candidate.eventUuid !== eventUuid) {
+        const exact: IScheduledMeeting | null = await ScheduledMeeting.findOne({ email, status: "scheduled", eventUuid })
+          .sort({ createdAt: -1 })
+          .exec();
+        if (exact) candidate = exact;
+      }
+      merged = candidate;
+    } catch (err: unknown) {
+      const msg: string = err instanceof Error ? err.message : String(err);
+      console.error("[discovery] ScheduledMeeting lookup failed (degraded):", msg);
+    }
+  }
+
+  if (merged?.startTime) {
+    const local = formatMeetingLocal(merged.startTime.toISOString(), merged.timezone);
+    if (local) {
+      enriched.meetingDate = local.meetingDate;
+      enriched.meetingTime = local.meetingTime;
+    }
+    enriched.meetingUrl = enriched.meetingUrl || merged.schedulingUrl || merged.inviteeUri;
+    enriched.calendlyEventUri = enriched.calendlyEventUri || merged.eventUri;
+    enriched.calendlyEventUrl = enriched.calendlyEventUrl || merged.inviteeUri;
+    scheduledId = merged._id;
+    console.log(`[discovery] Merged authoritative meeting from webhook record for ${enriched.email}`);
+  } else if (enriched.calendlyEventUri) {
+    const se = await getScheduledEvent(enriched.calendlyEventUri);
+    if (se?.start_time) {
+      const local = formatMeetingLocal(se.start_time, "UTC");
+      if (local) {
+        enriched.meetingDate = local.meetingDate;
+        enriched.meetingTime = local.meetingTime;
+      }
+      enriched.meetingUrl = enriched.meetingUrl || se.scheduling_url || "";
+      console.log(`[discovery] Enriched meeting via Calendly API for ${enriched.email}`);
+    }
+  }
+
+  return { enriched, scheduledId };
+};
 
 router.post(
   "/discovery",
@@ -126,22 +214,34 @@ router.post(
       return;
     }
 
-    // 4. Save to MongoDB if connected
+    // 4. Enrich meeting fields with authoritative Calendly data (webhook record + API)
+    const { enriched, scheduledId } = await enrichDiscoveryMeeting(purified);
+
+    // 5. Save to MongoDB if connected
     const dbState: number = getConnectionState();
     let docId: unknown = undefined;
     if (dbState === 1) {
       try {
-        const doc = await Discovery.create({ ...purified, ip: req.ip });
+        const doc = await Discovery.create({ ...enriched, ip: req.ip });
         docId = doc._id;
+        if (scheduledId) {
+          await ScheduledMeeting.updateOne({ _id: scheduledId }, { $set: { discoveryId: doc._id } }).catch((linkErr: unknown) => {
+            const msg: string = linkErr instanceof Error ? linkErr.message : String(linkErr);
+            console.error("[discovery] Failed to link ScheduledMeeting -> Discovery:", msg);
+          });
+        }
       } catch (dbErr: unknown) {
         const msg: string = dbErr instanceof Error ? dbErr.message : String(dbErr);
         console.error("[discovery] DB save failed, degraded:", msg);
       }
     }
 
-    // 5. Send two emails simultaneously via Resend
+    // 6. Send two emails simultaneously via Resend
+    // NOTE: Email failure does NOT rollback DB — discovery is still queued for processing.
+    // The 201 response is returned to user regardless of email status to avoid UX disruption.
+    // Admin/DevOps can monitor email failures via logs and retry via admin panel if needed.
     try {
-      await sendDiscoveryEmails(purified);
+      await sendDiscoveryEmails(enriched);
     } catch (emailErr: unknown) {
       const msg: string = emailErr instanceof Error ? emailErr.message : String(emailErr);
       console.error("[discovery] Email send failed:", msg);
@@ -150,14 +250,14 @@ router.post(
     if (docId) {
       res.status(201).json({
         message: "Discovery submitted successfully",
-        data: { id: docId, ...purified },
+        data: { id: docId, ...enriched },
       });
       return;
     }
 
     res.status(201).json({
       message: "Discovery received (degraded - queued)",
-      data: purified,
+      data: enriched,
       degraded: true,
     });
   } catch (err: unknown) {

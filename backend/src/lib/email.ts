@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { env } from "../config/env";
+import { purifyString, escapeHtml } from "./sanitize";
 
 let resendInstance: InstanceType<typeof Resend> | null = null;
 
@@ -15,17 +16,20 @@ const getResend = (): InstanceType<typeof Resend> | null => {
   return resendInstance;
 };
 
-// Domain configuration for Resend - primary pending DNS, fallback verified
-export const PRIMARY_DOMAIN = "shenodev.tech";
-export const FALLBACK_DOMAIN = "shenodev.dpdns.org";
-const PRIMARY_FROM = `ShenoDev <hello@${PRIMARY_DOMAIN}>`;
+// Domain configuration for Resend - fully env-driven (checks env schema, then process.env, then safe defaults).
+const RESEND_FROM: string = (env.RESEND_FROM_EMAIL ?? process.env.RESEND_FROM_EMAIL ?? "hello@contact.shenodev.dpdns.org").trim();
+const ADMIN_TO: string = (env.ADMIN_EMAIL ?? process.env.ADMIN_EMAIL ?? "admin@contact.shenodev.dpdns.org").trim();
+const PRIMARY_DOMAIN: string = ADMIN_TO.includes("@") ? (ADMIN_TO.split("@")[1] as string) : "contact.shenodev.dpdns.org";
+export const FALLBACK_DOMAIN: string = (env.RESEND_FALLBACK_DOMAIN ?? process.env.RESEND_FALLBACK_DOMAIN ?? "shenodev.dpdns.org").trim();
+const PRIMARY_FROM = `ShenoDev <${RESEND_FROM}>`;
 const FALLBACK_FROM = `ShenoDev <hello@${FALLBACK_DOMAIN}>`;
-const PRIMARY_ADMIN = `admin@${PRIMARY_DOMAIN}`;
+const PRIMARY_ADMIN = ADMIN_TO;
 const FALLBACK_ADMIN = `admin@${FALLBACK_DOMAIN}`;
 
 /**
  * Robust wrapper with dynamic domain fallback for Resend.
- * TRY primary domain (shenodev.tech), CATCH fallback (shenodev.dpdns.org).
+ * TRY primary domain (RESEND_FROM_EMAIL / ADMIN_EMAIL, default contact.shenodev.dpdns.org),
+ * CATCH fallback (RESEND_FALLBACK_DOMAIN, default shenodev.dpdns.org).
  * Logs clearly which domain succeeded.
  */
 export const sendResendEmail = async (params: {
@@ -93,8 +97,8 @@ export type ContactEmailData = {
 
 /**
  * Send two emails simultaneously via Resend:
- * - Email 1 to admin@shenodev.tech containing user's name, email, message
- * - Email 2 to user's email from hello@shenodev.tech thanking them
+ * - Email 1 to ADMIN_EMAIL containing user's name, email, message
+ * - Email 2 to user's email from RESEND_FROM_EMAIL thanking them
  * Returns promise that resolves when both are attempted (logs errors, does not throw for UX)
  */
 export const sendContactEmails = async (data: ContactEmailData): Promise<{ adminId?: string; welcomeId?: string }> => {
@@ -109,14 +113,14 @@ export const sendContactEmails = async (data: ContactEmailData): Promise<{ admin
   const adminEmail = {
     from: "ShenoDev <hello@shenodev.tech>",
     to: "admin@shenodev.tech",
-    subject: `New Contact: ${name}`,
+    subject: `New Contact: ${escapeHtml(name)}`,
     html: `
       <div style="font-family:system-ui;padding:24px;background:#0F172A;color:#F8FAFC;">
         <h2 style="color:#06B6D4;">New Contact Submission</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+        <p><strong>Email:</strong> ${escapeHtml(email)}</p>
         <p><strong>Message:</strong></p>
-        <p style="background:#1E293B;padding:12px;border-radius:8px;">${message}</p>
+        <p style="background:#1E293B;padding:12px;border-radius:8px;">${escapeHtml(message)}</p>
       </div>
     `,
   };
@@ -127,9 +131,9 @@ export const sendContactEmails = async (data: ContactEmailData): Promise<{ admin
     subject: "Thanks for reaching out to ShenoDev!",
     html: `
       <div style="font-family:system-ui;padding:24px;background:#0F172A;color:#F8FAFC;">
-        <h2 style="color:#06B6D4;">Hi ${name},</h2>
-        <p>Thanks for reaching out to ShenoDev! We’ve received your message:</p>
-        <p style="background:#1E293B;padding:12px;border-radius:8px;font-style:italic;">"${message}"</p>
+        <h2 style="color:#06B6D4;">Hi ${escapeHtml(name)},</h2>
+        <p>Thanks for reaching out to ShenoDev! We've received your message:</p>
+        <p style="background:#1E293B;padding:12px;border-radius:8px;font-style:italic;">"${escapeHtml(message)}"</p>
         <p>Our team will review and get back to you within 24 hours.</p>
         <p style="color:#94A3B8;font-size:13px;">— ShenoDev Team<br/>Think it, Sheno it.</p>
       </div>
@@ -280,7 +284,7 @@ export const sendDiscoveryEmails = async (data: DiscoveryEmailData): Promise<{ a
     html: welcomeHtml,
   };
 
-  // Refactored to use wrapper for domain fallback (primary shenodev.tech -> fallback shenodev.dpdns.org)
+  // Refactored to use wrapper for domain fallback (primary RESEND_FROM_EMAIL -> fallback RESEND_FALLBACK_DOMAIN)
   try {
     const [adminResult, welcomeResult] = await Promise.all([
       sendResendEmail({
