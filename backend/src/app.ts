@@ -24,26 +24,57 @@ export const createApp = (): Express => {
     })
   );
 
-  // CORS whitelist - strict production standard: ONLY localhost:3000, localhost:8081, https://shenodev.tech
+  // CORS whitelist - strict production standard: ONLY allowed origins + FRONTEND_URL env var
+  // Also supports Vercel preview deployments (e.g., https://shenodev-*.vercel.app)
   const corsOptions: CorsOptions = {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      const isProd = env.NODE_ENV === 'production';
+
+      // Build allowed origins list dynamically - filter out localhost in production
+      const prodOrigins = allowedOrigins.filter(o => !o.includes('localhost'));
+      const allowed = isProd
+        ? [
+            ...prodOrigins, // from ALLOWED_ORIGINS env var (no localhost)
+            ...(env.FRONTEND_URL ? [env.FRONTEND_URL.trim()] : []),
+            // Support Vercel preview deployments: https://shenodev-*.vercel.app
+            /^https:\/\/shenodev-.*\.vercel\.app$/,
+            // Support any shenodev.tech subdomain
+            /^https:\/\/.*\.shenodev\.tech$/,
+          ]
+        : [
+            ...allowedOrigins, // from ALLOWED_ORIGINS env var (includes localhost for dev)
+            ...(env.FRONTEND_URL ? [env.FRONTEND_URL] : []),
+            // Support Vercel preview deployments: https://shenodev-*.vercel.app
+            /^https:\/\/shenodev-.*\.vercel\.app$/,
+            // Support any shenodev.tech subdomain
+            /^https:\/\/.*\.shenodev\.tech$/,
+          ];
+
+      // In production, reject requests with no origin
       if (!origin) {
+        if (isProd) {
+          callback(new Error("CORS: No origin in production"));
+          return;
+        }
         callback(null, true);
         return;
       }
-      if (allowedOrigins.includes(origin)) {
+
+      if (allowed.includes(origin)) {
         callback(null, true);
         return;
       }
-      // In development, allow localhost:* for flexibility, but still strict to 3000/8081
-      if (env.NODE_ENV === 'development' && (origin === 'http://localhost:3000' || origin === 'http://localhost:8081')) {
+
+      // Development: allow localhost on common ports
+      if (!isProd && /^http:\/\/localhost:(3000|8081|5000)$/.test(origin)) {
         callback(null, true);
         return;
       }
+
       callback(new Error(`CORS blocked for origin: ${origin}`));
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'OPTIONS'], // Only allow necessary methods
     allowedHeaders: ['Content-Type', 'Authorization'],
     maxAge: 86400,
   };

@@ -10,13 +10,57 @@ const envSchema = z.object({
   ALLOWED_ORIGINS: z.string().default("http://localhost:3000,http://localhost:8081,https://shenodev.tech"),
   FRONTEND_URL: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
-  ADMIN_SECRET: z.string().default("dev-admin-secret-change-in-prod"),
+  ADMIN_SECRET: z.string().min(32, "ADMIN_SECRET must be >=32 chars in production"),
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
   // Optional for production
   CORS_CREDENTIALS: z.coerce.boolean().default(true),
-});
+}).superRefine((data, ctx) => {
+  if (data.NODE_ENV === "production") {
+    if (data.ADMIN_SECRET === "dev-admin-secret-change-in-prod") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "ADMIN_SECRET must be set to a secure value (>=32 chars) in production",
+        path: ["ADMIN_SECRET"],
+      });
+    }
+    if (!data.CLOUDINARY_CLOUD_NAME) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CLOUDINARY_CLOUD_NAME is required in production",
+        path: ["CLOUDINARY_CLOUD_NAME"],
+      });
+    }
+    if (!data.CLOUDINARY_API_KEY) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CLOUDINARY_API_KEY is required in production",
+        path: ["CLOUDINARY_API_KEY"],
+      });
+    }
+    if (!data.CLOUDINARY_API_SECRET) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CLOUDINARY_API_SECRET is required in production",
+        path: ["CLOUDINARY_API_SECRET"],
+      });
+    }
+    if (!data.RESEND_API_KEY) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "RESEND_API_KEY is required in production",
+        path: ["RESEND_API_KEY"],
+      });
+    }
+    if (!data.FRONTEND_URL) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "FRONTEND_URL is required in production",
+        path: ["FRONTEND_URL"],
+      });
+    }
+  });
 
 export type Env = z.infer<typeof envSchema>;
 
