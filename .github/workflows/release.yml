@@ -18,10 +18,12 @@ jobs:
           node-version: 20
       - run: npm install
       - run: npm run build
+      # Tag-triggered runs get a READ-ONLY GITHUB_TOKEN (contents), so creating
+      # the GitHub release + uploading artifacts needs a dedicated PAT (GH_PAT).
       - name: Build & Publish Windows Installer
         run: npx electron-builder --win -p always
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
 
   build-desktop-linux:
     runs-on: ubuntu-latest
@@ -37,7 +39,7 @@ jobs:
       - name: Build & Publish Linux AppImage & deb
         run: npx electron-builder --linux -p always
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
 
   build-desktop-mac:
     runs-on: macos-latest
@@ -53,7 +55,7 @@ jobs:
       - name: Build & Publish Mac (Intel & ARM)
         run: npx electron-builder --mac --x64 --arm64 -p always
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
 
   build-mobile-android:
     runs-on: ubuntu-latest
@@ -102,5 +104,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.APK_PATH }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
