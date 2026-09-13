@@ -64,8 +64,11 @@ const DiscoveryPage = () => {
     setError("");
     try {
       // react-calendly delivers a MessageEvent where e.data is
-      // { event: "calendly.event_scheduled", payload: { event: { uri }, invitee: { uri } } }
-      const data = e.data as { event?: string; payload?: { event?: { uri?: string }; invitee?: { uri?: string } } };
+      // { event: "calendly.event_scheduled", payload: { event: { uri, scheduling_url }, invitee: { uri, scheduling_url } } }
+      const data = e.data as {
+        event?: string;
+        payload?: { event?: { uri?: string; scheduling_url?: string }; invitee?: { uri?: string; scheduling_url?: string } };
+      };
       if (!data || data.event !== "calendly.event_scheduled" || !data.payload) {
         return;
       }
@@ -77,6 +80,8 @@ const DiscoveryPage = () => {
       }
       const eventUri: string = data.payload.event?.uri || "";
       const inviteeUri: string = data.payload.invitee?.uri || "";
+      // Human-clickable link (calendly.com), NOT the api.calendly.com resource URI
+      const meetingUrl: string = data.payload.invitee?.scheduling_url || data.payload.event?.scheduling_url || "";
       const now = new Date();
       const meetingDate: string = now.toISOString().split("T")[0];
       const meetingTime: string = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -87,13 +92,13 @@ const DiscoveryPage = () => {
       const res: Response = await (async (): Promise<Response> => {
         if (isMultipart) {
           const fd = new FormData();
-          Object.entries({ ...formData, meetingDate, meetingTime, meetingUrl: eventUri, calendlyEventUri: eventUri, calendlyEventUrl: inviteeUri }).forEach(([k, v]) =>
+          Object.entries({ ...formData, meetingDate, meetingTime, meetingUrl, calendlyEventUri: eventUri, calendlyEventUrl: inviteeUri }).forEach(([k, v]) =>
             fd.append(k, v as string)
           );
           selectedFiles.forEach((file) => fd.append("attachments", file));
           return fetch(`${backendUrl}/api/discovery`, { method: "POST", body: fd });
         }
-        const payload = { ...formData, meetingDate, meetingTime, meetingUrl: eventUri, calendlyEventUri: eventUri, calendlyEventUrl: inviteeUri };
+        const payload = { ...formData, meetingDate, meetingTime, meetingUrl, calendlyEventUri: eventUri, calendlyEventUrl: inviteeUri };
         return fetch(`${backendUrl}/api/discovery`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

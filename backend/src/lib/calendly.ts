@@ -1,5 +1,38 @@
 export const CALENDLY_API_BASE = "https://api.calendly.com";
 
+const asString = (v: unknown): string => (typeof v === "string" ? v : "");
+const asRecord = (v: unknown): Record<string, unknown> => (v && typeof v === "object" ? (v as Record<string, unknown>) : {});
+
+/**
+ * True when a value is a Calendly REST API resource URI.
+ * These require Authorization and can never be opened in a browser - they must
+ * never be used as the human-facing "meeting link".
+ */
+export const isApiCalendlyUrl = (value: string): boolean => {
+  return value.startsWith(`${CALENDLY_API_BASE}/`);
+};
+
+/**
+ * Pick the HUMAN-readable scheduling link from a Calendly webhook or embed
+ * payload. Priority:
+ *  1. invitee.scheduling_url (booking-specific page under calendly.com)
+ *  2. event.scheduling_url (embed message with scheduling_url)
+ *  3. scheduled_event.scheduling_url (legacy webhook enrichment)
+ *  4. top-level payload.scheduling_url (webhook)
+ * Returns "" when no human link exists - never the invitee/event API URI.
+ */
+export const pickSchedulingUrl = (payload: Record<string, unknown>): string => {
+  const invitee = asRecord(payload.invitee);
+  const event = asRecord(payload.event);
+  const scheduledEvent = asRecord(payload.scheduled_event);
+  return (
+    asString(invitee.scheduling_url) ||
+    asString(event.scheduling_url) ||
+    asString(scheduledEvent.scheduling_url) ||
+    asString(payload.scheduling_url)
+  );
+};
+
 export interface CalendlyScheduledEvent {
   uri: string;
   name: string;

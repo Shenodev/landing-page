@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
 import { env } from "../config/env";
 import { verifyCalendlySignature, getSigningKey } from "../lib/calendlyWebhook";
-import { getScheduledEvent, extractUuidFromUri, formatMeetingLocal } from "../lib/calendly";
+import { getScheduledEvent, extractUuidFromUri, formatMeetingLocal, pickSchedulingUrl } from "../lib/calendly";
 import { ScheduledMeeting } from "../models/ScheduledMeeting";
 import { Discovery } from "../models/Discovery";
 import { getConnectionState } from "../config/db";
@@ -48,7 +48,7 @@ const handleInviteeCreated = async (payload: Record<string, unknown>): Promise<v
   let eventName: string = asString(scheduledEvent.name) || asString(payload.event_name) || "";
   let startTime: string = asString(scheduledEvent.start_time) || asString(payload.start_time) || "";
   let endTime: string = asString(scheduledEvent.end_time) || asString(payload.end_time) || "";
-  let schedulingUrl: string = asString(scheduledEvent.scheduling_url) || asString(payload.scheduling_url) || "";
+  let schedulingUrl: string = pickSchedulingUrl(payload);
 
   // Fallback to the Calendly API when the payload lacks authoritative start time/name
   if ((!startTime || !eventName) && rawEventUri) {
@@ -114,7 +114,9 @@ const handleInviteeCreated = async (payload: Record<string, unknown>): Promise<v
         }
         disc.calendlyEventUri = disc.calendlyEventUri || rawEventUri;
         disc.calendlyEventUrl = disc.calendlyEventUrl || inviteeUri;
-        disc.meetingUrl = disc.meetingUrl || schedulingUrl || inviteeUri;
+        // Only a human-clickable calendly.com page may become the meeting link -
+        // never the invitee/event API URI.
+        disc.meetingUrl = disc.meetingUrl || schedulingUrl || "";
         shouldSave = shouldSave || disc.isModified();
         if (shouldSave) await disc.save();
         if (recordId) {

@@ -8,7 +8,7 @@ import { getConnectionState } from "../config/db";
 import { sendDiscoveryEmails } from "../lib/email";
 import { uploadToCloudinary } from "../config/cloudinary";
 import { env } from "../config/env";
-import { getScheduledEvent, extractUuidFromUri, formatMeetingLocal } from "../lib/calendly";
+import { getScheduledEvent, extractUuidFromUri, formatMeetingLocal, isApiCalendlyUrl } from "../lib/calendly";
 import { ScheduledMeeting, IScheduledMeeting } from "../models/ScheduledMeeting";
 
 const router = Router();
@@ -113,7 +113,7 @@ const enrichDiscoveryMeeting = async (
       enriched.meetingDate = local.meetingDate;
       enriched.meetingTime = local.meetingTime;
     }
-    enriched.meetingUrl = enriched.meetingUrl || merged.schedulingUrl || merged.inviteeUri;
+    enriched.meetingUrl = enriched.meetingUrl || merged.schedulingUrl || "";
     enriched.calendlyEventUri = enriched.calendlyEventUri || merged.eventUri;
     enriched.calendlyEventUrl = enriched.calendlyEventUrl || merged.inviteeUri;
     scheduledId = merged._id;
@@ -239,6 +239,14 @@ router.post(
             size: a.size ?? 0,
           })),
     };
+
+    // A Calendly API resource (https://api.calendly.com/...) is an identifier,
+    // NOT a human link - it errors with "access token is invalid" in a browser.
+    // Keep it only as the URI field; never as the clickable meeting link.
+    if (isApiCalendlyUrl(purified.meetingUrl)) {
+      purified.calendlyEventUrl = purified.calendlyEventUrl || purified.meetingUrl;
+      purified.meetingUrl = "";
+    }
 
     // Extra injection check after purify
     const injectionPattern = /\$where|__proto__|\$gt|\$ne/;

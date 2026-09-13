@@ -158,6 +158,19 @@ describe("POST /api/discovery - Project Discovery (TDD)", () => {
     expect(adminHtml).toContain("wireframe.png");
   });
 
+  it("should never store api.calendly.com as the human meeting link", async () => {
+    const res = await request(app)
+      .post("/api/discovery")
+      .send({
+        ...validDiscoveryPayload,
+        meetingUrl: "https://api.calendly.com/scheduled_events/EVT123",
+        calendlyEventUri: "https://api.calendly.com/scheduled_events/EVT123",
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.data.meetingUrl).not.toMatch(/api\.calendly\.com/);
+    expect(res.body.data.calendlyEventUri).toMatch(/api\.calendly\.com\//);
+  });
+
   it("should reject too many attachments with 400", async () => {
     const tooMany = Array.from({ length: 11 }, (_, i) => ({ url: `https://res.cloudinary.com/shenodev/f-${i}.pdf`, publicId: `f-${i}` }));
     const res = await request(app).post("/api/discovery").send({ ...validDiscoveryPayload, attachments: tooMany });

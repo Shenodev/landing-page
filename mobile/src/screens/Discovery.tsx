@@ -100,15 +100,17 @@ const DiscoveryScreen = ({ onBack }: Props) => {
   const handleCalendlyMessage = async (event: { nativeEvent: { data: string } }): Promise<void> => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
-      // Calendly sends {event: "calendly.event_scheduled", payload: {event: {uri}, invitee: {uri}}}
+      // Calendly sends {event: "calendly.event_scheduled", payload: {event: {uri, scheduling_url}, invitee: {uri, scheduling_url}}}
       if (data.event === "calendly.event_scheduled" || data.payload) {
         const payload = data.payload || data;
         const eventUri: string = payload.event?.uri || payload.uri || "";
         const inviteeUri: string = payload.invitee?.uri || "";
+        // Human-clickable calendly.com page - not the api.calendly.com resource URI
+        const schedulingUrl: string = payload.invitee?.scheduling_url || payload.event?.scheduling_url || "";
         const now = new Date();
         const meetingDate: string = now.toISOString().split("T")[0];
         const meetingTime: string = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        const meetingUrl: string = eventUri || "";
+        const meetingUrl: string = schedulingUrl || eventUri || "";
 
         await submitDiscovery({ meetingDate, meetingTime, meetingUrl, calendlyEventUri: eventUri, calendlyEventUrl: inviteeUri });
       }
