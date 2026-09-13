@@ -145,7 +145,9 @@ router.post(
   try {
     // Handle multiple file attachments via Cloudinary if present
     // Fields: "attachments" (multiple, up to 10) + legacy "attachment" (single)
-    const files: Express.Multer.File[] = ((req as unknown as { files?: Express.Multer.File[] }).files ?? []) as Express.Multer.File[];
+    // multer.fields() exposes req.files as { [fieldname]: File[] }, so flatten it.
+    const uploadedFields = (req as unknown as { files?: Record<string, Express.Multer.File[]> | Express.Multer.File[] }).files;
+    const files: Express.Multer.File[] = Array.isArray(uploadedFields) ? uploadedFields : uploadedFields ? Object.values(uploadedFields).flat() : [];
     let attachmentUrl: string | null = null;
     let attachmentPublicId: string | null = null;
     const attachments: Array<{ url: string; publicId: string; fileName: string; mimeType: string; size: number }> = [];
