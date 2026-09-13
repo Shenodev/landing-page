@@ -1,6 +1,6 @@
 # ShenoDev Backend - Node.js Express + MongoDB
 
-Unified backend for ShenoDev platform (`/web`, `/mobile`, `/desktop`).
+Unified backend for the ShenoDev platform (`/web`, `/backend`).
 
 ## Tech Stack
 - Node.js 18+, Express 4, Mongoose 8, MongoDB
@@ -54,9 +54,8 @@ as before (backwards compatible).
 **1. Create your Calendly event type**
 - In Calendly, create a "Discovery Call" event type and copy its public URL
   (`https://calendly.com/<username>/<event>`).
-- Set it on the frontends (`web/.env` → `NEXT_PUBLIC_CALENDLY_URL`,
-  `mobile/.env` → `EXPO_PUBLIC_CALENDLY_URL`) and optionally backend `CALENDLY_URL`.
-  Until you set these, the web/mobile discovery screens show a "scheduling link not
+- Set it on `web/.env` → `NEXT_PUBLIC_CALENDLY_URL` and optionally backend `CALENDLY_URL`.
+  Until you set these, the web discovery screen shows a "scheduling link not
   configured" notice instead of a broken widget.
 
 **2. API token (optional but recommended)**

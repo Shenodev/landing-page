@@ -121,7 +121,7 @@ const Services = () => {
                   ? "w-full inline-flex items-center justify-center bg-primary-container hover:bg-primary text-on-primary-container text-[14px] leading-[20px] font-medium py-3.5 rounded-lg font-bold glow-button transition-all active:scale-95"
                   : "w-full inline-flex items-center justify-center bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/60 text-on-surface text-[14px] leading-[20px] font-medium py-3 rounded-lg font-medium transition-all active:scale-95"
               }
-              href="#contact"
+              href="/discovery"
             >
               {card.cta}
             </a>
