@@ -64,7 +64,7 @@ const Hero = () => {
           <div className="grid grid-cols-3 gap-6 pt-6 border-t border-outline-variant/30 w-full max-w-lg">
             {TRUST_METRICS.map((metric: TrustMetric) => (
               <div key={metric.label}>
-                <div className="text-[18px] leading-[26px] font-semibold font-display font-bold text-on-surface">
+                <div className="text-[18px] leading-[26px] font-display font-bold text-on-surface">
                   {metric.value}
                 </div>
                 <div className="text-[13px] leading-[20px] font-normal text-on-surface-variant">{metric.label}</div>
@@ -73,7 +73,7 @@ const Hero = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-5 relative w-full flex items-center justify-center">
+        <div className="lg:flex hidden relative w-full items-center justify-center">
           <div className="w-full h-[500px] relative rounded-xl overflow-hidden">
             <video autoPlay loop muted playsInline className="w-full h-full object-cover">
               <source src="/hero-boomerang.webm" type="video/webm" />
