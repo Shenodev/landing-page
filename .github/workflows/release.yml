@@ -75,22 +75,14 @@ jobs:
 
       - run: npm install
 
-      # Link the EAS project under the robot's account (shenodevs-team) and commit
-      # the generated projectId back so subsequent builds don't create new projects.
+      # Link the EAS project under the robot's account (shenodevs-team).
+      # The first run creates it; later runs find the existing project by slug
+      # and just link it, so the projectId stays stable WITHOUT committing back
+      # (tokens in tag-triggered runs are read-only).
       - name: Link EAS project
         run: eas init --account shenodevs-team --non-interactive
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-      - name: Commit EAS project link (idempotent)
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app.json eas.json
-          git diff --cached --quiet || git commit -m "chore(mobile): link EAS project for CI builds"
-          git push origin HEAD:main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Cloud builds run on EAS servers. --output is only allowed for LOCAL builds,
       # so we build+wait with --json, capture the build ID, then download the APK.

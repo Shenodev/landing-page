@@ -49,3 +49,29 @@ export const getConnectionState = (): number => {
 };
 
 export const getMongoose = (): typeof mongoose => mongoose;
+
+// Serverless-friendly connection: retries on every request until Mongo is
+// reachable instead of pinning a lambda instance to "disconnected forever".
+// Resets the in-flight promise on BOTH success and failure so a later request
+// re-attempts whenever readyState is not "connected". connect() is injectable
+// for tests; it defaults to a real connectDB() call.
+let dbConnectPromise: Promise<boolean> | null = null;
+
+export const connectOnDemand = async (connect: () => Promise<unknown> = connectDB): Promise<boolean> => {
+  if (getConnectionState() === 1) return true;
+  if (dbConnectPromise) return dbConnectPromise;
+
+  dbConnectPromise = connect()
+    .then(() => {
+      dbConnectPromise = null;
+      return true;
+    })
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn(`[db] Connection failed - will retry on next request: ${message}`);
+      dbConnectPromise = null;
+      return false;
+    });
+
+  return dbConnectPromise;
+};
