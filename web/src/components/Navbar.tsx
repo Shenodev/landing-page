@@ -30,7 +30,7 @@ const Navbar = () => {
       <div className="flex justify-between items-center w-full px-6 md:px-12 max-w-[1320px] mx-auto h-20">
         <a
           className="flex items-center gap-2 group"
-          href="#"
+          href="/"
           onClick={(e) => {
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: "smooth" });
@@ -43,7 +43,7 @@ const Navbar = () => {
             width={160}
             height={36}
             priority
-            style={{ height: 28, width: "auto", objectFit: "contain" }}
+            style={{ height: 30, width: "auto", objectFit: "contain" }}
           />
         </a>
 
