@@ -113,7 +113,10 @@ const enrichDiscoveryMeeting = async (
       enriched.meetingDate = local.meetingDate;
       enriched.meetingTime = local.meetingTime;
     }
-    enriched.meetingUrl = enriched.meetingUrl || merged.schedulingUrl || "";
+    // Google Meet join_url wins over the calendly.com page and the client link,
+    // so the confirmation email carries the actual call link (fallback text is
+    // applied in the email template when nothing resolves).
+    enriched.meetingUrl = merged.meetingLink || enriched.meetingUrl || merged.schedulingUrl || "";
     enriched.calendlyEventUri = enriched.calendlyEventUri || merged.eventUri;
     enriched.calendlyEventUrl = enriched.calendlyEventUrl || merged.inviteeUri;
     scheduledId = merged._id;
@@ -126,7 +129,8 @@ const enrichDiscoveryMeeting = async (
         enriched.meetingDate = local.meetingDate;
         enriched.meetingTime = local.meetingTime;
       }
-      enriched.meetingUrl = enriched.meetingUrl || se.scheduling_url || "";
+      const joinUrl: string = se.location && se.location.type === "google_conference" ? (se.location.join_url ?? "") : "";
+      enriched.meetingUrl = joinUrl || enriched.meetingUrl || se.scheduling_url || "";
       console.log(`[discovery] Enriched meeting via Calendly API for ${enriched.email}`);
     }
   }

@@ -17,6 +17,7 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
+  CALENDLY_PERSONAL_TOKEN: z.string().optional(),
   CALENDLY_API_TOKEN: z.string().optional(),
   CALENDLY_WEBHOOK_SIGNING_KEY: z.string().optional(),
   CALENDLY_ORG_URI: z.string().optional(),

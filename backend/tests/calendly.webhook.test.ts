@@ -12,6 +12,13 @@ jest.mock("resend", () => ({
 
 const SIGNING_KEY = "test-webhook-signing-key";
 
+const mockFetch = jest.fn();
+jest.spyOn(global, "fetch").mockImplementation(mockFetch as unknown as typeof fetch);
+
+afterAll(() => {
+  jest.restoreAllMocks();
+});
+
 const signedHeaders = (rawBody: string, nowOffsetSec = 0): { timestamp: string; signature: string; header: string } => {
   const timestamp: string = String(Math.floor(Date.now() / 1000) + nowOffsetSec);
   const signature: string = crypto.createHmac("sha256", SIGNING_KEY).update(`${timestamp}.${rawBody}`).digest("hex");
@@ -99,6 +106,9 @@ describe("POST /api/calendly/webhook", () => {
     process.env.NODE_ENV = "test";
     process.env.RESEND_API_KEY = "re_test_webhook_123";
     process.env.CALENDLY_WEBHOOK_SIGNING_KEY = SIGNING_KEY;
+    delete process.env.CALENDLY_PERSONAL_TOKEN;
+    delete process.env.CALENDLY_API_TOKEN;
+    mockFetch.mockReset().mockResolvedValue({ ok: false, status: 404, json: async () => ({}) });
   });
 
   afterEach(() => {
@@ -115,6 +125,30 @@ describe("POST /api/calendly/webhook", () => {
     expect(res.body.received).toBe(true);
     // No email from the webhook - confirmation email is sent only after the discovery form arrives
     expect(mockSend).not.toHaveBeenCalled();
+  });
+
+  it("GETs the scheduled event with CALENDLY_PERSONAL_TOKEN to resolve the Google Meet link", async () => {
+    process.env.CALENDLY_PERSONAL_TOKEN = "cal_personal_webhook_meet";
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        resource: {
+          uri: "https://api.calendly.com/scheduled_events/EVT1",
+          name: "Discovery Call",
+          start_time: "2024-01-20T15:00:00.000000Z",
+          end_time: "2024-01-20T15:30:00.000000Z",
+          location: { type: "google_conference", join_url: "https://meet.google.com/wxyz-1234-567" },
+        },
+      }),
+    });
+    const { header } = signedHeaders(inviteeCreatedBody);
+    const res = await postSigned(inviteeCreatedBody, header);
+    expect(res.status).toBe(200);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    const [url, init] = mockFetch.mock.calls[0] as [string, { headers: Record<string, string> }];
+    expect(url).toContain("/scheduled_events/EVT1");
+    expect(init.headers.Authorization).toBe("Bearer cal_personal_webhook_meet");
   });
 
   it("acknowledges invitee.canceled with a valid signature (200)", async () => {

@@ -156,4 +156,80 @@ describe("POST /api/discovery - Calendly Integration (TDD)", () => {
     expect(res.body.data.meetingTime).toBe("14:30");
     expect(mockFetch).not.toHaveBeenCalled();
   });
+
+  it("should inject the Google Meet join_url into the confirmation emails instead of the raw API URI", async () => {
+    process.env.CALENDLY_API_TOKEN = "cal_meet_injection_token";
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        resource: {
+          uri: "https://api.calendly.com/scheduled_events/EVT2026",
+          name: "Discovery Call",
+          status: "active",
+          start_time: "2026-09-20T14:30:00.000Z",
+          end_time: "2026-09-20T15:00:00.000Z",
+          event_type: "https://api.calendly.com/event_types/ET1",
+          scheduling_url: "https://calendly.com/shenodev/discovery",
+          location: { type: "google_conference", join_url: "https://meet.google.com/abc-defg-hij" },
+        },
+      }),
+    });
+    const res = await request(app).post("/api/discovery").send({
+      ...validDiscoveryWithMeeting,
+      calendlyEventUri: "https://api.calendly.com/scheduled_events/EVT2026",
+    });
+    expect(res.status).toBe(201);
+    // The raw API URI must never surface as the meeting link; the Meet URL wins.
+    expect(res.body.data.meetingUrl).toBe("https://meet.google.com/abc-defg-hij");
+    expect(res.body.data.meetingUrl).not.toMatch(/api\.calendly\.com/);
+
+    const calls = mockSend.mock.calls.map((c: unknown[]) => (c[0] as Record<string, unknown>));
+    const adminHtml = String(calls.find((c) => String(c.to).includes("admin"))?.html ?? "");
+    const welcomeHtml = String(calls.find((c) => c.to === "alex@vancedynamics.io")?.html ?? "");
+    expect(adminHtml).toMatch(/meet\.google\.com\/abc-defg-hij/);
+    expect(welcomeHtml).toMatch(/meet\.google\.com\/abc-defg-hij/);
+    // The confirmation (welcome) email must never expose the raw API resource URI
+    expect(welcomeHtml).not.toMatch(/scheduled_events\/EVT2026/);
+  });
+
+  it("should fall back to a default meeting-link message when the API has no join_url", async () => {
+    process.env.CALENDLY_API_TOKEN = "cal_meet_fallback_token";
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        resource: {
+          uri: "https://api.calendly.com/scheduled_events/EVT2026",
+          name: "Discovery Call",
+          status: "active",
+          start_time: "2026-09-20T14:30:00.000Z",
+          end_time: "2026-09-20T15:00:00.000Z",
+          event_type: "https://api.calendly.com/event_types/ET1",
+          location: null,
+        },
+      }),
+    });
+    const res = await request(app).post("/api/discovery").send({
+      ...validDiscoveryWithMeeting,
+      calendlyEventUri: "https://api.calendly.com/scheduled_events/EVT2026",
+      meetingUrl: "",
+    });
+    expect(res.status).toBe(201);
+    const calls = mockSend.mock.calls.map((c: unknown[]) => (c[0] as Record<string, unknown>));
+    const adminHtml = String(calls.find((c) => String(c.to).includes("admin"))?.html ?? "");
+    expect(adminHtml).toMatch(/Meeting link will be provided shortly/);
+    const welcomeHtml = String(calls.find((c) => c.to === "alex@vancedynamics.io")?.html ?? "");
+    expect(welcomeHtml).toMatch(/Meeting link will be provided shortly/);
+    expect(welcomeHtml).not.toMatch(/scheduled_events\/EVT2026/);
+  });
+
+  it("should not crash and keep the client link when the Calendly API errored", async () => {
+    process.env.CALENDLY_API_TOKEN = "cal_meet_error_token";
+    mockFetch.mockResolvedValue({ ok: false, status: 500, json: async () => ({}) });
+    const res = await request(app).post("/api/discovery").send(validDiscoveryWithMeeting);
+    expect(res.status).toBe(201);
+    expect(res.body.data.meetingUrl).toBe("https://calendly.com/shenodev/alex-vance");
+    expect(mockSend).toHaveBeenCalledTimes(2);
+  });
 });

@@ -61,8 +61,12 @@ as before (backwards compatible).
 **2. API token (optional but recommended)**
 - Calendly → **Integrations → API & Webhooks** → create a Personal Access Token
   (starts with `cal_...`).
-- Set `CALENDLY_API_TOKEN` in `backend/.env`. Used to fetch authoritative
-  start/end times for booked events.
+- Set `CALENDLY_PERSONAL_TOKEN` in `backend/.env` (legacy alias `CALENDLY_API_TOKEN`
+  is still supported). Used to fetch authoritative start/end times AND the real
+  Google Meet link (`resource.location.join_url`, `location.type === "google_conference"`),
+  which is injected into the confirmation email instead of the raw event API URI.
+  If the API call fails or returns no join link, the email shows
+  "Meeting link will be provided shortly" (never the raw `api.calendly.com` URI).
 
 **3. Webhook subscription**
 - Calendly → **Integrations → API & Webhooks → Webhooks** → create a subscription for:

@@ -41,7 +41,7 @@ export interface CalendlyScheduledEvent {
   end_time: string;
   event_type: string;
   scheduling_url?: string;
-  location?: { type: string; location?: string } | null;
+  location?: { type: string; location?: string; join_url?: string } | null;
   event_memberships?: Array<{ user: string }>;
 }
 
@@ -61,9 +61,11 @@ export interface CalendlyInvitee {
  * Resolve the Calendly Personal Access Token.
  * dotenv.config() populates process.env from .env, so process.env is the
  * runtime source (also lets tests seed/clear it per request).
+ * Prefers CALENDLY_PERSONAL_TOKEN (fetching Google Meet links); falls back to
+ * the legacy CALENDLY_API_TOKEN for backward compatibility.
  */
 export const getCalendlyToken = (): string | undefined => {
-  const token: string | undefined = process.env.CALENDLY_API_TOKEN;
+  const token: string | undefined = process.env.CALENDLY_PERSONAL_TOKEN ?? process.env.CALENDLY_API_TOKEN;
   return token ? token.trim() : undefined;
 };
 
@@ -119,10 +121,27 @@ export const getScheduledEvent = async (uuidOrUri: string, token?: string): Prom
   const apiToken: string | undefined = token ?? getCalendlyToken();
   const uuid: string | null = extractUuidFromUri(uuidOrUri);
   if (!apiToken || !uuid) {
-    if (!apiToken) console.warn("[calendly] CALENDLY_API_TOKEN not set - skipping scheduled event fetch");
+    if (!apiToken) console.warn("[calendly] CALENDLY_PERSONAL_TOKEN/CALENDLY_API_TOKEN not set - skipping scheduled event fetch");
     return null;
   }
   return request<CalendlyScheduledEvent>(`/scheduled_events/${encodeURIComponent(uuid)}`, apiToken);
+};
+
+/**
+ * Resolve the Google Meet join link for a booked event by GETting its Calendly
+ * API resource and reading resource.location.join_url (verified against
+ * location.type === "google_conference"). Never throws:
+ *  - missing token          -> null
+ *  - API error / not 2xx    -> null
+ *  - location missing/other -> null
+ */
+export const getMeetingJoinUrl = async (uuidOrUri: string, token?: string): Promise<string | null> => {
+  const se = await getScheduledEvent(uuidOrUri, token);
+  const loc = se?.location;
+  if (loc && loc.type === "google_conference" && loc.join_url) {
+    return loc.join_url;
+  }
+  return null;
 };
 
 /**

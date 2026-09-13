@@ -12,6 +12,7 @@ export interface IScheduledMeeting extends Document {
   timezone: string;
   status: "scheduled" | "canceled";
   schedulingUrl: string;
+  meetingLink: string;
   rescheduleUrl: string;
   cancelUrl: string;
   discoveryId?: Types.ObjectId;
@@ -32,6 +33,7 @@ const ScheduledMeetingSchema: Schema<IScheduledMeeting> = new Schema<IScheduledM
     timezone: { type: String, required: false, trim: true },
     status: { type: String, required: true, enum: ["scheduled", "canceled"], default: "scheduled" },
     schedulingUrl: { type: String, required: false, trim: true },
+    meetingLink: { type: String, required: false, trim: true },
     rescheduleUrl: { type: String, required: false, trim: true },
     cancelUrl: { type: String, required: false, trim: true },
     discoveryId: { type: Schema.Types.ObjectId, ref: "Discovery", required: false },

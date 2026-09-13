@@ -49,15 +49,23 @@ const handleInviteeCreated = async (payload: Record<string, unknown>): Promise<v
   let startTime: string = asString(scheduledEvent.start_time) || asString(payload.start_time) || "";
   let endTime: string = asString(scheduledEvent.end_time) || asString(payload.end_time) || "";
   let schedulingUrl: string = pickSchedulingUrl(payload);
+  let meetingLink: string = "";
 
-  // Fallback to the Calendly API when the payload lacks authoritative start time/name
-  if ((!startTime || !eventName) && rawEventUri) {
+  // Fetch authoritative data from the Calendly API: start/end time and name, plus
+  // the actual Google Meet link (resource.location.join_url when location.type is
+  // "google_conference"). Fetching whenever we have the event URI means the
+  // confirmation email can carry the real join link - never the raw API URI.
+  if (rawEventUri) {
     const se = await getScheduledEvent(rawEventUri);
     if (se) {
       startTime = startTime || se.start_time;
       endTime = endTime || se.end_time;
       eventName = eventName || se.name;
       schedulingUrl = schedulingUrl || se.scheduling_url || "";
+      const loc = se.location;
+      if (loc && loc.type === "google_conference" && loc.join_url) {
+        meetingLink = loc.join_url;
+      }
     }
   }
 
@@ -83,7 +91,8 @@ const handleInviteeCreated = async (payload: Record<string, unknown>): Promise<v
             endTime: asValidDate(endTime) ?? undefined,
             timezone,
             status: "scheduled",
-            schedulingUrl,
+            schedulingUrl: schedulingUrl || undefined,
+            ...(meetingLink ? { meetingLink } : {}),
             rescheduleUrl: asString(payload.reschedule_url) || asString(invitee.reschedule_url),
             cancelUrl: asString(payload.cancel_url) || asString(invitee.cancel_url),
           },
@@ -114,9 +123,9 @@ const handleInviteeCreated = async (payload: Record<string, unknown>): Promise<v
         }
         disc.calendlyEventUri = disc.calendlyEventUri || rawEventUri;
         disc.calendlyEventUrl = disc.calendlyEventUrl || inviteeUri;
-        // Only a human-clickable calendly.com page may become the meeting link -
-        // never the invitee/event API URI.
-        disc.meetingUrl = disc.meetingUrl || schedulingUrl || "";
+        // Only a human-clickable link may become the meeting link - Google Meet join_url,
+        // then the calendly.com page, never the invitee/event API URI.
+        disc.meetingUrl = disc.meetingUrl || meetingLink || schedulingUrl || "";
         shouldSave = shouldSave || disc.isModified();
         if (shouldSave) await disc.save();
         if (recordId) {
