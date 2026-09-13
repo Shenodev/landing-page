@@ -35,6 +35,16 @@ describe('ShenoDev Backend - TDD Health Check', () => {
     });
   });
 
+  describe('GET /', () => {
+    it('should return 200 with service info (browser landing)', async () => {
+      const res = await request(app).get('/');
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('service', 'shenodev-backend');
+      expect(res.body).toHaveProperty('endpoints');
+      expect(res.body.endpoints).toContain('/health');
+    });
+  });
+
   describe('404 handler', () => {
     it('should return 404 for unknown routes', async () => {
       const res = await request(app).get('/api/unknown-route-xyz');

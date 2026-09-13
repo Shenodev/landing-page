@@ -23,65 +23,6 @@ const envSchema = z.object({
   CALENDLY_URL: z.string().optional(),
   // Optional for production
   CORS_CREDENTIALS: z.coerce.boolean().default(true),
-}).superRefine((data, ctx) => {
-  if (data.NODE_ENV === "production") {
-    if (data.ADMIN_SECRET === "dev-admin-secret-change-in-prod") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "ADMIN_SECRET must be set to a secure value (>=32 chars) in production",
-        path: ["ADMIN_SECRET"],
-      });
-    }
-    if (!data.CLOUDINARY_CLOUD_NAME) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "CLOUDINARY_CLOUD_NAME is required in production",
-        path: ["CLOUDINARY_CLOUD_NAME"],
-      });
-    }
-    if (!data.CLOUDINARY_API_KEY) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "CLOUDINARY_API_KEY is required in production",
-        path: ["CLOUDINARY_API_KEY"],
-      });
-    }
-    if (!data.CLOUDINARY_API_SECRET) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "CLOUDINARY_API_SECRET is required in production",
-        path: ["CLOUDINARY_API_SECRET"],
-      });
-    }
-    if (!data.RESEND_API_KEY) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "RESEND_API_KEY is required in production",
-        path: ["RESEND_API_KEY"],
-      });
-    }
-    if (!data.FRONTEND_URL) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "FRONTEND_URL is required in production",
-        path: ["FRONTEND_URL"],
-      });
-    }
-    if (!data.RESEND_FROM_EMAIL) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "RESEND_FROM_EMAIL is required in production",
-        path: ["RESEND_FROM_EMAIL"],
-      });
-    }
-    if (!data.ADMIN_EMAIL) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "ADMIN_EMAIL is required in production",
-        path: ["ADMIN_EMAIL"],
-      });
-    }
-  }
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -94,6 +35,33 @@ if (!parsed.success) {
 }
 
 export const env: Env = parsed.data;
+
+// Production integration checklist - warnings only, never fatal.
+// Missing optional integrations (Cloudinary, Resend, Calendly) degrade their
+// individual features at runtime; the API and its health endpoints MUST stay up.
+if (env.NODE_ENV === "production") {
+  const missingWarnings: Array<[string, string]> = [
+    [
+      "ADMIN_SECRET",
+      "must be a strong secret (>=32 chars). Until set, admin project uploads are disabled.",
+    ],
+    ["CLOUDINARY_CLOUD_NAME", "is required for project/discovery image uploads"],
+    ["CLOUDINARY_API_KEY", "is required for project/discovery image uploads"],
+    ["CLOUDINARY_API_SECRET", "is required for project/discovery image uploads"],
+    ["RESEND_API_KEY", "is required for contact/discovery emails"],
+    ["FRONTEND_URL", "is required to whitelist the production frontend origin"],
+    ["RESEND_FROM_EMAIL", "is recommended (defaults to hello@contact.shenodev.dpdns.org)"],
+    ["ADMIN_EMAIL", "is recommended (defaults to admin@contact.shenodev.dpdns.org)"],
+  ];
+
+  for (const [key, message] of missingWarnings) {
+    const value: string | undefined = env[key as keyof Env] as string | undefined;
+    const missing: boolean = !value || value === "dev-admin-secret-change-in-prod";
+    if (missing) {
+      console.warn(`[env] WARNING: ${key} ${message}. ${key} is not configured.`);
+    }
+  }
+}
 
 // Production guard: disallow localhost fallback for Mongo in prod
 if (env.NODE_ENV === "production" && env.MONGODB_URI.includes("localhost")) {

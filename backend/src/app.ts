@@ -1,9 +1,14 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Express } from 'express';
 import cors, { CorsOptions } from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { env, allowedOrigins } from './config/env';
-import healthRouter from './routes/health';
+import {
+  livenessHandler,
+  healthHandler,
+  rootIndexHandler,
+  apiIndexHandler,
+} from './routes/health';
 import contactRouter from './routes/contact';
 import discoveryRouter from './routes/discovery';
 import projectsRouter from './routes/projects';
@@ -30,6 +35,14 @@ export const createApp = (): Express => {
   // 2. HMAC signature verification needs the RAW body bytes, not parsed JSON.
   app.use('/api/calendly/webhook', express.raw({ type: 'application/json', limit: '10kb' }));
   app.use('/api/calendly', calendlyRouter);
+
+  // Public, read-only GET endpoints - mounted BEFORE CORS so health checks, uptime
+  // monitors and direct browser navigation (which send no Origin header) always work
+  // in production without being rejected by the CORS middleware.
+  app.get('/', rootIndexHandler);
+  app.get('/health', livenessHandler);
+  app.get('/api', apiIndexHandler);
+  app.get('/api/health', healthHandler);
 
   // CORS whitelist - strict production standard: ONLY allowed origins + FRONTEND_URL env var
   // Also supports Vercel preview deployments (e.g., https://shenodev-*.vercel.app)
@@ -104,26 +117,7 @@ export const createApp = (): Express => {
   app.use(express.json({ limit: "10kb" }));
   app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
-  // Root health check (simple, no DB dependency for load balancer)
-  app.get('/health', (_req: Request, res: Response): void => {
-    res.status(200).json({
-      status: 'ok',
-      service: 'shenodev-backend',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-    });
-  });
-
-  // API routes
-  app.get('/api', (_req: Request, res: Response): void => {
-    res.status(200).json({
-      message: 'ShenoDev API v1',
-      service: 'shenodev-backend',
-      endpoints: ['/health', '/api/health', '/api'],
-    });
-  });
-
-  app.use('/api', healthRouter);
+  // Business API routes
   app.use('/api', contactRouter);
   app.use('/api', discoveryRouter);
   app.use('/api', projectsRouter);
