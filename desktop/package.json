@@ -4,6 +4,7 @@
   "description": "ShenoDev Desktop - Electron wrapper for ShenoDev Next.js web app (http://localhost:3000)",
   "main": "main.js",
   "author": "ShenoDev <hello@shenodev.com>",
+  "homepage": "https://shenodev.dpdns.org",
   "license": "MIT",
   "private": true,
   "scripts": {
