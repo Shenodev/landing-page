@@ -12,7 +12,7 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   RESEND_FROM_EMAIL: z.string().optional(),
   ADMIN_EMAIL: z.string().optional(),
-  RESEND_FALLBACK_DOMAIN: z.string().default("shenodev.dpdns.org"),
+  RESEND_FALLBACK_DOMAIN: z.string().default("shenodev.tech"),
   ADMIN_SECRET: z.string().default("dev-admin-secret-change-in-prod"),
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
@@ -51,8 +51,8 @@ if (env.NODE_ENV === "production") {
     ["CLOUDINARY_API_SECRET", "is required for project/discovery image uploads"],
     ["RESEND_API_KEY", "is required for contact/discovery emails"],
     ["FRONTEND_URL", "is required to whitelist the production frontend origin"],
-    ["RESEND_FROM_EMAIL", "is recommended (defaults to hello@contact.shenodev.dpdns.org)"],
-    ["ADMIN_EMAIL", "is recommended (defaults to admin@contact.shenodev.dpdns.org)"],
+    ["RESEND_FROM_EMAIL", "is recommended (defaults to hello@contact.shenodev.tech)"],
+    ["ADMIN_EMAIL", "is recommended (defaults to admin@contact.shenodev.tech)"],
   ];
 
   for (const [key, message] of missingWarnings) {

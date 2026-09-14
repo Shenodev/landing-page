@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import request from "supertest";
 import { createApp } from "../src/app";
-import { verifyCalendlySignature, parseCalendlySignature } from "../src/lib/calendlyWebhook";
+import { verifyCalendlySignature, parseCalendlySignature } from "../src/services/calendlyWebhook.service";
 
 const mockSend = jest.fn().mockResolvedValue({ id: "mock-email-id" });
 jest.mock("resend", () => ({

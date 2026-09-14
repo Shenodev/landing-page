@@ -1,4 +1,4 @@
-import { getMeetingJoinUrl } from "../src/lib/calendly";
+import { getMeetingJoinUrl } from "../src/services/calendly.service";
 
 describe("lib/calendly - getMeetingJoinUrl (Google Meet link extraction)", () => {
   const mockFetch = jest.fn();

@@ -1,6 +1,6 @@
 import { connectDB, disconnectDB } from "../src/config/db";
 import { Discovery } from "../src/models/Discovery";
-import { getScheduledEvent, extractUuidFromUri, isApiCalendlyUrl } from "../src/lib/calendly";
+import { getScheduledEvent, extractUuidFromUri, isApiCalendlyUrl } from "../src/services/calendly.service";
 
 const API_MEETING_URL_PATTERN = /^https:\/\/api\.calendly\.com\/scheduled_events\//;
 

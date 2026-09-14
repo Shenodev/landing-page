@@ -96,7 +96,7 @@ describe("POST /api/discovery - Project Discovery (TDD)", () => {
     const calls = mockSend.mock.calls;
     const adminCall = calls.find((c: unknown[]) => {
       const arg = c[0] as Record<string, unknown>;
-      return arg.to === "admin@contact.shenodev.dpdns.org" || (Array.isArray(arg.to) && (arg.to as string[]).includes("admin@contact.shenodev.dpdns.org"));
+      return arg.to === "admin@contact.shenodev.tech" || (Array.isArray(arg.to) && (arg.to as string[]).includes("admin@contact.shenodev.tech"));
     });
     expect(adminCall).toBeDefined();
     const adminHtml = String((adminCall![0] as Record<string, unknown>).html ?? "");
@@ -110,7 +110,7 @@ describe("POST /api/discovery - Project Discovery (TDD)", () => {
     });
     expect(welcomeCall).toBeDefined();
     const welcomeArg = welcomeCall![0] as Record<string, unknown>;
-    expect(String(welcomeArg.from)).toMatch(/hello@contact\.shenodev\.dpdns\.org/);
+    expect(String(welcomeArg.from)).toMatch(/hello@contact\.shenodev\.tech/);
     expect(String(welcomeArg.html ?? welcomeArg.subject ?? "")).toMatch(/24-48 hours/i);
   });
 
@@ -150,7 +150,7 @@ describe("POST /api/discovery - Project Discovery (TDD)", () => {
     expect(mockSend).toHaveBeenCalledTimes(2);
     const adminCall = mockSend.mock.calls.find((c: unknown[]) => {
       const arg = c[0] as Record<string, unknown>;
-      return arg.to === "admin@contact.shenodev.dpdns.org" || (Array.isArray(arg.to) && (arg.to as string[]).includes("admin@contact.shenodev.dpdns.org"));
+      return arg.to === "admin@contact.shenodev.tech" || (Array.isArray(arg.to) && (arg.to as string[]).includes("admin@contact.shenodev.tech"));
     });
     expect(adminCall).toBeDefined();
     const adminHtml = String((adminCall![0] as Record<string, unknown>).html ?? "");

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { SectionBadge } from "@/components/ui/SectionBadge";
+import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | ShenoDev",
+  title: "Privacy Policy",
   description:
     "ShenoDev's privacy policy — how we collect, use, and protect your personal data across our website, contact, and discovery forms.",
 };
@@ -31,7 +33,7 @@ const SECTIONS: readonly { title: string; body: string }[] = [
   },
   {
     title: "6. Your Rights",
-    body: "Depending on your jurisdiction, you may have the right to access, correct, or delete the personal data we hold about you, and to object to or restrict certain processing. To exercise any of these rights, contact us at hello@contact.shenodev.dpdns.org and we will respond within 30 days.",
+    body: "Depending on your jurisdiction, you may have the right to access, correct, or delete the personal data we hold about you, and to object to or restrict certain processing. To exercise any of these rights, contact us at hello@contact.shenodev.tech and we will respond within 30 days.",
   },
   {
     title: "7. Cookies & Analytics",
@@ -52,32 +54,37 @@ const PrivacyPage = () => {
     <>
       <Navbar />
       <main
+        id="main-content"
         className="flex-grow relative overflow-hidden py-12 md:py-20 px-4 md:px-8"
-        style={{ background: "radial-gradient(circle 800px at 50% -100px, rgba(6,182,212,0.12), transparent 80%)" }}
+        style={{
+          background: "radial-gradient(circle 800px at 50% -100px, rgba(6,182,212,0.12), transparent 80%)",
+        }}
       >
         <div className="max-w-[880px] mx-auto">
           <div className="text-center space-y-4 mb-14">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container-low border border-outline-variant/40 shadow-inner">
+            <SectionBadge className="bg-surface-container-low border-outline-variant/40 shadow-inner">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              <span className="text-[11px] font-semibold text-primary tracking-wide">SHENODEV | LEGAL</span>
-            </div>
-            <h1 className="font-display text-[32px] md:text-[48px] font-bold text-on-surface tracking-tight">Privacy Policy</h1>
-            <p className="font-body text-[15px] md:text-[18px] text-on-surface-variant max-w-2xl mx-auto">
+              <span className="text-primary">SHENODEV | LEGAL</span>
+            </SectionBadge>
+            <h1 className="font-display text-headline-lg-mobile md:text-headline-lg text-on-surface tracking-tight">
+              Privacy Policy
+            </h1>
+            <p className="text-body-md md:text-body-lg text-on-surface-variant max-w-2xl mx-auto">
               How ShenoDev collects, uses, and protects your information.
             </p>
-            <p className="text-[12px] font-medium text-outline">Effective date: September 13, 2026</p>
+            <p className="text-label-sm font-medium text-outline">Effective date: September 13, 2026</p>
           </div>
 
           <div className="space-y-6">
             {SECTIONS.map((section) => (
-              <section
+              <Card
                 key={section.title}
-                className="relative bg-surface-container-low/70 backdrop-blur-md border border-outline-variant/30 hover:border-primary/40 transition-colors p-6 md:p-8 rounded-xl"
+                className="relative border-outline-variant/30 hover:border-primary/40 transition-colors p-6 md:p-8 bg-surface-container-low/70 backdrop-blur-md"
               >
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-t-xl" />
-                <h2 className="font-display text-[18px] font-semibold text-on-surface mb-3">{section.title}</h2>
-                <p className="font-body text-[14px] leading-[22px] text-on-surface-variant">{section.body}</p>
-              </section>
+                <h2 className="font-display text-title-md text-on-surface mb-3">{section.title}</h2>
+                <p className="text-body-sm leading-[22px] text-on-surface-variant">{section.body}</p>
+              </Card>
             ))}
           </div>
         </div>

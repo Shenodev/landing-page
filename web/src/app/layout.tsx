@@ -1,8 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Sora } from "next/font/google";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import UnhandledReporter from "@/components/UnhandledReporter";
+import { BackgroundGlow } from "@/components/layout/BackgroundGlow";
+import { SkipLink } from "@/components/layout/SkipLink";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,7 +38,11 @@ const BIGINT_SHIM = `if (typeof BigInt === "undefined") {
 }`;
 
 export const metadata: Metadata = {
-  title: "ShenoDev | Premium Full-Stack Web Development Agency",
+  metadataBase: new URL("https://shenodev.tech"),
+  title: {
+    default: "ShenoDev | Premium Full-Stack Web Development Agency",
+    template: "%s | ShenoDev",
+  },
   description:
     "ShenoDev builds fast, scalable, and intelligent web applications engineered for authoritative performance and seamless user experiences.",
   icons: {
@@ -43,12 +50,40 @@ export const metadata: Metadata = {
     shortcut: "/assets/Logo Icon.png",
     apple: "/assets/Logo Icon.png",
   },
+  openGraph: {
+    type: "website",
+    url: "https://shenodev.tech",
+    siteName: "ShenoDev",
+    title: "ShenoDev | Premium Full-Stack Web Development Agency",
+    description:
+      "Fast, scalable, and intelligent web applications engineered for authoritative performance and seamless user experiences.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ShenoDev | Premium Full-Stack Web Development Agency",
+    description:
+      "Fast, scalable, and intelligent web applications engineered for authoritative performance and seamless user experiences.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  // Populate from GSC after domain verification if using meta-tag verification
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? "",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0b1326",
 };
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en" className="dark scroll-smooth">
       <head>
+        {/* Third-party icon font (Material Symbols) — not available via next/font */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet"
@@ -58,12 +93,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         className={`${inter.variable} ${sora.variable} bg-background text-on-surface antialiased overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col justify-between font-sans`}
       >
         <Script id="bigint-shim" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: BIGINT_SHIM }} />
+        <SkipLink />
         <UnhandledReporter />
-        {/* Atmospheric Background Glow */}
-        <div className="fixed inset-0 pointer-events-none cyan-ambient-radial -z-10" />
-        <div className="fixed top-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none -z-10" />
-        <div className="fixed bottom-1/4 left-1/3 w-[500px] h-[500px] bg-secondary-container/10 rounded-full blur-[120px] pointer-events-none -z-10" />
+        <BackgroundGlow />
         {children}
+        <Analytics />
       </body>
     </html>
   );

@@ -62,7 +62,7 @@ describe("POST /api/discovery - Calendly Integration (TDD)", () => {
     expect(mockSend).toHaveBeenCalledTimes(2);
     const adminCall = mockSend.mock.calls.find((c: unknown[]) => {
       const arg = c[0] as Record<string, unknown>;
-      return arg.to === "admin@contact.shenodev.dpdns.org" || (Array.isArray(arg.to) && (arg.to as string[]).includes("admin@contact.shenodev.dpdns.org"));
+      return arg.to === "admin@contact.shenodev.tech" || (Array.isArray(arg.to) && (arg.to as string[]).includes("admin@contact.shenodev.tech"));
     });
     expect(adminCall).toBeDefined();
     const html = String((adminCall![0] as Record<string, unknown>).html ?? "");

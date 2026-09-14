@@ -1,4 +1,4 @@
-import { pickSchedulingUrl, isApiCalendlyUrl } from "../src/lib/calendly";
+import { pickSchedulingUrl, isApiCalendlyUrl } from "../src/services/calendly.service";
 
 describe("calendly meeting-link helpers (TDD)", () => {
   it("should prefer invitee.scheduling_url (specific booking link) over all others", () => {

@@ -1,21 +1,21 @@
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import TechMarquee from "@/components/TechMarquee";
-import Services from "@/components/Services";
-import Work from "@/components/Work";
-import ContactForm from "@/components/ContactForm";
-import Footer from "@/components/Footer";
+import { Navbar } from "@/components/layout/Navbar";
+import { Hero } from "@/components/Hero";
+import { TechMarquee } from "@/components/TechMarquee";
+import { Services } from "@/components/Services";
+import { WorkSection } from "@/components/work/WorkSection";
+import { ContactSection } from "@/components/contact/ContactSection";
+import { Footer } from "@/components/layout/Footer";
 
 const Page = () => {
   return (
     <>
       <Navbar />
-      <main>
+      <main id="main-content">
         <Hero />
         <TechMarquee />
         <Services />
-        <Work />
-        <ContactForm />
+        <WorkSection />
+        <ContactSection />
       </main>
       <Footer />
     </>

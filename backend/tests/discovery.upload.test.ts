@@ -8,7 +8,7 @@ jest.mock("resend", () => ({
   })),
 }));
 
-jest.mock("../src/config/cloudinary", () => ({
+jest.mock("../src/services/cloudinary.service", () => ({
   uploadToCloudinary: jest.fn().mockImplementation(async (_fileBuffer: Buffer) => ({
     secure_url: "https://res.cloudinary.com/shenodev/shenodev_discovery/mock-upload.pdf",
     public_id: "mock-upload-public-id",

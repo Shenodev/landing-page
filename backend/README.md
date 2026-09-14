@@ -85,7 +85,7 @@ curl -X POST https://api.calendly.com/webhook_subscriptions \
   -H "Authorization: Bearer $CALENDLY_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-        "url": "https://api.shenodev.dpdns.org/api/calendly/webhook",
+        "url": "https://api.shenodev.tech/api/calendly/webhook",
         "events": ["invitee.created", "invitee.canceled"],
         "organization": "https://api.calendly.com/organizations/YOUR_ORG_UUID",
         "scope": "organization",

@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import { env } from "../config/env";
-import { purifyString, escapeHtml } from "./sanitize";
+import { purifyString, escapeHtml } from "../lib/sanitize";
 
 let resendInstance: InstanceType<typeof Resend> | null = null;
 
@@ -17,10 +17,10 @@ const getResend = (): InstanceType<typeof Resend> | null => {
 };
 
 // Domain configuration for Resend - fully env-driven (checks env schema, then process.env, then safe defaults).
-const RESEND_FROM: string = (env.RESEND_FROM_EMAIL ?? process.env.RESEND_FROM_EMAIL ?? "hello@contact.shenodev.dpdns.org").trim();
-const ADMIN_TO: string = (env.ADMIN_EMAIL ?? process.env.ADMIN_EMAIL ?? "admin@contact.shenodev.dpdns.org").trim();
-const PRIMARY_DOMAIN: string = ADMIN_TO.includes("@") ? (ADMIN_TO.split("@")[1] as string) : "contact.shenodev.dpdns.org";
-export const FALLBACK_DOMAIN: string = (env.RESEND_FALLBACK_DOMAIN ?? process.env.RESEND_FALLBACK_DOMAIN ?? "shenodev.dpdns.org").trim();
+const RESEND_FROM: string = (env.RESEND_FROM_EMAIL ?? process.env.RESEND_FROM_EMAIL ?? "hello@contact.shenodev.tech").trim();
+const ADMIN_TO: string = (env.ADMIN_EMAIL ?? process.env.ADMIN_EMAIL ?? "admin@contact.shenodev.tech").trim();
+const PRIMARY_DOMAIN: string = ADMIN_TO.includes("@") ? (ADMIN_TO.split("@")[1] as string) : "contact.shenodev.tech";
+export const FALLBACK_DOMAIN: string = (env.RESEND_FALLBACK_DOMAIN ?? process.env.RESEND_FALLBACK_DOMAIN ?? "shenodev.tech").trim();
 const PRIMARY_FROM = `ShenoDev <${RESEND_FROM}>`;
 const FALLBACK_FROM = `ShenoDev <hello@${FALLBACK_DOMAIN}>`;
 const PRIMARY_ADMIN = ADMIN_TO;
@@ -28,8 +28,8 @@ const FALLBACK_ADMIN = `admin@${FALLBACK_DOMAIN}`;
 
 /**
  * Robust wrapper with dynamic domain fallback for Resend.
- * TRY primary domain (RESEND_FROM_EMAIL / ADMIN_EMAIL, default contact.shenodev.dpdns.org),
- * CATCH fallback (RESEND_FALLBACK_DOMAIN, default shenodev.dpdns.org).
+ * TRY primary domain (RESEND_FROM_EMAIL / ADMIN_EMAIL, default contact.shenodev.tech),
+ * CATCH fallback (RESEND_FALLBACK_DOMAIN, default shenodev.tech).
  * Logs clearly which domain succeeded.
  */
 export const sendResendEmail = async (params: {
