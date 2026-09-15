@@ -46,10 +46,23 @@ export const metadata: Metadata = {
   description:
     "ShenoDev builds fast, scalable, and intelligent web applications engineered for authoritative performance and seamless user experiences.",
   icons: {
-    icon: "/assets/Logo Icon.png",
-    shortcut: "/assets/Logo Icon.png",
-    apple: "/assets/Logo Icon.png",
+    icon: [
+      { url: "/assets/favicon-48x48.png", sizes: "48x48", type: "image/png" },
+      { url: "/assets/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/assets/favicon-144x144.png", sizes: "144x144", type: "image/png" },
+      { url: "/assets/favicon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/assets/favicon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/assets/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    other: [
+      {
+        rel: "mask-icon",
+        url: "/assets/Logo Horizontal without slugan.svg",
+        color: "#0b1326",
+      },
+    ],
   },
+  manifest: "/site.webmanifest",
   openGraph: {
     type: "website",
     url: "https://shenodev.tech",

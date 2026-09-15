@@ -1,0 +1,22 @@
+{
+    "theme_color":  "#0b1326",
+    "name":  "ShenoDev",
+    "display":  "standalone",
+    "short_name":  "ShenoDev",
+    "background_color":  "#0b1326",
+    "start_url":  "/",
+    "icons":  [
+                  {
+                      "purpose":  "any",
+                      "type":  "image/png",
+                      "sizes":  "192x192",
+                      "src":  "/assets/favicon-192x192.png"
+                  },
+                  {
+                      "purpose":  "any maskable",
+                      "type":  "image/png",
+                      "sizes":  "512x512",
+                      "src":  "/assets/favicon-512x512.png"
+                  }
+              ]
+}
