@@ -13,14 +13,6 @@ export const Hero = () => {
     <section className="relative pt-12 pb-20 md:py-24 max-w-[1320px] mx-auto px-6 md:px-12 overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
         <div className="lg:col-span-7 flex flex-col items-start z-10">
-          <SectionBadge className="shadow-inner mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            <span className="text-primary font-sans">Think it, Sheno it</span>
-            <span className="text-outline font-sans" aria-hidden="true">
-              |
-            </span>
-            <span className="text-on-surface-variant">Full-Stack Development Studio</span>
-          </SectionBadge>
 
           <h1 className="font-display text-display-hero-mobile md:text-display-hero text-on-surface tracking-tight mb-6">
             Empowering Your Business with{" "}
