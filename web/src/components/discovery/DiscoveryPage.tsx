@@ -50,10 +50,6 @@ export const DiscoveryPage = () => {
           ) : (
             <>
               <div className="text-center space-y-4 mb-14">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container-low border border-outline-variant/40 shadow-inner">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                  <span className="text-label-sm text-primary">SHENODEV ONBOARDING | Project Discovery</span>
-                </div>
                 <h1 className="font-display text-headline-lg-mobile md:text-headline-lg text-on-surface tracking-tight">
                   Tell Us About Your Vision
                 </h1>
