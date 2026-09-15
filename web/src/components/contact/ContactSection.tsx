@@ -9,7 +9,6 @@ import { Card } from "@/components/ui/Card";
 import { Field } from "@/components/ui/Field";
 import { FormAlert } from "@/components/ui/FormAlert";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
-import { SectionBadge } from "@/components/ui/SectionBadge";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Textarea } from "@/components/ui/Textarea";
 import { Input } from "@/components/ui/Input";
@@ -89,7 +88,6 @@ export const ContactSection = () => {
     <section className="py-24 max-w-[1320px] mx-auto px-6 md:px-12" id="contact">
       <div className="max-w-2xl mx-auto">
         <SectionHeading
-          badge={<SectionBadge>Direct Engineering Line</SectionBadge>}
           title="Let&apos;s Build Something Extraordinary"
           subtitle="Reach out directly with your parameters. We respond with a comprehensive architectural review and timeline within 24 hours."
           className="mb-10"

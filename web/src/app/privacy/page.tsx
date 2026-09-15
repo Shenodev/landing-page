@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { SectionBadge } from "@/components/ui/SectionBadge";
 import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
@@ -62,10 +61,6 @@ const PrivacyPage = () => {
       >
         <div className="max-w-[880px] mx-auto">
           <div className="text-center space-y-4 mb-14">
-            <SectionBadge className="bg-surface-container-low border-outline-variant/40 shadow-inner">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              <span className="text-primary">SHENODEV | LEGAL</span>
-            </SectionBadge>
             <h1 className="font-display text-headline-lg-mobile md:text-headline-lg text-on-surface tracking-tight">
               Privacy Policy
             </h1>

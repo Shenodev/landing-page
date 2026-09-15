@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/Button";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
-import { SectionBadge } from "@/components/ui/SectionBadge";
 
 const TRUST_METRICS = [
   { value: "99.9%", label: "Uptime Architecture" },

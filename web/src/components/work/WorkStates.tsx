@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
-import { SectionBadge } from "@/components/ui/SectionBadge";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const ViewAllLink = ({ className }: { className?: string }) => (
@@ -17,7 +16,6 @@ const ViewAllLink = ({ className }: { className?: string }) => (
 
 const WorkHeading = ({ showViewAll }: { showViewAll: boolean }) => (
   <SectionHeading
-    badge={<SectionBadge>Our Work</SectionBadge>}
     title="My Works"
     subtitle={
       <span className="text-body-md text-on-surface-variant">

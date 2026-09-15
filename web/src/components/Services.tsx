@@ -1,5 +1,4 @@
 import { PricingCard, type PricingCardData } from "@/components/pricing/PricingCard";
-import { SectionBadge } from "@/components/ui/SectionBadge";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const PRICING_CARDS: readonly PricingCardData[] = [
@@ -54,7 +53,6 @@ export const Services = () => {
   return (
     <section className="py-24 max-w-[1320px] mx-auto px-6 md:px-12" id="services">
       <SectionHeading
-        badge={<SectionBadge>Flexible Engagements</SectionBadge>}
         title="Transparent Pricing &amp; High-Impact Services"
         subtitle="Tailored engineering solutions designed to turn complex business architectures into seamless, scalable, and conversion-ready digital platforms."
       />
