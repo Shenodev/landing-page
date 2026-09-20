@@ -13,7 +13,7 @@ export interface CloudinaryUploadOptions {
 
 /**
  * Upload a file buffer to Cloudinary.
- * Folder: shenodev_projects for Project images, shenodev_discovery for Discovery attachments.
+ * Folder: shenoprojects for Project images, shenodev_discovery for Discovery attachments.
  */
 export const uploadToCloudinary = async (
   fileBuffer: Buffer,

@@ -40,7 +40,7 @@ export const createProject = async (body: unknown, files: Express.Multer.File[])
   for (const file of files) {
     try {
       const result = await uploadToCloudinary(file.buffer, {
-        folder: "shenodev_projects",
+        folder: "shenoprojects",
         resourceType: "image",
       });
       uploadedImages.push({ url: result.secure_url, publicId: result.public_id });

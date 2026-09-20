@@ -111,4 +111,50 @@ export const submitDiscovery = async (
   });
 };
 
+export type AdminProjectPayload = {
+  title: string;
+  description: string;
+  imageUrl: string;
+  techStack: string[];
+  demoUrl: string;
+  githubUrl: string;
+};
+
+export type SubmitProjectResult = {
+  message: string;
+  data?: unknown;
+};
+
+/**
+ * Hidden admin upload — POST /api/projects with x-admin-secret.
+ * Files (field "images") are uploaded server-side to Cloudinary folder "shenoprojects".
+ * When files are present, other fields go as FormData text (techStack as JSON string).
+ */
+export const submitProject = async (
+  payload: AdminProjectPayload,
+  files: readonly File[],
+  adminSecret: string,
+): Promise<SubmitProjectResult> => {
+  const url = `${getApiUrl()}/api/projects`;
+  const headers = { "x-admin-secret": adminSecret };
+
+  if (files.length > 0) {
+    const body = new FormData();
+    body.append("title", payload.title);
+    body.append("description", payload.description);
+    body.append("imageUrl", payload.imageUrl);
+    body.append("techStack", JSON.stringify(payload.techStack));
+    body.append("demoUrl", payload.demoUrl);
+    body.append("githubUrl", payload.githubUrl);
+    files.forEach((file) => body.append("images", file));
+    return fetchJson(url, { method: "POST", headers, body });
+  }
+
+  return fetchJson(url, {
+    method: "POST",
+    headers: { ...headers, "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+};
+
 export { toSafeString };
