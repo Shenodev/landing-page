@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Sora"; font-weight: 800; font-style: normal; font-display: swap; src: url("assets/fonts/sora-800-latin.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 400; font-style: normal; font-display: swap; src: url("assets/fonts/inter-latin.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 700; font-style: normal; font-display: swap; src: url("assets/fonts/inter-latin.woff2") format("woff2"); }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        margin: 0; width: 1920px; height: 1080px; overflow: hidden;
+        background: #0b1326;
+      }
+      body { font-family: "Sora", "Inter", system-ui, sans-serif; }
+      .clip { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+      .scene { display: flex; align-items: center; justify-content: center; flex-direction: column; }
+      .display { font-weight: 800; letter-spacing: -0.02em; color: #dae2fd; text-align: center; }
+      .grad {
+        background: linear-gradient(90deg, #4cd7f6, #06b6d4, #adc6ff);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .glow {
+        position: absolute; width: 900px; height: 900px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(6,182,212,0.22), transparent 70%);
+        pointer-events: none;
+      }
+      .card {
+        background: rgba(23,31,51,0.85);
+        border: 1px solid rgba(6,182,212,0.35);
+        border-radius: 24px;
+        box-shadow: 0 0 30px -4px rgba(6,182,212,0.18);
+        color: #dae2fd;
+      }
+      .btn {
+        border-radius: 12px; font-weight: 700; text-align: center;
+      }
+      .btn-primary { background: #06b6d4; color: #00424f; box-shadow: 0 0 24px 0 rgba(6,182,212,0.45); }
+      .btn-outline { border: 1px solid rgba(6,182,212,0.6); color: #dae2fd; }
+      .cursor {
+        position: absolute; width: 26px; height: 26px; border-radius: 50%;
+        background: #4cd7f6; box-shadow: 0 0 18px 4px rgba(76,215,246,0.7);
+      }
+      .sub { color: #bcc9cd; text-align: center; }
+      .price { font-weight: 800; color: #4cd7f6; }
+      .stamp {
+        background: rgba(27,189,133,0.16); border: 2px solid #4edea3; color: #4edea3;
+        border-radius: 16px; font-weight: 800;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1920" data-height="1080">
+
+      <!-- SCENE 1 — Hook 0-3s -->
+      <div id="s1" class="clip scene" data-start="0" data-duration="3" data-track-index="1">
+        <div id="s1-glow" class="glow"></div>
+        <div id="s1-hook" class="display" style="font-size: 150px;">Think it, Sheno it.</div>
+      </div>
+
+      <!-- SCENE 2 — Hero reveal 3-8s -->
+      <div id="s2" class="clip scene" data-start="3" data-duration="5" data-track-index="2">
+        <div id="s2-head" class="display" style="font-size: 84px; max-width: 1500px;">
+          Empowering Your Business with <span class="grad">High-Performance</span> Web Solutions.
+        </div>
+        <div id="s2-sub" class="sub" style="font-size: 34px; margin-top: 28px; max-width: 1200px;">
+          Fast, scalable, intelligent web applications — engineered for performance.
+        </div>
+        <div style="display: flex; gap: 28px; margin-top: 48px;">
+          <div id="s2-cta1" class="btn btn-primary" style="font-size: 32px; padding: 24px 64px;">Start Your Project</div>
+          <div id="s2-cta2" class="btn btn-outline" style="font-size: 32px; padding: 24px 64px;">View Our Work</div>
+        </div>
+        <div id="s2-cursor" class="cursor" style="left: 400px; top: 800px;"></div>
+      </div>
+
+      <!-- SCENE 3 — Discovery flow 8-15s -->
+      <div id="s3" class="clip scene" data-start="8" data-duration="7" data-track-index="3">
+        <div id="s3-title" class="display" style="font-size: 56px; margin-bottom: 36px;">From questionnaire to booked call</div>
+        <div style="display: flex; gap: 24px;">
+          <div id="step1" class="card" style="font-size: 30px; font-weight: 700; padding: 28px 36px;">01 · Info</div>
+          <div id="step2" class="card" style="font-size: 30px; font-weight: 700; padding: 28px 36px;">02 · Business</div>
+          <div id="step3" class="card" style="font-size: 30px; font-weight: 700; padding: 28px 36px;">03 · Branding</div>
+          <div id="step4" class="card" style="font-size: 30px; font-weight: 700; padding: 28px 36px;">04 · Tech</div>
+          <div id="step5" class="card" style="font-size: 30px; font-weight: 700; padding: 28px 36px;">05 · Logistics</div>
+        </div>
+        <div style="display: flex; gap: 24px; margin-top: 32px; align-items: center;">
+          <div id="s3-file" class="card" style="font-size: 28px; padding: 18px 32px;">📎 specs.pdf attached</div>
+          <div id="s3-date" class="card" style="font-size: 28px; padding: 18px 32px;">📅 Tue 14:30 picked</div>
+        </div>
+        <div id="s3-done" class="stamp" style="font-size: 44px; padding: 24px 64px; margin-top: 36px;">✓ Discovery Received!</div>
+      </div>
+
+      <!-- SCENE 4 — Pricing punchline + logo 15-20s -->
+      <div id="s4" class="clip scene" data-start="15" data-duration="5" data-track-index="4">
+        <div style="display: flex; gap: 32px;">
+          <div id="price1" class="card" style="padding: 36px 56px; text-align: center;">
+            <div style="font-size: 28px; color: #bcc9cd;">Corporate</div>
+            <div class="price" style="font-size: 64px;">10,000 EGP</div>
+          </div>
+          <div id="price2" class="card" style="padding: 36px 56px; text-align: center;">
+            <div style="font-size: 28px; color: #bcc9cd;">Dashboard</div>
+            <div class="price" style="font-size: 64px;">25,000 EGP</div>
+          </div>
+          <div id="price3" class="card" style="padding: 36px 56px; text-align: center;">
+            <div style="font-size: 28px; color: #bcc9cd;">Platform</div>
+            <div class="price" style="font-size: 64px;">45,000 EGP</div>
+          </div>
+        </div>
+        <div id="s4-punch" class="display" style="font-size: 54px; margin-top: 40px;">Fixed scope. No hidden fees.</div>
+        <div id="s4-logo" class="display" style="font-size: 96px; margin-top: 24px;">
+          ShenoDev <span class="grad" style="font-size: 48px;">shenodev.tech</span>
+        </div>
+      </div>
+
+      <!-- MUSIC -->
+      <audio id="music" class="clip" data-start="0" data-duration="20" data-track-index="10" data-volume="0.65"
+        src="assets/music/happy-beats-business-moves-vol-10-by-ende-dot-app.mp3"></audio>
+      <!-- SFX -->
+      <audio id="sfx-slam" class="clip" data-start="0.82" data-duration="1" data-track-index="11" data-volume="0.5" src="assets/sfx/impactSoft_medium_001.ogg"></audio>
+      <audio id="sfx-click" class="clip" data-start="6.28" data-duration="1" data-track-index="11" data-volume="0.6" src="assets/sfx/mouseclick1.ogg"></audio>
+      <audio id="sfx-card1" class="clip" data-start="8.73" data-duration="1" data-track-index="11" data-volume="0.4" src="assets/sfx/click_002.ogg"></audio>
+      <audio id="sfx-card2" class="clip" data-start="10.93" data-duration="1" data-track-index="11" data-volume="0.4" src="assets/sfx/click_002.ogg"></audio>
+      <audio id="sfx-card3" class="clip" data-start="13.11" data-duration="1" data-track-index="11" data-volume="0.4" src="assets/sfx/click_002.ogg"></audio>
+      <audio id="sfx-stamp" class="clip" data-start="14.2" data-duration="1" data-track-index="11" data-volume="0.6" src="assets/sfx/impactSoft_medium_002.ogg"></audio>
+      <audio id="sfx-price" class="clip" data-start="16.38" data-duration="1" data-track-index="11" data-volume="0.4" src="assets/sfx/click_002.ogg"></audio>
+      <audio id="sfx-logo" class="clip" data-start="18.55" data-duration="1.2" data-track-index="11" data-volume="0.7" src="assets/sfx/impactBell_heavy_000.ogg"></audio>
+
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+
+      // SCENE 1 — hook slam (beat-locked 0.82s) + glow pulse
+      tl.fromTo("#s1-hook", { opacity: 0, scale: 2.1 }, { opacity: 1, scale: 1, duration: 0.45, ease: "power4.in" }, 0.55);
+      tl.fromTo("#s1-glow", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1.15, duration: 1.2, ease: "power2.out", overwrite: "auto" }, 0.55);
+      tl.to("#s1-glow", { opacity: 0.55, duration: 1.25, overwrite: "auto" }, 1.75);
+
+      // SCENE 2 — hero rebuild
+      tl.fromTo("#s2-head", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.6 }, 3.1);
+      tl.fromTo("#s2-sub", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5 }, 3.8);
+      tl.fromTo("#s2-cta1", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4 }, 4.4);
+      tl.fromTo("#s2-cta2", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4 }, 4.6);
+      tl.fromTo("#s2-cursor", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 5.2);
+      tl.to("#s2-cursor", { x: 560, y: -110, duration: 0.8, ease: "power2.inOut" }, 5.5);
+      tl.to("#s2-cta1", { scale: 0.93, duration: 0.12 }, 6.28); // beat-locked click
+      tl.to("#s2-cta1", { scale: 1, duration: 0.25 }, 6.42);
+
+      // SCENE 3 — step cards on every-other-beat grid (readable holds)
+      tl.fromTo("#s3-title", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5 }, 8.1);
+      tl.fromTo("#step1", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.4 }, 8.73); // beat-grid
+      tl.fromTo("#step2", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.4 }, 9.83); // beat-grid
+      tl.fromTo("#step3", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.4 }, 10.93); // beat-grid
+      tl.fromTo("#step4", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.4 }, 12.02); // beat-grid
+      tl.fromTo("#step5", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.4 }, 13.11); // beat-grid
+      tl.fromTo("#s3-file", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.35 }, 13.4);
+      tl.fromTo("#s3-date", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.35 }, 13.7);
+      tl.fromTo("#s3-done", { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: "power3.in" }, 14.2); // beat stamp
+
+      // SCENE 4 — prices then punchline + logo (strong cues 18.01/18.55)
+      tl.fromTo("#price1", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.45 }, 15.28); // beat-grid
+      tl.fromTo("#price2", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.45 }, 16.38); // beat-grid
+      tl.fromTo("#price3", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.45 }, 17.47); // beat-grid
+      tl.fromTo("#s4-punch", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4 }, 18.01); // beat-locked 18.01s
+      tl.fromTo("#s4-logo", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.5 }, 18.55); // beat-locked 18.55s
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
