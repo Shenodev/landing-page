@@ -23,7 +23,7 @@ describe("ShenoDev Backend - TDD Contact (Typesafe + Purified)", () => {
     it("should accept valid payload and return 201 with sanitized data", async () => {
       const res = await request(app)
         .post("/api/contact")
-        .send({ name: "Alex Vance", email: "alex@enterprise.com", details: "Need a scalable platform for our startup." });
+        .send({ name: "Alex Vance", email: "alex@enterprise.com", details: "Need a scalable platform for our startup.", privacyConsent: true, ageConfirmed: true });
       expect(res.status).toBe(201);
       expect(res.body).toHaveProperty("message");
       expect(res.body).toHaveProperty("data");
@@ -69,7 +69,7 @@ describe("ShenoDev Backend - TDD Contact (Typesafe + Purified)", () => {
       const xss = '<script>alert(1)</script>Need platform';
       const res = await request(app)
         .post("/api/contact")
-        .send({ name: "Alex", email: "alex@enterprise.com", details: xss });
+        .send({ name: "Alex", email: "alex@enterprise.com", details: xss, privacyConsent: true, ageConfirmed: true });
       // Should either 400 or 201 with sanitized details not containing <script>
       if (res.status === 201) {
         expect(res.body.data.details).not.toContain("<script>");

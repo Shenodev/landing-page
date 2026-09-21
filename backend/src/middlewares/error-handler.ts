@@ -57,7 +57,10 @@ export const globalErrorHandler = (err: unknown, _req: Request, res: Response, _
     errorCode = "UPLOAD_ERROR";
   }
 
-  const message: string = error.message ?? "Internal Server Error";
+  const isProd: boolean = process.env.NODE_ENV === "production";
+  // Never leak internals (stacks, DB strings, paths) to clients in production.
+  const message: string =
+    statusCode >= 500 && isProd ? "Internal Server Error" : (error.message ?? "Internal Server Error");
 
   const computeLabel = (): string => {
     if (statusCode >= 500) return "Internal Server Error";
@@ -66,6 +69,7 @@ export const globalErrorHandler = (err: unknown, _req: Request, res: Response, _
     return "Error";
   };
 
+  // Server-side log keeps detail; client response below stays generic on 5xx.
   console.error(`[error] ${statusCode} - ${message}`, error.stack);
 
   res.status(statusCode).json({
@@ -73,6 +77,6 @@ export const globalErrorHandler = (err: unknown, _req: Request, res: Response, _
     message,
     statusCode,
     ...(issues ? { issues } : {}),
-    ...(process.env.NODE_ENV !== "production" && error.stack ? { stack: error.stack } : {}),
+    ...(!isProd && error.stack ? { stack: error.stack } : {}),
   });
 };

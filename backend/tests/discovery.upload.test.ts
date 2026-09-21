@@ -50,8 +50,10 @@ describe("POST /api/discovery - multipart file attachments (TDD)", () => {
       .field("brandStatus", validFields.brandStatus)
       .field("targetPackage", validFields.targetPackage)
       .field("launchDate", validFields.launchDate)
-      .attach("attachments", Buffer.from("%PDF-1.4 test"), { filename: "specs.pdf", contentType: "application/pdf" })
-      .attach("attachments", Buffer.from("png-data"), { filename: "wire.png", contentType: "image/png" });
+      .field("privacyConsent", "true")
+      .field("ageConfirmed", "true")
+      .attach("attachments", Buffer.concat([Buffer.from("%PDF-1.4 test"), Buffer.alloc(8, 0)]), { filename: "specs.pdf", contentType: "application/pdf" })
+      .attach("attachments", Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(8, 0)]), { filename: "wire.png", contentType: "image/png" });
 
     expect(res.status).toBe(201);
     expect(res.body.data.attachments).toHaveLength(2);
@@ -74,11 +76,34 @@ describe("POST /api/discovery - multipart file attachments (TDD)", () => {
       .field("brandStatus", validFields.brandStatus)
       .field("targetPackage", validFields.targetPackage)
       .field("launchDate", validFields.launchDate)
-      .attach("attachment", Buffer.from("logo-bytes"), { filename: "logo.png", contentType: "image/png" });
+      .field("privacyConsent", "true")
+      .field("ageConfirmed", "true")
+      .attach("attachment", Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(8, 0)]), { filename: "logo.png", contentType: "image/png" });
 
     expect(res.status).toBe(201);
     expect(res.body.data.attachments).toHaveLength(1);
     expect(res.body.data.attachments[0].fileName).toBe("logo.png");
+  });
+
+  it("should reject spoofed content (non-image bytes claimed as image/png)", async () => {
+    const res = await request(app)
+      .post("/api/discovery")
+      .field("fullName", validFields.fullName)
+      .field("companyName", validFields.companyName)
+      .field("email", validFields.email)
+      .field("phone", validFields.phone)
+      .field("businessDesc", validFields.businessDesc)
+      .field("targetAudience", validFields.targetAudience)
+      .field("competitors", validFields.competitors)
+      .field("brandStatus", validFields.brandStatus)
+      .field("targetPackage", validFields.targetPackage)
+      .field("launchDate", validFields.launchDate)
+      .field("privacyConsent", "true")
+      .field("ageConfirmed", "true")
+      .attach("attachments", Buffer.alloc(32, 0x41), { filename: "fake.png", contentType: "image/png" });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/Invalid attachment file content/i);
   });
 
   it("should reject files with an unsupported content type", async () => {

@@ -1,6 +1,7 @@
 import { ScheduledMeeting } from "../models/ScheduledMeeting";
 import { Discovery } from "../models/Discovery";
 import { getConnectionState } from "../config/db";
+import { maskEmail } from "../lib/security";
 import { getScheduledEvent, extractUuidFromUri, formatMeetingLocal, pickSchedulingUrl } from "./calendly.service";
 
 const asString = (v: unknown): string => (typeof v === "string" ? v : "");
@@ -81,7 +82,7 @@ export const handleInviteeCreated = async (payload: Record<string, unknown>): Pr
         { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
       );
       recordId = doc._id;
-      console.log(`[calendly] Stored scheduled meeting for ${email}: ${eventName || eventUuid || inviteeUri}`);
+      console.log(`[calendly] Stored scheduled meeting for ${maskEmail(email)}: ${eventName || eventUuid || inviteeUri}`);
     } catch (err: unknown) {
       const msg: string = err instanceof Error ? err.message : String(err);
       console.error("[calendly] Failed to persist scheduled meeting (degraded):", msg);
@@ -136,7 +137,7 @@ export const handleInviteeCanceled = async (payload: Record<string, unknown>): P
         console.warn(`[calendly] invitee.canceled for unknown invitee ${inviteeUri}`);
         return;
       }
-      console.log(`[calendly] Marked meeting canceled for ${email || inviteeUri}`);
+      console.log(`[calendly] Marked meeting canceled for ${email ? maskEmail(email) : inviteeUri}`);
     } catch (err: unknown) {
       const msg: string = err instanceof Error ? err.message : String(err);
       console.error("[calendly] Failed to mark meeting canceled (degraded):", msg);

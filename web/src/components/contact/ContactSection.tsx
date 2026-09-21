@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { contactSchema, type ContactInput } from "@/schemas/contact";
 import { submitContact } from "@/lib/api";
@@ -15,6 +16,12 @@ import { Input } from "@/components/ui/Input";
 
 type FormStatus = "idle" | "submitting" | "success" | "error";
 
+// Draft allows unchecked boxes; zod enforces `true` at submit time.
+type ContactDraft = Omit<ContactInput, "privacyConsent" | "ageConfirmed"> & {
+  privacyConsent: boolean;
+  ageConfirmed: boolean;
+};
+
 type FieldErrors = Partial<Record<keyof ContactInput, string>>;
 
 const toFieldErrors = (issues: { path: (string | number | symbol)[]; message: string }[]): FieldErrors => {
@@ -27,10 +34,12 @@ const toFieldErrors = (issues: { path: (string | number | symbol)[]; message: st
 };
 
 export const ContactSection = () => {
-  const [formData, setFormData] = useState<ContactInput>({
+  const [formData, setFormData] = useState<ContactDraft>({
     name: "",
     email: "",
     details: "",
+    privacyConsent: false,
+    ageConfirmed: false,
   });
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<FormStatus>("idle");
@@ -38,7 +47,9 @@ export const ContactSection = () => {
   const submitting = status === "submitting";
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-    const { name, value } = e.target;
+    const { name } = e.target;
+    const value: string | boolean =
+      e.target instanceof HTMLInputElement && e.target.type === "checkbox" ? e.target.checked : e.target.value;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (fieldErrors[name as keyof ContactInput]) {
       setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
@@ -63,6 +74,8 @@ export const ContactSection = () => {
       name: purify(parsed.data.name),
       email: purify(parsed.data.email).toLowerCase(),
       details: purify(parsed.data.details),
+      privacyConsent: true,
+      ageConfirmed: true,
     };
 
     if (hasNoSqlInjection(purified.name, purified.details)) {
@@ -74,7 +87,7 @@ export const ContactSection = () => {
     try {
       await submitContact(purified);
       setStatus("success");
-      setFormData({ name: "", email: "", details: "" });
+      setFormData({ name: "", email: "", details: "", privacyConsent: false, ageConfirmed: false });
       setTimeout(() => setStatus("idle"), 4000);
     } catch (err: unknown) {
       const msg = toSafeString(err);
@@ -89,7 +102,7 @@ export const ContactSection = () => {
       <div className="max-w-2xl mx-auto">
         <SectionHeading
           title="Let&apos;s Build Something Extraordinary"
-          subtitle="Reach out directly with your parameters. We respond with a comprehensive architectural review and timeline within 24 hours."
+          subtitle="Reach out directly with your parameters. We aim to respond with an architectural review and timeline within 24 hours."
           className="mb-10"
         />
 
@@ -153,6 +166,55 @@ export const ContactSection = () => {
               />
             </Field>
 
+            <div className="space-y-3 rounded-lg bg-surface-container-lowest/50 border border-outline-variant/20 px-3.5 py-3">
+              <label className="flex items-start gap-3 cursor-pointer min-h-[24px]" htmlFor="contact-consent">
+                <input
+                  id="contact-consent"
+                  name="privacyConsent"
+                  type="checkbox"
+                  checked={formData.privacyConsent}
+                  onChange={handleChange}
+                  disabled={submitting}
+                  required
+                  aria-describedby={fieldErrors.privacyConsent ? "contact-consent-error" : undefined}
+                  className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-[#06b6d4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                />
+                <span className="text-body-sm text-on-surface-variant">
+                  I agree to the processing of my details to handle this inquiry, as described in the{" "}
+                  <Link className="text-primary hover:underline" href="/privacy" target="_blank" rel="noopener noreferrer">
+                    Privacy Policy
+                  </Link>
+                  .
+                </span>
+              </label>
+              {fieldErrors.privacyConsent && (
+                <p id="contact-consent-error" className="text-[12px] text-error" role="alert">
+                  {fieldErrors.privacyConsent}
+                </p>
+              )}
+              <label className="flex items-start gap-3 cursor-pointer min-h-[24px]" htmlFor="contact-age">
+                <input
+                  id="contact-age"
+                  name="ageConfirmed"
+                  type="checkbox"
+                  checked={formData.ageConfirmed}
+                  onChange={handleChange}
+                  disabled={submitting}
+                  required
+                  aria-describedby={fieldErrors.ageConfirmed ? "contact-age-error" : undefined}
+                  className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-[#06b6d4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                />
+                <span className="text-body-sm text-on-surface-variant">
+                  I confirm I am 16 years of age or older.
+                </span>
+              </label>
+              {fieldErrors.ageConfirmed && (
+                <p id="contact-age-error" className="text-[12px] text-error" role="alert">
+                  {fieldErrors.ageConfirmed}
+                </p>
+              )}
+            </div>
+
             <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-lg bg-surface-container-lowest/50 border border-outline-variant/20">
               <MaterialIcon name="bolt" className="text-primary text-base" />
               <span className="text-body-sm text-on-surface-variant">
@@ -161,7 +223,7 @@ export const ContactSection = () => {
             </div>
 
             {status === "success" && (
-              <FormAlert tone="success">✓ Message sent successfully! We&apos;ll respond within 24 hours.</FormAlert>
+              <FormAlert tone="success">✓ Message sent successfully! We aim to respond within 24 hours.</FormAlert>
             )}
             {status === "error" && (
               <FormAlert tone="error">{errorMsg || "Failed to send message. Please try again."}</FormAlert>

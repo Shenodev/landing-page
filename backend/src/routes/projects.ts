@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { projectsLimiter } from "../middlewares/rate-limiters";
+import { adminWriteLimiter, projectsLimiter } from "../middlewares/rate-limiters";
 import { requireAdminSecret } from "../middlewares/auth";
 import { projectUpload } from "../middlewares/uploads";
 import { asyncHandler } from "../middlewares/async-handler";
@@ -11,6 +11,7 @@ router.get("/projects", projectsLimiter, asyncHandler(getProjects));
 router.post(
   "/projects",
   projectsLimiter,
+  adminWriteLimiter,
   requireAdminSecret,
   projectUpload.array("images", 10),
   asyncHandler(postProject),

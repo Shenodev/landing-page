@@ -69,6 +69,19 @@ if (env.NODE_ENV === "production" && env.MONGODB_URI.includes("localhost")) {
   console.warn("[env] WARNING: MONGODB_URI is localhost in production - ensure this is intentional");
 }
 
+// Production guard: fail closed when the admin secret was never set.
+// Without this, POST /api/projects would 500 on every attempt while the
+// deploy looks healthy — worse, an operator might "fix" it with a weak value.
+if (env.NODE_ENV === "production") {
+  const secret: string = env.ADMIN_SECRET ?? "";
+  if (!secret || secret === "dev-admin-secret-change-in-prod") {
+    throw new Error("Invalid environment configuration: ADMIN_SECRET must be set in production");
+  }
+  if (secret.length < 12) {
+    throw new Error("Invalid environment configuration: ADMIN_SECRET must be at least 12 characters in production");
+  }
+}
+
 export const allowedOrigins: string[] = [
   ...env.ALLOWED_ORIGINS.split(",")
     .map((o: string) => o.trim())

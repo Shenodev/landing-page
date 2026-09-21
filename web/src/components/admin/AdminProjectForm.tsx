@@ -38,9 +38,30 @@ export const AdminProjectForm = () => {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<FormStatus>("idle");
   const [message, setMessage] = useState<string>("");
+  // NOTE: the admin secret lives only in this component's memory state. It is
+  // sent per-request in the x-admin-secret header and never persisted to
+  // localStorage / sessionStorage / cookies.
+  // Lightweight client-side throttle against password guessing. Real
+  // brute-force protection is the server's adminWriteLimiter (20/15min/IP).
+  const [failedAttempts, setFailedAttempts] = useState<number>(0);
+  const [lockoutUntil, setLockoutUntil] = useState<number>(0);
+  const locked: boolean = Date.now() < lockoutUntil;
 
   const techPreview = useMemo(() => parseTechStack(form.techStackInput), [form.techStackInput]);
   const submitting = status === "submitting";
+
+  const registerFailure = (msg: string): void => {
+    const next: number = failedAttempts + 1;
+    setFailedAttempts(next);
+    if (next >= 5) {
+      setLockoutUntil(Date.now() + 60 * 1000);
+      setFailedAttempts(0);
+      setMessage("Too many failed attempts. Locked for 60 seconds.");
+    } else {
+      setMessage(msg);
+    }
+    setStatus("error");
+  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
     const { name, value } = e.target;
@@ -51,7 +72,9 @@ export const AdminProjectForm = () => {
   };
 
   const handleFiles = (e: ChangeEvent<HTMLInputElement>): void => {
-    const selected = Array.from(e.target.files ?? []).filter((f) => f.type.startsWith("image/"));
+    const selected = Array.from(e.target.files ?? []).filter(
+      (f) => f.type.startsWith("image/") && f.type !== "image/svg+xml",
+    );
     const tooBig = selected.filter((f) => f.size > MAX_IMAGE_BYTES);
     const next = [...files, ...selected].slice(0, MAX_PROJECT_IMAGES);
 
@@ -78,6 +101,11 @@ export const AdminProjectForm = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+    if (Date.now() < lockoutUntil) {
+      setMessage("Too many failed attempts. Locked for 60 seconds.");
+      setStatus("error");
+      return;
+    }
     setStatus("submitting");
     setMessage("");
     setFieldErrors({});
@@ -128,6 +156,8 @@ export const AdminProjectForm = () => {
     try {
       const res = await submitProject(payload, files, parsed.data.adminSecret);
       setStatus("success");
+      setFailedAttempts(0);
+      setLockoutUntil(0);
       setMessage(res.message || "Project created. It now appears in the Work section.");
       setForm((prev) => ({ ...EMPTY, adminSecret: prev.adminSecret }));
       setFiles([]);
@@ -138,8 +168,7 @@ export const AdminProjectForm = () => {
     } catch (err: unknown) {
       const msg = toSafeString(err);
       console.error("[AdminProjectForm] submit failed:", msg);
-      setMessage(msg || "Failed to create project. Check password / connection and retry.");
-      setStatus("error");
+      registerFailure(msg || "Failed to create project. Check password / connection and retry.");
     }
   };
 
@@ -181,7 +210,7 @@ export const AdminProjectForm = () => {
           <Textarea
             id="admin-description"
             name="description"
-            placeholder="High-performance headless commerce with 99.9% uptime..."
+            placeholder="High-performance headless commerce for a retail client..."
             required
             rows={4}
             value={form.description}
@@ -220,7 +249,7 @@ export const AdminProjectForm = () => {
           <input
             id="admin-images"
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/gif"
             multiple
             onChange={handleFiles}
             disabled={submitting}
@@ -308,8 +337,8 @@ export const AdminProjectForm = () => {
         {status === "success" && <FormAlert tone="success">{message}</FormAlert>}
         {status === "error" && <FormAlert tone="error">{message || "Failed to create project."}</FormAlert>}
 
-        <Button type="submit" size="lg" className="w-full py-4 cursor-pointer" disabled={submitting}>
-          {submitting ? "Uploading..." : "Publish project"}
+        <Button type="submit" size="lg" className="w-full py-4 cursor-pointer" disabled={submitting || locked}>
+          {submitting ? "Uploading..." : locked ? "Locked — try again shortly" : "Publish project"}
           <MaterialIcon name="cloud_upload" className="text-lg" />
         </Button>
       </form>

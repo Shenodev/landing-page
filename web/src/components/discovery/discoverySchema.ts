@@ -33,6 +33,8 @@ export const discoverySchema = z.object({
   integrations: optionalText(1000),
   launchDate: optionalText(20),
   extraDetails: optionalText(500),
+  privacyConsent: z.literal(true, { error: "Please accept the privacy notice" }),
+  ageConfirmed: z.literal(true, { error: "Please confirm you are 16 or older" }),
 });
 
 export type DiscoveryFormData = z.infer<typeof discoverySchema>;

@@ -1,5 +1,6 @@
 import { projectSchema, hasNoSQLInjectionProject } from "../schemas/project";
 import { purifyString, hasInjectionAttempt } from "../lib/sanitize";
+import { hasValidFileSignature } from "../lib/security";
 import { Project } from "../models/Project";
 import { getConnectionState } from "../config/db";
 import { uploadToCloudinary } from "./cloudinary.service";
@@ -35,9 +36,15 @@ export const listProjects = async (): Promise<unknown[]> => {
 };
 
 export const createProject = async (body: unknown, files: Express.Multer.File[]): Promise<ProjectResult> => {
-  // Handle multiple image uploads via Cloudinary if present
+  // Handle multiple image uploads via Cloudinary if present.
+  // Magic-byte check: multer's mimetype comes from the client and is spoofable,
+  // so verify actual file content before it ever reaches Cloudinary.
+  const allowedProjectMimes: readonly string[] = ["image/jpeg", "image/png", "image/webp", "image/gif"];
   const uploadedImages: ProjectImage[] = [];
   for (const file of files) {
+    if (!hasValidFileSignature(file.buffer, file.mimetype, allowedProjectMimes)) {
+      throw new ValidationError("Invalid image file content detected");
+    }
     try {
       const result = await uploadToCloudinary(file.buffer, {
         folder: "shenoprojects",

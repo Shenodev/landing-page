@@ -3,7 +3,7 @@ import { submitContact } from "../services/contact.service";
 
 export const postContact = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const result = await submitContact(req.body, req.ip ?? "");
+    const result = await submitContact(req.body);
 
     if (result.id !== undefined) {
       res.status(201).json({

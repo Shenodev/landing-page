@@ -14,6 +14,8 @@ export type ContactPayload = {
   name: string;
   email: string;
   details: string;
+  privacyConsent: true;
+  ageConfirmed: true;
 };
 
 export type DiscoveryPayload = {
@@ -32,6 +34,8 @@ export type DiscoveryPayload = {
   integrations: string;
   launchDate: string;
   extraDetails: string;
+  privacyConsent: true;
+  ageConfirmed: true;
   meetingDate: string;
   meetingTime: string;
   meetingUrl: string;
@@ -99,7 +103,11 @@ export const submitDiscovery = async (
 
   if (files.length > 0) {
     const body = new FormData();
-    Object.entries(payload).forEach(([key, value]) => body.append(key, value));
+    // FormData carries text only: stringify booleans/arrays. The API parses
+    // techStack JSON and normalizes "true"/"false" consent flags server-side.
+    Object.entries(payload).forEach(([key, value]) =>
+      body.append(key, typeof value === "string" ? value : JSON.stringify(value)),
+    );
     files.forEach((file) => body.append("attachments", file));
     return fetchJson(url, { method: "POST", body });
   }
@@ -156,5 +164,23 @@ export const submitProject = async (
     body: JSON.stringify(payload),
   });
 };
+
+export const requestUnsubscribe = async (email: string): Promise<{ message: string }> =>
+  fetchJson(`${getApiUrl()}/api/unsubscribe`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+
+export const requestDataDeletion = async (payload: {
+  name: string;
+  email: string;
+  details: string;
+}): Promise<{ message: string }> =>
+  fetchJson(`${getApiUrl()}/api/privacy/deletion-request`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 
 export { toSafeString };

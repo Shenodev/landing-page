@@ -11,7 +11,7 @@ export const postDiscovery = async (req: Request, res: Response, next: NextFunct
         ? Object.values(uploadedFields).flat()
         : [];
 
-    const result = await submitDiscovery(req.body, files, req.ip ?? "");
+    const result = await submitDiscovery(req.body, files);
 
     if (result.id !== undefined) {
       res.status(201).json({

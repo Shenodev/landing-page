@@ -12,11 +12,17 @@ import contactRouter from "./routes/contact";
 import discoveryRouter from "./routes/discovery";
 import projectsRouter from "./routes/projects";
 import calendlyRouter from "./routes/calendly";
+import privacyRouter from "./routes/privacy";
 import { notFoundHandler, globalErrorHandler } from "./middlewares/error-handler";
 import { globalLimiter } from "./middlewares/rate-limiters";
 
 export const createApp = (): Express => {
   const app: Express = express();
+
+  // Behind Vercel/Render, req.ip comes from X-Forwarded-For.
+  // Without this, express-rate-limit sees one proxy IP for everyone
+  // (either no throttling per attacker, or everyone blocked at once).
+  app.set("trust proxy", 1);
 
   // Security headers
   app.use(
@@ -97,7 +103,9 @@ export const createApp = (): Express => {
     },
     credentials: true,
     methods: ["GET", "POST", "OPTIONS"], // Only allow necessary methods
-    allowedHeaders: ["Content-Type", "Authorization"],
+    // x-admin-secret is required for the hidden admin upload — without it,
+    // browsers block cross-origin admin POSTs at preflight.
+    allowedHeaders: ["Content-Type", "Authorization", "x-admin-secret"],
     maxAge: 86400,
   };
   app.use(cors(corsOptions));
@@ -112,6 +120,7 @@ export const createApp = (): Express => {
   app.use("/api", contactRouter);
   app.use("/api", discoveryRouter);
   app.use("/api", projectsRouter);
+  app.use("/api", privacyRouter);
 
   // 404 handler - must be after all routes
   app.use(notFoundHandler);

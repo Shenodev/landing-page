@@ -6,7 +6,6 @@ export interface IContact extends Document {
   message: string;
   details: string;
   createdAt: Date;
-  ip?: string;
 }
 
 const ContactSchema: Schema<IContact> = new Schema<IContact>(
@@ -38,10 +37,6 @@ const ContactSchema: Schema<IContact> = new Schema<IContact>(
       trim: true,
       maxlength: 1000,
       minlength: 10,
-    },
-    ip: {
-      type: String,
-      required: false,
     },
   },
   {

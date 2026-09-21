@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/Button";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
 
+// Design goals we build toward — not measured guarantees.
 const TRUST_METRICS = [
-  { value: "99.9%", label: "Uptime Architecture" },
-  { value: "<100ms", label: "Edge Latency" },
-  { value: "100%", label: "Clean Code Delivery" },
+  { value: "Uptime-first", label: "Resilient architecture" },
+  { value: "Edge-ready", label: "Fast global delivery" },
+  { value: "Reviewed", label: "Clean, tested code" },
 ] as const;
 
 export const Hero = () => {
@@ -46,9 +47,9 @@ export const Hero = () => {
           </div>
         </div>
 
-        <div className="lg:flex lg:col-span-5 hidden relative w-full items-center justify-center">
+          <div className="lg:flex lg:col-span-5 hidden relative w-full items-center justify-center">
           <div className="w-full h-[500px] relative rounded-xl overflow-hidden">
-            <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+            <video autoPlay loop muted playsInline aria-hidden="true" tabIndex={-1} className="w-full h-full object-cover">
               <source src="/hero-boomerang.webm" type="video/webm" />
               <source src="/model2.mp4" type="video/mp4" />
             </video>

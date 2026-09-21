@@ -86,6 +86,10 @@ export const discoverySchema = z.object({
   meetingUrl: z.string().trim().max(500, "Meeting URL too long").url("Invalid meeting URL").optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
   calendlyEventUri: z.string().trim().max(500, "Calendly URI too long").optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
   calendlyEventUrl: z.string().trim().max(500, "Calendly URL too long").optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
+  // Explicit unchecked-by-default consent (see web DiscoveryQuestionnaire).
+  // Must be true — proves the submitter saw the privacy notice and is 16+.
+  privacyConsent: z.literal(true, { error: "Privacy consent is required" }),
+  ageConfirmed: z.literal(true, { error: "Age confirmation is required" }),
   attachmentUrl: z.string().trim().max(500, "Attachment URL too long").optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
   attachmentPublicId: z.string().trim().max(500).optional().or(z.literal("")).transform((v) => (v ? v.trim() : "")),
   attachments: z

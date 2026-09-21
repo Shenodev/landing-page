@@ -11,6 +11,7 @@ import {
   BasicInfoSection,
   BrandingSection,
   BusinessSection,
+  ConsentSection,
   LogisticsSection,
   TechnicalSection,
 } from "@/components/discovery/form/sections";
@@ -54,6 +55,7 @@ export const DiscoveryQuestionnaire = ({
         maxFiles={maxFiles}
         onFilesChange={onFilesChange}
       />
+      <ConsentSection register={register} errors={errors} />
 
       <button
         type="submit"

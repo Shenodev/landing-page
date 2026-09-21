@@ -7,6 +7,7 @@ import { sendDiscoveryEmails } from "./email.service";
 import { uploadToCloudinary } from "./cloudinary.service";
 import { getScheduledEvent, extractUuidFromUri, formatMeetingLocal, isApiCalendlyUrl } from "./calendly.service";
 import { ValidationError, UploadError } from "../errors/http-errors";
+import { hasValidFileSignature, maskEmail } from "../lib/security";
 import { ErrorIssue } from "../errors/api-error";
 import { BrandStatus, TargetPackage, DiscoveryAttachment, PurifiedDiscovery, DiscoveryResult } from "../dto/discovery";
 
@@ -54,7 +55,7 @@ const enrichDiscoveryMeeting = async (
     enriched.calendlyEventUri = enriched.calendlyEventUri || merged.eventUri;
     enriched.calendlyEventUrl = enriched.calendlyEventUrl || merged.inviteeUri;
     scheduledId = merged._id;
-    console.log(`[discovery] Merged authoritative meeting from webhook record for ${enriched.email}`);
+    console.log(`[discovery] Merged authoritative meeting from webhook record for ${maskEmail(enriched.email)}`);
   } else if (enriched.calendlyEventUri) {
     const se = await getScheduledEvent(enriched.calendlyEventUri);
     if (se?.start_time) {
@@ -65,7 +66,7 @@ const enrichDiscoveryMeeting = async (
       }
       const joinUrl: string = se.location && se.location.type === "google_conference" ? (se.location.join_url ?? "") : "";
       enriched.meetingUrl = joinUrl || enriched.meetingUrl || se.scheduling_url || "";
-      console.log(`[discovery] Enriched meeting via Calendly API for ${enriched.email}`);
+      console.log(`[discovery] Enriched meeting via Calendly API for ${maskEmail(enriched.email)}`);
     }
   }
 
@@ -80,8 +81,7 @@ const enrichDiscoveryMeeting = async (
  */
 export const submitDiscovery = async (
   body: unknown,
-  files: Express.Multer.File[],
-  ip: string
+  files: Express.Multer.File[]
 ): Promise<DiscoveryResult> => {
   // Flatten multer.fields() output: { [fieldname]: File[] } or File[] → File[]
   const uploadedFields = (files ?? []) as Express.Multer.File[];
@@ -89,7 +89,22 @@ export const submitDiscovery = async (
   let attachmentPublicId: string | null = null;
   const attachments: DiscoveryAttachment[] = [];
 
+  const allowedDiscoveryMimes: readonly string[] = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+    "application/pdf",
+    "application/zip",
+    "application/x-zip-compressed",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ];
   for (const file of uploadedFields) {
+    // SVG scripts + spoofed mimetypes are rejected here by content sniffing.
+    if (file.mimetype === "image/svg+xml" || !hasValidFileSignature(file.buffer, file.mimetype, allowedDiscoveryMimes)) {
+      throw new ValidationError("Invalid attachment file content detected");
+    }
     try {
       const result = await uploadToCloudinary(file.buffer, {
         folder: "shenodev_discovery",
@@ -116,10 +131,15 @@ export const submitDiscovery = async (
 
   // Merge attachments into body for validation/persistence
   const raw: Record<string, unknown> = (body ?? {}) as Record<string, unknown>;
+  // Multipart FormData transmits booleans as "true"/"false" strings — normalize
+  // consent flags before zod's literal(true) check (JSON callers send real booleans).
+  const toBool = (v: unknown): unknown => (typeof v === "boolean" ? v : v === "true" ? true : v);
   const bodyWithAttachment: Record<string, unknown> = {
     ...raw,
     ...(attachmentUrl ? { attachmentUrl, attachmentPublicId } : {}),
     ...(attachments.length ? { attachments } : {}),
+    privacyConsent: toBool(raw.privacyConsent),
+    ageConfirmed: toBool(raw.ageConfirmed),
   };
 
   // 1. Raw injection check
@@ -200,7 +220,8 @@ export const submitDiscovery = async (
   let docId: unknown = undefined;
   if (dbState === 1) {
     try {
-      const doc = await Discovery.create({ ...enriched, ip });
+      // NOTE: submitter IPs are intentionally NOT persisted (data minimization).
+      const doc = await Discovery.create({ ...enriched });
       docId = doc._id;
       if (scheduledId) {
         await ScheduledMeeting.updateOne({ _id: scheduledId }, { $set: { discoveryId: doc._id } }).catch((linkErr: unknown) => {

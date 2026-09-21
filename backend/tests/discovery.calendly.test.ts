@@ -35,6 +35,8 @@ const validDiscoveryWithMeeting = {
   meetingTime: "14:30",
   meetingUrl: "https://calendly.com/shenodev/alex-vance",
   calendlyEventUri: "https://api.calendly.com/scheduled_events/ABC123",
+  privacyConsent: true,
+  ageConfirmed: true,
 };
 
 describe("POST /api/discovery - Calendly Integration (TDD)", () => {

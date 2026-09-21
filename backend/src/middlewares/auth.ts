@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { env } from "../config/env";
+import { timingSafeCompare } from "../lib/security";
 import { MisconfigurationError, UnauthorizedError } from "../errors/http-errors";
 
 /**
@@ -16,13 +17,15 @@ export const requireAdminSecret = (req: Request, _res: Response, next: NextFunct
   // Prioritize process.env for test overrides, then env config
   const expected: string = process.env.ADMIN_SECRET ?? env.ADMIN_SECRET ?? "";
 
-  if (!expected) {
+  if (!expected || expected.length < 12) {
     console.error("[projects] ADMIN_SECRET not configured");
     next(new MisconfigurationError("Admin secret not set"));
     return;
   }
 
-  if (!provided || provided !== expected) {
+  // Timing-safe compare defeats byte-at-a-time secret guessing.
+  // Generic message on purpose — never reveal whether the secret exists.
+  if (!provided || !timingSafeCompare(provided, expected)) {
     next(new UnauthorizedError("Invalid or missing admin secret"));
     return;
   }

@@ -21,7 +21,7 @@ describe("POST /api/contact - Email Automation (TDD, Resend)", () => {
   it("should accept { name, email, message } and return 201", async () => {
     const res = await request(app)
       .post("/api/contact")
-      .send({ name: "Alex Vance", email: "alex@enterprise.com", message: "Need a scalable platform for our startup, details more than ten chars." });
+      .send({ name: "Alex Vance", email: "alex@enterprise.com", message: "Need a scalable platform for our startup, details more than ten chars.", privacyConsent: true, ageConfirmed: true });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("message");
     expect(res.body).toHaveProperty("data");
@@ -32,7 +32,7 @@ describe("POST /api/contact - Email Automation (TDD, Resend)", () => {
   it("should support legacy { details } alias for backward compatibility", async () => {
     const res = await request(app)
       .post("/api/contact")
-      .send({ name: "Alex Vance", email: "alex@enterprise.com", details: "Need a scalable platform via details field." });
+      .send({ name: "Alex Vance", email: "alex@enterprise.com", details: "Need a scalable platform via details field.", privacyConsent: true, ageConfirmed: true });
     expect(res.status).toBe(201);
   });
 
@@ -45,7 +45,7 @@ describe("POST /api/contact - Email Automation (TDD, Resend)", () => {
   it("should sanitize and trigger two Resend emails simultaneously (admin + welcome)", async () => {
     const res = await request(app)
       .post("/api/contact")
-      .send({ name: "Alex Vance", email: "alex@enterprise.com", message: "Hello ShenoDev, we need a platform." });
+      .send({ name: "Alex Vance", email: "alex@enterprise.com", message: "Hello ShenoDev, we need a platform.", privacyConsent: true, ageConfirmed: true });
     expect(res.status).toBe(201);
     // Resend should be called twice
     expect(mockSend).toHaveBeenCalledTimes(2);
@@ -91,7 +91,7 @@ describe("POST /api/contact - Email Automation (TDD, Resend)", () => {
     const xss = '<script>alert(1)</script>Need platform';
     const res = await request(app)
       .post("/api/contact")
-      .send({ name: "Alex", email: "alex@enterprise.com", message: xss });
+      .send({ name: "Alex", email: "alex@enterprise.com", message: xss, privacyConsent: true, ageConfirmed: true });
     if (res.status === 201) {
       expect(res.body.data.message ?? res.body.data.details).not.toContain("<script>");
       // Ensure mocked email also not containing script

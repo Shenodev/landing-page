@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { Card } from "@/components/ui/Card";
+import { LegalPage } from "@/components/legal/LegalPage";
+import { PrivacyDeletionForm } from "@/components/legal/PrivacyDeletionForm";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -9,84 +8,78 @@ export const metadata: Metadata = {
     "ShenoDev's privacy policy — how we collect, use, and protect your personal data across our website, contact, and discovery forms.",
 };
 
-const SECTIONS: readonly { title: string; body: string }[] = [
+const SECTIONS = [
   {
-    title: "1. Information We Collect",
-    body: "We collect the information you voluntarily provide when submitting our contact form or project discovery questionnaire, including your name, email address, phone number, company details, project requirements, and any files you choose to upload. We do not sell, rent, or trade your personal information to third parties.",
+    title: "1. Who Controls Your Data",
+    body: "ShenoDev (shenodev.tech), contact: hello@contact.shenodev.tech. We are the data controller for information submitted through this website.",
   },
   {
-    title: "2. How We Use Your Information",
-    body: "Your data is used solely to respond to your inquiries, evaluate and scope your project, schedule and confirm discovery meetings, prepare proposals, and deliver the services you request. Communications are sent to the email you provide via the contact form or discovery questionnaire.",
+    title: "2. Information We Collect — And Nothing More",
+    items: [
+      "Contact form: name, email, project details.",
+      "Discovery questionnaire: name, company, email, phone (optional), business and technical requirements, meeting details, and files you choose to upload.",
+      "Consent records: whether you accepted the privacy notice and confirmed you are 16 or older.",
+      "We deliberately do not store submitter IP addresses in our database. Rate limiting uses the request IP in memory only.",
+      "We do not collect payment details on this site, device fingerprints, or browsing profiles.",
+    ],
   },
   {
-    title: "3. Third-Party Services",
-    body: "To operate this website we rely on trusted service providers: Vercel (website hosting), MongoDB Atlas (data storage), Resend (transactional email delivery), and Cloudinary (file and image storage). If you book a discovery call, your chosen meeting time is handled by Calendly under its own privacy policy. Each provider processes data only to the extent required to provide its service and is bound by its own privacy and security commitments.",
+    title: "3. How We Use Your Information",
+    body: "Your data is used solely to respond to your inquiries, evaluate and scope your project, schedule and confirm discovery meetings, prepare proposals, and deliver the services you request. We do not sell, rent, or trade your personal information, and we send no marketing emails — only direct replies and confirmations related to your inquiry. Every non-essential email carries an unsubscribe link.",
   },
   {
-    title: "4. Data Retention",
-    body: "We retain inquiry and discovery records for as long as needed to respond to you, prepare proposals, and deliver ongoing services, after which they are removed or anonymized in line with our internal retention policies.",
+    title: "4. Third-Party Services (Audited)",
+    items: [
+      "Vercel — website hosting and cookieless aggregate analytics.",
+      "MongoDB Atlas — database storage for form submissions.",
+      "Resend — transactional email delivery (replies and confirmations).",
+      "Cloudinary — storage for project images and files you upload.",
+      "Calendly — discovery-call scheduling, used only if you book a call, under Calendly's own policy.",
+      "Google Fonts — Inter, Sora, and Material Symbols fonts (open-licensed, served without tracking accounts).",
+      "Each provider processes data only to provide its service and is bound by its own privacy and security commitments.",
+    ],
   },
   {
-    title: "5. Data Security",
-    body: "We apply industry-standard safeguards, including encrypted connections (HTTPS), input validation and sanitization, rate limiting, and restricted access to production credentials. While no method of transmission is 100% secure, we work to protect your information against unauthorized access, alteration, or disclosure.",
+    title: "5. Data Retention",
+    body: "Inquiry and discovery records are kept while we work with you and for up to 24 months afterwards for reference, then removed or anonymized. Unsubscribe records are kept indefinitely to honor your choice. Deletion requests are completed within 30 days (see below).",
   },
   {
-    title: "6. Your Rights",
-    body: "Depending on your jurisdiction, you may have the right to access, correct, or delete the personal data we hold about you, and to object to or restrict certain processing. To exercise any of these rights, contact us at hello@contact.shenodev.tech and we will respond within 30 days.",
+    title: "6. Data Security",
+    body: "We apply industry-standard safeguards, including encrypted connections (HTTPS), strict input validation and sanitization, rate limiting, timing-safe secret comparison, verified file-type checks on uploads, and restricted access to production credentials. While no method of transmission is 100% secure, we work to protect your information against unauthorized access, alteration, or disclosure.",
   },
   {
-    title: "7. Cookies & Analytics",
-    body: "This website does not use advertising trackers. We may use minimal operational cookies or server logs (such as visitor IP addresses) to maintain security and availability. We do not share this data with advertising networks.",
+    title: "7. Your Rights — Including Deletion",
+    body: "Depending on your jurisdiction, you may access, correct, or delete your personal data, object to or restrict processing, and withdraw consent at any time. Use the form below for deletion requests — we erase your data within 30 days and confirm by email. For anything else, email hello@contact.shenodev.tech and we respond within 30 days.",
   },
   {
-    title: "8. Children's Privacy",
-    body: "Our services are intended for businesses and individuals aged 16 or older. We do not knowingly collect personal information from children.",
+    title: "8. Emails & Unsubscribing",
+    body: "We send only transactional mail: replies, confirmations, and meeting details. Every such email includes an unsubscribe link and a List-Unsubscribe header. Unsubscribing stops all non-essential mail immediately; operational replies to an active inquiry may still reach you until that inquiry closes.",
   },
   {
-    title: "9. Changes to This Policy",
-    body: "We may update this policy from time to time. The latest version will always be published on this page with the effective date shown below.",
+    title: "9. Cookies & Analytics",
+    body: "No advertising trackers. The only browser storage we set is your cookie-banner choice itself. We use cookieless aggregate analytics. Embedded Calendly scheduling may set its own cookies under its own policy. Full details in the Cookie Policy.",
   },
-];
+  {
+    title: "10. Children's Privacy",
+    body: "Our services are for businesses and individuals aged 16 or older. Both forms require confirming you are 16+ before submission, and we do not knowingly collect children's data. If you believe a child has submitted data, contact us and we will delete it promptly.",
+  },
+  {
+    title: "11. Changes to This Policy",
+    body: "We may update this policy; the latest version is always published here with the effective date shown below.",
+  },
+] as const;
 
-const PrivacyPage = () => {
-  return (
-    <>
-      <Navbar />
-      <main
-        id="main-content"
-        className="flex-grow relative overflow-hidden py-12 md:py-20 px-4 md:px-8"
-        style={{
-          background: "radial-gradient(circle 800px at 50% -100px, rgba(6,182,212,0.12), transparent 80%)",
-        }}
-      >
-        <div className="max-w-[880px] mx-auto">
-          <div className="text-center space-y-4 mb-14">
-            <h1 className="font-display text-headline-lg-mobile md:text-headline-lg text-on-surface tracking-tight">
-              Privacy Policy
-            </h1>
-            <p className="text-body-md md:text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-              How ShenoDev collects, uses, and protects your information.
-            </p>
-            <p className="text-label-sm font-medium text-outline">Effective date: September 13, 2026</p>
-          </div>
-
-          <div className="space-y-6">
-            {SECTIONS.map((section) => (
-              <Card
-                key={section.title}
-                className="relative border-outline-variant/30 hover:border-primary/40 transition-colors p-6 md:p-8 bg-surface-container-low/70 backdrop-blur-md"
-              >
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-t-xl" />
-                <h2 className="font-display text-title-md text-on-surface mb-3">{section.title}</h2>
-                <p className="text-body-sm leading-[22px] text-on-surface-variant">{section.body}</p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </main>
-      <Footer />
-    </>
-  );
-};
+const PrivacyPage = () => (
+  <LegalPage
+    title="Privacy Policy"
+    intro="How ShenoDev collects, uses, and protects your information."
+    effectiveDate="September 21, 2026"
+    sections={SECTIONS}
+  >
+    <div className="mt-6">
+      <PrivacyDeletionForm />
+    </div>
+  </LegalPage>
+);
 
 export default PrivacyPage;

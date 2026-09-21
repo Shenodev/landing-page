@@ -19,8 +19,17 @@ export const Navbar = () => {
     setMobileOpen(false);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent): void => {
+    if (e.key === "Escape") {
+      closeMobile();
+    }
+  };
+
   return (
-    <header className="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm">
+    <header
+      onKeyDown={handleKeyDown}
+      className="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm"
+    >
       <div className="flex justify-between items-center w-full px-6 md:px-12 max-w-[1320px] mx-auto h-20">
         <Link
           className="flex items-center group"

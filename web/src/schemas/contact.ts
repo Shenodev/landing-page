@@ -22,6 +22,8 @@ export const contactSchema = z.object({
     .trim()
     .min(10, "Details must be at least 10 characters")
     .max(1000, "Details must be under 1000 characters"),
+  privacyConsent: z.literal(true, { error: "Please accept the privacy notice" }),
+  ageConfirmed: z.literal(true, { error: "Please confirm you are 16 or older" }),
 });
 
 export type ContactInput = z.infer<typeof contactSchema>;

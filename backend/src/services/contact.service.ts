@@ -14,7 +14,7 @@ import { ContactSubmission, ContactResult } from "../dto/contact";
  * and emails still fire - persistence is best-effort, UX is never blocked.
  * Validation and injection failures are thrown as ValidationError.
  */
-export const submitContact = async (body: unknown, ip: string): Promise<ContactResult> => {
+export const submitContact = async (body: unknown): Promise<ContactResult> => {
   const raw: Record<string, unknown> = (body ?? {}) as Record<string, unknown>;
 
   // 1. Raw NoSQL injection check on the raw body
@@ -38,12 +38,13 @@ export const submitContact = async (body: unknown, ip: string): Promise<ContactR
   const dbState: number = getConnectionState();
   if (dbState === 1) {
     try {
+      // NOTE: submitter IPs are intentionally NOT persisted (data minimization).
+      // Rate limiting uses the in-memory request IP only.
       const doc = await Contact.create({
         name: submission.name,
         email: submission.email,
         message: submission.message,
         details: submission.details,
-        ip,
       });
       id = doc._id;
     } catch (dbErr: unknown) {

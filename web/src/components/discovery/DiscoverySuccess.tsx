@@ -20,7 +20,7 @@ export const DiscoverySuccess = ({ formData }: DiscoverySuccessProps) => {
         Thank you — Discovery Received!
       </h1>
       <p className="text-body-md text-on-surface-variant max-w-xl mx-auto">
-        We&apos;ve received your project details{name ? `, ${name}` : ""}. Our team will review within{" "}
+        We&apos;ve received your project details{name ? `, ${name}` : ""}. Our team aims to review within{" "}
         <strong className="text-primary">24-48 hours</strong> and your Calendly meeting is confirmed.
       </p>
       <div

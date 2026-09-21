@@ -44,6 +44,10 @@ export const contactSchema = z
       .min(10, "Details must be at least 10 characters")
       .max(1000, "Details must be under 1000 characters")
       .optional(),
+    // Explicit unchecked-by-default consent (see web ContactSection).
+    // Must be true — proves the submitter saw the privacy notice and is 16+.
+    privacyConsent: z.literal(true, { error: "Privacy consent is required" }),
+    ageConfirmed: z.literal(true, { error: "Age confirmation is required" }),
   })
   .superRefine((data, ctx) => {
     if (!data.message && !data.details) {

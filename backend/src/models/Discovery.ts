@@ -24,7 +24,6 @@ export interface IDiscovery extends Document {
   attachmentUrl: string;
   attachmentPublicId: string;
   attachments?: Array<{ url: string; publicId?: string; fileName?: string; mimeType?: string; size?: number }>;
-  ip?: string;
   createdAt: Date;
 }
 
@@ -68,7 +67,6 @@ const DiscoverySchema: Schema<IDiscovery> = new Schema<IDiscovery>(
       required: false,
       default: [],
     },
-    ip: { type: String, required: false },
   },
   {
     timestamps: { createdAt: true, updatedAt: false },

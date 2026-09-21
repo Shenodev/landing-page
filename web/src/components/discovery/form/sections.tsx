@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { UseFormRegister, FieldErrors } from "react-hook-form";
 import {
   BRAND_STATUS_OPTIONS,
@@ -135,6 +136,50 @@ export const TechnicalSection = ({ register, errors }: SectionProps) => (
     <Field id="integrations" label="External Integrations & Third-Party APIs" error={errors.integrations?.message}>
       <Textarea id="integrations" rows={2} placeholder="Resend, HubSpot, Stripe..." {...register("integrations")} />
     </Field>
+  </SectionCard>
+);
+
+export const ConsentSection = ({ register, errors }: SectionProps) => (
+  <SectionCard step="06" title="Consent & Age Confirmation" subtitle="Required before scheduling" required>
+    <div className="space-y-4">
+      <label className="flex items-start gap-3 cursor-pointer min-h-[24px]" htmlFor="discovery-consent">
+        <input
+          id="discovery-consent"
+          type="checkbox"
+          {...register("privacyConsent")}
+          aria-describedby={errors.privacyConsent ? "discovery-consent-error" : undefined}
+          className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-[#06b6d4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+        />
+        <span className="text-body-sm text-on-surface-variant">
+          I agree to the processing of my details to scope this project and arrange a discovery call, as described
+          in the{" "}
+          <Link className="text-primary hover:underline" href="/privacy" target="_blank" rel="noopener noreferrer">
+            Privacy Policy
+          </Link>
+          .
+        </span>
+      </label>
+      {errors.privacyConsent && (
+        <p id="discovery-consent-error" className="text-[12px] text-error" role="alert">
+          {errors.privacyConsent.message}
+        </p>
+      )}
+      <label className="flex items-start gap-3 cursor-pointer min-h-[24px]" htmlFor="discovery-age">
+        <input
+          id="discovery-age"
+          type="checkbox"
+          {...register("ageConfirmed")}
+          aria-describedby={errors.ageConfirmed ? "discovery-age-error" : undefined}
+          className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-[#06b6d4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+        />
+        <span className="text-body-sm text-on-surface-variant">I confirm I am 16 years of age or older.</span>
+      </label>
+      {errors.ageConfirmed && (
+        <p id="discovery-age-error" className="text-[12px] text-error" role="alert">
+          {errors.ageConfirmed.message}
+        </p>
+      )}
+    </div>
   </SectionCard>
 );
 

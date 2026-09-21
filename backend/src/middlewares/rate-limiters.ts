@@ -40,6 +40,32 @@ export const projectsLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+/**
+ * Admin writes: strict brute-force throttle on POST /api/projects.
+ * 20 attempts / 15 min per IP (high volume TDD: 1000).
+ * Runs BEFORE the admin-secret check so secret guessing is rate-limited.
+ */
+export const adminWriteLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: envMax(20, 1000),
+  message: { error: "Too Many Requests", message: "Too many admin attempts. Please try again later.", statusCode: 429 },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+/**
+ * Privacy rights endpoints (unsubscribe, deletion requests).
+ * 10 req / 15 min per IP (high volume TDD: 1000). Generous enough for
+ * legitimate use, tight enough to block list-bombing abuse.
+ */
+export const privacyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: envMax(10, 1000),
+  message: { error: "Too Many Requests", message: "Please try again later", statusCode: 429 },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 /** Calendly webhook: generous limit - Calendly can burst + retry with backoff. */
 export const webhookLimiter = rateLimit({
   windowMs: 60 * 1000,

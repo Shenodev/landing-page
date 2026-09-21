@@ -62,6 +62,11 @@ export const Services = () => {
           <PricingCard key={card.title} card={card} />
         ))}
       </div>
+      <p className="text-center text-body-sm text-on-surface-variant mt-10 max-w-2xl mx-auto">
+        Starting prices for defined scopes — your written proposal fixes the final price before any work begins.
+        No hidden fees; see the <a className="text-primary hover:underline" href="/refunds">Refund Policy</a> and{" "}
+        <a className="text-primary hover:underline" href="/terms">Terms of Service</a>.
+      </p>
     </section>
   );
 };

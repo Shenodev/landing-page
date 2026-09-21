@@ -6,6 +6,7 @@ import "./globals.css";
 import UnhandledReporter from "@/components/UnhandledReporter";
 import { BackgroundGlow } from "@/components/layout/BackgroundGlow";
 import { SkipLink } from "@/components/layout/SkipLink";
+import { CookieBanner } from "@/components/legal/CookieBanner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -110,6 +111,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <UnhandledReporter />
         <BackgroundGlow />
         {children}
+        <CookieBanner />
         <Analytics />
       </body>
     </html>

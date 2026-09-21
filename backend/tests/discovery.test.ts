@@ -24,6 +24,8 @@ const validDiscoveryPayload = {
   integrations: "Resend, HubSpot, Stripe, OpenAI",
   launchDate: "2026-12-01",
   extraDetails: "Priority: scalability, need NDA",
+  privacyConsent: true,
+  ageConfirmed: true,
 };
 
 describe("POST /api/discovery - Project Discovery (TDD)", () => {
