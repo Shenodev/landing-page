@@ -7,6 +7,7 @@ import UnhandledReporter from "@/components/UnhandledReporter";
 import { BackgroundGlow } from "@/components/layout/BackgroundGlow";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { CookieBanner } from "@/components/legal/CookieBanner";
+import { SiteJsonLd } from "@/components/seo/JsonLd";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -38,6 +39,13 @@ const BIGINT_SHIM = `if (typeof BigInt === "undefined") {
   window.BigInt.prototype = Object.create(Number.prototype);
 }`;
 
+const OG_IMAGE = {
+  url: "https://shenodev.tech/assets/favicon-512x512.png",
+  width: 512,
+  height: 512,
+  alt: "ShenoDev — premium full-stack web development agency",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://shenodev.tech"),
   title: {
@@ -46,6 +54,7 @@ export const metadata: Metadata = {
   },
   description:
     "ShenoDev builds fast, scalable, and intelligent web applications engineered for authoritative performance and seamless user experiences.",
+  alternates: { canonical: "https://shenodev.tech" },
   icons: {
     icon: [
       { url: "/assets/favicon-48x48.png", sizes: "48x48", type: "image/png" },
@@ -71,12 +80,14 @@ export const metadata: Metadata = {
     title: "ShenoDev | Premium Full-Stack Web Development Agency",
     description:
       "Fast, scalable, and intelligent web applications engineered for authoritative performance and seamless user experiences.",
+    images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "ShenoDev | Premium Full-Stack Web Development Agency",
     description:
       "Fast, scalable, and intelligent web applications engineered for authoritative performance and seamless user experiences.",
+    images: [OG_IMAGE.url],
   },
   robots: {
     index: true,
@@ -109,6 +120,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <Script id="bigint-shim" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: BIGINT_SHIM }} />
         <SkipLink />
         <UnhandledReporter />
+        <SiteJsonLd />
         <BackgroundGlow />
         {children}
         <CookieBanner />

@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
     "ShenoDev's privacy policy — how we collect, use, and protect your personal data across our website, contact, and discovery forms.",
+  alternates: { canonical: "https://shenodev.tech/privacy" },
 };
 
 const SECTIONS = [

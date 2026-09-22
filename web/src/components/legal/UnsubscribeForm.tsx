@@ -44,6 +44,7 @@ const UnsubscribeFormInner = () => {
   return (
     <>
       <SectionHeading
+        level={1}
         title="Unsubscribe"
         subtitle="One click, no login, no dark patterns. Operational replies to an active inquiry may still reach you until it closes."
         className="mb-10"

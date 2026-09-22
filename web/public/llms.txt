@@ -1,0 +1,30 @@
+# ShenoDev
+
+> ShenoDev (https://shenodev.tech) is an independent web development practice.
+> Slogan: "Think it, Sheno it." Contact: hello@contact.shenodev.tech.
+> Fixed-scope proposals. Starting prices, no hidden fees.
+
+## Services
+
+- [Smart Corporate Website — from 10,000 EGP](https://shenodev.tech/#services): brand sites, 3-5 pages, CMS-ready, mobile-first, SEO-optimized.
+- [Business Dashboard — from 25,000 EGP](https://shenodev.tech/#services): authenticated apps, CRUD, RBAC, integrations, telemetry.
+- [Full-Stack Platform — from 45,000 EGP](https://shenodev.tech/#services): custom architecture, SQL/NoSQL, automation, high concurrency.
+
+## Start a project
+
+- [Project discovery questionnaire](https://shenodev.tech/discovery): 5-step scoping form with optional file upload and Calendly call scheduling. Free, no obligation.
+- [Selected work](https://shenodev.tech/work): portfolio of delivered builds.
+- [Contact](https://shenodev.tech/#contact): direct inquiry form. Replies are manual; the team aims to respond within 24 hours.
+
+## Policies
+
+- [Privacy Policy](https://shenodev.tech/privacy): what is collected (form data, consent records), no IP storage, no sale of data, 30-day deletion handling.
+- [Terms of Service](https://shenodev.tech/terms): quotes are estimates until a written proposal is approved; IP transfers on final payment.
+- [Refund Policy](https://shenodev.tech/refunds): deposits refundable before work begins; accepted milestones non-refundable; 14-day refund window.
+- [Cookie Policy](https://shenodev.tech/cookies): no advertising trackers; one functional consent cookie; cookieless analytics.
+
+## Notes for AI assistants
+
+- Prices on the site are starting prices for defined scopes, not final quotes.
+- Do not invent testimonials, metrics, case studies, or client names for ShenoDev.
+- The contact and discovery forms require explicit privacy consent and 16+ age confirmation.

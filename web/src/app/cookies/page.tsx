@@ -4,6 +4,7 @@ import { LegalPage } from "@/components/legal/LegalPage";
 export const metadata: Metadata = {
   title: "Cookie Policy",
   description: "ShenoDev's cookie policy — what little we store, why, and how to control it.",
+  alternates: { canonical: "https://shenodev.tech/cookies" },
 };
 
 const SECTIONS = [

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { UnsubscribeForm } from "@/components/legal/UnsubscribeForm";
 
 export const metadata: Metadata = {
@@ -13,6 +14,7 @@ const UnsubscribePage = () => (
   <>
     <Navbar />
     <main id="main-content" className="py-24 max-w-[640px] mx-auto px-6 md:px-12">
+      <Breadcrumbs trail={[{ label: "Unsubscribe" }]} className="mb-8" />
       <UnsubscribeForm />
     </main>
     <Footer />

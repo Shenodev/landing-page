@@ -6,6 +6,7 @@ import Link from "next/link";
 import { DiscoveryQuestionnaire } from "@/components/discovery/DiscoveryQuestionnaire";
 import { DiscoveryScheduler } from "@/components/discovery/DiscoveryScheduler";
 import { DiscoverySuccess } from "@/components/discovery/DiscoverySuccess";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import type { DiscoveryFormData } from "@/components/discovery/discoverySchema";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
 
@@ -45,6 +46,7 @@ export const DiscoveryPage = () => {
         }}
       >
         <div className="max-w-[880px] mx-auto">
+          <Breadcrumbs trail={[{ label: "Project Discovery" }]} className="mb-8" />
           {success ? (
             <DiscoverySuccess formData={formData} />
           ) : (

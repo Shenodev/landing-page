@@ -4,6 +4,7 @@ import { LegalPage } from "@/components/legal/LegalPage";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description: "ShenoDev's terms of service — how we work, what we deliver, and the rules for using this website.",
+  alternates: { canonical: "https://shenodev.tech/terms" },
 };
 
 const SECTIONS = [

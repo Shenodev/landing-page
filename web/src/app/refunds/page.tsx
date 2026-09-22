@@ -4,6 +4,7 @@ import { LegalPage } from "@/components/legal/LegalPage";
 export const metadata: Metadata = {
   title: "Refund Policy",
   description: "ShenoDev's refund policy — deposits, milestones, and cancellations explained upfront.",
+  alternates: { canonical: "https://shenodev.tech/refunds" },
 };
 
 const SECTIONS = [

@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Project Discovery",
   description:
     "Fill out ShenoDev's project discovery questionnaire to receive a precise scope, roadmap, and proposal for your next web application.",
+  alternates: { canonical: "https://shenodev.tech/discovery" },
 };
 
 const AppDiscoveryPage = () => <DiscoveryPage />;
