@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
-import { submitProject } from "@/lib/api";
+import { ApiError, submitProject } from "@/lib/api";
 import { hasNoSqlInjection, purify, toSafeString } from "@/lib/sanitize";
 import {
   MAX_IMAGE_BYTES,
@@ -31,8 +31,17 @@ const EMPTY: AdminProjectInput = {
   githubUrl: "",
 };
 
-export const AdminProjectForm = () => {
-  const [form, setForm] = useState<AdminProjectInput>(EMPTY);
+type AdminProjectFormProps = {
+  /** When set (dashboard mode), the password field is hidden and this secret is used. */
+  fixedSecret?: string;
+  /** Called after a successful create so parents can refresh. */
+  onSaved?: () => void;
+  /** Called on 401 so a parent gate can drop back to the password prompt. */
+  onUnauthorized?: () => void;
+};
+
+export const AdminProjectForm = ({ fixedSecret, onSaved, onUnauthorized }: AdminProjectFormProps) => {
+  const [form, setForm] = useState<AdminProjectInput>({ ...EMPTY, adminSecret: fixedSecret ?? "" });
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -110,7 +119,7 @@ export const AdminProjectForm = () => {
     setMessage("");
     setFieldErrors({});
 
-    const parsed = adminProjectSchema.safeParse(form);
+    const parsed = adminProjectSchema.safeParse(fixedSecret ? { ...form, adminSecret: fixedSecret } : form);
     if (!parsed.success) {
       const errors: FieldErrors = {};
       parsed.error.issues.forEach((issue) => {
@@ -165,7 +174,12 @@ export const AdminProjectForm = () => {
         prev.forEach((url) => URL.revokeObjectURL(url));
         return [];
       });
+      onSaved?.();
     } catch (err: unknown) {
+      if (fixedSecret && err instanceof ApiError && err.status === 401) {
+        onUnauthorized?.();
+        return;
+      }
       const msg = toSafeString(err);
       console.error("[AdminProjectForm] submit failed:", msg);
       registerFailure(msg || "Failed to create project. Check password / connection and retry.");
@@ -175,21 +189,23 @@ export const AdminProjectForm = () => {
   return (
     <Card intent="elevated" className="p-8 md:p-10 shadow-2xl">
       <form className="space-y-6" onSubmit={handleSubmit} noValidate>
-        <Field id="admin-secret" label="Admin password" error={fieldErrors.adminSecret} hint="Stored as ADMIN_SECRET on the server. Never share publicly.">
-          <Input
-            id="admin-secret"
-            name="adminSecret"
-            type="password"
-            autoComplete="current-password"
-            placeholder="••••••••"
-            required
-            value={form.adminSecret}
-            onChange={handleChange}
-            disabled={submitting}
-            maxLength={200}
-            invalid={Boolean(fieldErrors.adminSecret)}
-          />
-        </Field>
+        {!fixedSecret && (
+          <Field id="admin-secret" label="Admin password" error={fieldErrors.adminSecret} hint="Stored as ADMIN_SECRET on the server. Never share publicly.">
+            <Input
+              id="admin-secret"
+              name="adminSecret"
+              type="password"
+              autoComplete="current-password"
+              placeholder="••••••••"
+              required
+              value={form.adminSecret}
+              onChange={handleChange}
+              disabled={submitting}
+              maxLength={200}
+              invalid={Boolean(fieldErrors.adminSecret)}
+            />
+          </Field>
+        )}
 
         <Field id="admin-title" label="Title" error={fieldErrors.title}>
           <Input

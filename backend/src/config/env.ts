@@ -14,6 +14,7 @@ const envSchema = z.object({
   ADMIN_EMAIL: z.string().optional(),
   RESEND_FALLBACK_DOMAIN: z.string().default("shenodev.tech"),
   ADMIN_SECRET: z.string().default("dev-admin-secret-change-in-prod"),
+  REDIS_URL: z.string().optional(),
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),

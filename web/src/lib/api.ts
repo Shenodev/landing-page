@@ -1,13 +1,21 @@
 import { toSafeString } from "@/lib/sanitize";
 
+export type ProjectImage = {
+  url: string;
+  publicId?: string;
+};
+
 export type Project = {
   _id: string;
   title: string;
   description: string;
   imageUrl: string;
+  images?: ProjectImage[];
   techStack: string[];
   demoUrl?: string;
   githubUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type ContactPayload = {
@@ -80,7 +88,11 @@ const fetchJson = async <T>(url: string, init?: RequestInit): Promise<T> => {
 };
 
 export const fetchProjects = async (): Promise<Project[]> => {
-  const res = await fetch(`${getApiUrl()}/api/projects`, { cache: "no-store" });
+  // No `cache: "no-store"` on purpose: the API sends
+  // `Cache-Control: public, max-age=30, s-maxage=60, stale-while-revalidate=300`,
+  // so browsers and CDNs serve the shared list without hitting MongoDB.
+  // (Admin reads use fetchProjectsAdmin with no-store instead.)
+  const res = await fetch(`${getApiUrl()}/api/projects`);
   if (!res.ok) {
     throw new ApiError(await readErrorMessage(res), res.status);
   }
@@ -182,5 +194,57 @@ export const requestDataDeletion = async (payload: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+
+/**
+ * Admin project list — always fresh (mutations must reflect immediately),
+ * bypassing the public browser/CDN cache the public feed enjoys.
+ */
+export const fetchProjectsAdmin = async (adminSecret: string): Promise<Project[]> => {
+  const res = await fetch(`${getApiUrl()}/api/projects`, {
+    cache: "no-store",
+    headers: { "x-admin-secret": adminSecret },
+  });
+  if (!res.ok) {
+    throw new ApiError(await readErrorMessage(res), res.status);
+  }
+  const data = (await res.json()) as { data: Project[] } | Project[];
+  return Array.isArray(data) ? data : (data.data ?? []);
+};
+
+export const updateProject = async (
+  id: string,
+  payload: AdminProjectPayload,
+  files: readonly File[],
+  adminSecret: string,
+): Promise<SubmitProjectResult> => {
+  const url = `${getApiUrl()}/api/projects/${encodeURIComponent(id)}`;
+  const headers = { "x-admin-secret": adminSecret };
+
+  if (files.length > 0) {
+    const body = new FormData();
+    body.append("title", payload.title);
+    body.append("description", payload.description);
+    body.append("imageUrl", payload.imageUrl);
+    body.append("techStack", JSON.stringify(payload.techStack));
+    body.append("demoUrl", payload.demoUrl);
+    body.append("githubUrl", payload.githubUrl);
+    files.forEach((file) => body.append("images", file));
+    return fetchJson(url, { method: "PUT", headers, body });
+  }
+
+  return fetchJson(url, {
+    method: "PUT",
+    headers: { ...headers, "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+};
+
+export const deleteProject = async (id: string, adminSecret: string): Promise<SubmitProjectResult> => {
+  const url = `${getApiUrl()}/api/projects/${encodeURIComponent(id)}`;
+  return fetchJson(url, {
+    method: "DELETE",
+    headers: { "x-admin-secret": adminSecret },
+  });
+};
 
 export { toSafeString };

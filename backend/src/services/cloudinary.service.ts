@@ -49,3 +49,19 @@ export const uploadToCloudinary = async (
     uploadStream.end(fileBuffer);
   });
 };
+
+/**
+ * Best-effort Cloudinary asset removal (used when projects are updated or
+ * deleted so replaced images don't leak storage). Never throws — callers
+ * treat failures as warnings because the DB record is already correct.
+ */
+export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
+  if (!publicId || !isCloudinaryConfigured) return;
+  try {
+    await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
+    console.log(`[cloudinary] Destroyed asset: ${publicId}`);
+  } catch (err: unknown) {
+    const msg: string = err instanceof Error ? err.message : String(err);
+    console.warn(`[cloudinary] Destroy failed for ${publicId}: ${msg}`);
+  }
+};

@@ -38,10 +38,12 @@ type WorkStateProps = {
 export const WorkSkeleton = ({ showViewAll, level = 2 }: WorkStateProps) => (
   <section id="work" className="py-24 max-w-[1320px] mx-auto px-6 md:px-12">
     <WorkHeading showViewAll={showViewAll} level={level} />
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse" aria-hidden="true">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="h-64 bg-surface-container/50 border border-outline-variant/20 rounded-xl" />
-      ))}
+    <div className="space-y-8 animate-pulse" aria-hidden="true">
+      <div className="h-72 bg-surface-container/50 border border-outline-variant/20 rounded-xl" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="h-64 bg-surface-container/50 border border-outline-variant/20 rounded-xl" />
+        <div className="h-64 bg-surface-container/50 border border-outline-variant/20 rounded-xl" />
+      </div>
     </div>
   </section>
 );
@@ -72,15 +74,25 @@ export const WorkEmpty = ({ showViewAll, level = 2 }: WorkStateProps) => (
         <MaterialIcon name="auto_awesome" className="text-primary text-3xl" />
       </div>
       <h3 className="font-display text-headline-sm text-on-surface mb-3">
-        Crafting new digital experiences... Coming Soon
+        No public builds listed yet
       </h3>
       <p className="text-body-sm text-on-surface-variant max-w-md mx-auto leading-relaxed">
-        We&apos;re currently curating our finest work. Soon you&apos;ll explore elegant, high-performance projects
-        engineered with Next.js, TypeScript, and MongoDB.
+        Client work lives behind logins and NDAs, so there is nothing to show here right now.
+        Tell us what you need built and it could headline this page.
       </p>
-      <div className="mt-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container-high border border-outline-variant/30 text-label-sm text-on-surface-variant">
-        <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-        Portfolio curation in progress
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <Link
+          href="/discovery"
+          className="inline-flex items-center justify-center gap-1.5 bg-primary-container hover:bg-primary text-on-primary-container text-body-sm font-semibold px-5 py-2.5 rounded-lg glow-button transition-colors"
+        >
+          Start a project <MaterialIcon name="arrow_forward" className="text-sm" />
+        </Link>
+        <Link
+          href="/#contact"
+          className="inline-flex items-center justify-center gap-1.5 bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/40 text-on-surface text-body-sm px-5 py-2.5 rounded-lg transition-colors"
+        >
+          Ask about past work
+        </Link>
       </div>
     </Card>
   </section>
