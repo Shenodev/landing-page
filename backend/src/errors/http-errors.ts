@@ -39,3 +39,17 @@ export class UploadError extends ApiError {
     this.name = "UploadError";
   }
 }
+
+/**
+ * 503 - a dependency the request needs is unavailable right now.
+ *
+ * Distinct from a 500 on purpose: the caller may retry, and the response must
+ * not be cached by a shared cache. Use it to report "cannot answer right now"
+ * instead of substituting a plausible-looking empty or stale payload.
+ */
+export class ServiceUnavailableError extends ApiError {
+  constructor(message: string, options: { cause?: unknown } = {}) {
+    super(message, { statusCode: 503, errorCode: "SERVICE_UNAVAILABLE", cause: options.cause });
+    this.name = "ServiceUnavailableError";
+  }
+}

@@ -8,6 +8,7 @@ const ERROR_CODE_LABELS: Record<string, string> = {
   NOT_FOUND: "Not Found",
   MISCONFIGURATION: "Server Misconfiguration",
   UPLOAD_ERROR: "Upload Error",
+  SERVICE_UNAVAILABLE: "Service Unavailable",
 };
 
 const FILE_TYPE_PATTERNS: ReadonlyArray<RegExp> = [

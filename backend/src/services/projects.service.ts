@@ -4,8 +4,9 @@ import { purifyString, hasInjectionAttempt } from "../lib/sanitize";
 import { hasValidFileSignature } from "../lib/security";
 import { Project } from "../models/Project";
 import { getConnectionState } from "../config/db";
+import { env } from "../config/env";
 import { deleteFromCloudinary, uploadToCloudinary } from "./cloudinary.service";
-import { NotFoundError, ValidationError, UploadError } from "../errors/http-errors";
+import { NotFoundError, ValidationError, UploadError, ServiceUnavailableError } from "../errors/http-errors";
 import { ErrorIssue } from "../errors/api-error";
 import { ProjectImage, ProjectResult, ProjectSubmission } from "../dto/project";
 
@@ -137,6 +138,30 @@ const assertValidId = (id: string): void => {
   }
 };
 
+/**
+ * Whether reads may fall back to process memory when MongoDB is unreachable.
+ *
+ * True in development and test, where the in-memory store is the fixture the
+ * suite writes to. False in production: a serverless instance boots with an
+ * empty `inMemoryProjects`, so the fallback cannot return anything real. It
+ * answered `200 {data: []}` and the portfolio silently went blank while the
+ * deploy still looked healthy. Production reports the outage as a 503 instead.
+ */
+export const servesDegradedReads = (nodeEnv: string): boolean => nodeEnv !== "production";
+
+/**
+ * Guard for the in-memory write fallback.
+ *
+ * A write parked in per-instance memory returns a success response and then
+ * disappears on the next cold start, so the operator sees a project they
+ * believe is saved and is not. Dev and test keep the in-memory fixture; in
+ * production a write that cannot reach MongoDB is reported as a 503.
+ */
+const assertDegradedWriteAllowed = (context: string, cause?: unknown): void => {
+  if (servesDegradedReads(env.NODE_ENV)) return;
+  throw new ServiceUnavailableError(`Cannot ${context} right now, please retry`, { cause });
+};
+
 export const listProjects = async (): Promise<unknown[]> => {
   // Caching happens in front of this function: the browser and the CDN (see the
   // Cache-Control header in the controller). There is no server-side cache here.
@@ -146,9 +171,17 @@ export const listProjects = async (): Promise<unknown[]> => {
       return (await Project.find().sort({ createdAt: -1 }).lean()) as unknown[];
     } catch (err: unknown) {
       const msg: string = err instanceof Error ? err.message : String(err);
-      console.error("[projects] DB fetch failed, fallback to memory:", msg);
+      console.error("[projects] DB fetch failed:", msg);
+      // A query that throws is a real failure, not a licence to invent an
+      // empty portfolio. Report it so the CDN does not cache the outage.
+      throw new ServiceUnavailableError("Projects are temporarily unavailable", { cause: err });
     }
   }
+
+  if (!servesDegradedReads(env.NODE_ENV)) {
+    throw new ServiceUnavailableError("Projects are temporarily unavailable");
+  }
+
   // Degraded / test fallback
   return [...inMemoryProjects].reverse();
 };
@@ -164,10 +197,12 @@ export const createProject = async (body: unknown, files: Express.Multer.File[])
       return { data: doc, degraded: false };
     } catch (dbErr: unknown) {
       const msg: string = dbErr instanceof Error ? dbErr.message : String(dbErr);
-      console.error("[projects] DB create failed, fallback to memory:", msg);
-      // Fall through to degraded
+      console.error("[projects] DB create failed:", msg);
+      assertDegradedWriteAllowed("create a project", dbErr);
     }
   }
+
+  assertDegradedWriteAllowed("create a project");
 
   // Fallback in-memory for test/degraded.
   const memDoc: Record<string, unknown> & { _id: string; createdAt: string } = {
@@ -235,6 +270,7 @@ export const updateProject = async (
   }
 
   // Memory fallback update
+  assertDegradedWriteAllowed("update a project");
   const idx: number = inMemoryProjects.findIndex((p) => p._id === id);
   if (idx === -1) throw new NotFoundError("Project not found");
   inMemoryProjects[idx] = {
@@ -264,6 +300,7 @@ export const deleteProject = async (id: string): Promise<{ id: string; degraded:
     return { id, degraded: false };
   }
 
+  assertDegradedWriteAllowed("delete a project");
   const idx: number = inMemoryProjects.findIndex((p) => p._id === id);
   if (idx === -1) throw new NotFoundError("Project not found");
   inMemoryProjects.splice(idx, 1);
