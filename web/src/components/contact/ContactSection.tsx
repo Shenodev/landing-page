@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import { contactSchema, type ContactInput } from "@/schemas/contact";
+import {
+  validateContactDraft,
+  type ContactFieldErrors,
+  type ContactFormValues,
+  type ValidatedContact,
+} from "@/schemas/contact-client";
 import { submitContact } from "@/lib/api";
 import { hasNoSqlInjection, purify, toSafeString } from "@/lib/sanitize";
 import { Button } from "@/components/ui/Button";
@@ -16,18 +21,15 @@ import { Input } from "@/components/ui/Input";
 
 type FormStatus = "idle" | "submitting" | "success" | "error";
 
-// Draft allows unchecked boxes; zod enforces `true` at submit time.
-type ContactDraft = Omit<ContactInput, "privacyConsent" | "ageConfirmed"> & {
-  privacyConsent: boolean;
-  ageConfirmed: boolean;
-};
+// Draft allows unchecked boxes; the validator requires `true` at submit time.
+type ContactDraft = ContactFormValues;
 
-type FieldErrors = Partial<Record<keyof ContactInput, string>>;
+type FieldErrors = ContactFieldErrors;
 
-const toFieldErrors = (issues: { path: (string | number | symbol)[]; message: string }[]): FieldErrors => {
+const toFieldErrors = (issues: { path: [keyof ContactFormValues]; message: string }[]): FieldErrors => {
   const errors: FieldErrors = {};
   issues.forEach((issue) => {
-    const key = issue.path[0] as keyof ContactInput | undefined;
+    const key = issue.path[0];
     if (key) errors[key] = issue.message;
   });
   return errors;
@@ -51,7 +53,7 @@ export const ContactSection = () => {
     const value: string | boolean =
       e.target instanceof HTMLInputElement && e.target.type === "checkbox" ? e.target.checked : e.target.value;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (fieldErrors[name as keyof ContactInput]) {
+    if (fieldErrors[name as keyof ContactFormValues]) {
       setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
@@ -62,7 +64,7 @@ export const ContactSection = () => {
     setErrorMsg("");
     setFieldErrors({});
 
-    const parsed = contactSchema.safeParse(formData);
+    const parsed = validateContactDraft(formData);
     if (!parsed.success) {
       setFieldErrors(toFieldErrors(parsed.error.issues));
       setErrorMsg(parsed.error.issues.map((i) => `${String(i.path[0])}: ${i.message}`).join(", "));
@@ -70,7 +72,7 @@ export const ContactSection = () => {
       return;
     }
 
-    const purified: ContactInput = {
+    const purified: ValidatedContact = {
       name: purify(parsed.data.name),
       email: purify(parsed.data.email).toLowerCase(),
       details: purify(parsed.data.details),
