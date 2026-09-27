@@ -25,7 +25,9 @@ describe("Projects API - update / delete / cache headers", () => {
     const res = await request(app).get("/api/projects");
     expect(res.status).toBe(200);
     expect(res.headers["cache-control"]).toMatch(/public/);
-    expect(res.headers["cache-control"]).toMatch(/s-maxage=60/);
+    // The shared TTL is 300s, not 60s: see public-feed-cache.test.ts for why a
+    // long shared cache is what protects the origin from a traffic spike.
+    expect(res.headers["cache-control"]).toMatch(/s-maxage=300/);
   });
 
   it("PUT rejects without secret (401), malformed id (400), unknown id (404)", async () => {
