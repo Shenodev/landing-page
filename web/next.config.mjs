@@ -1,19 +1,28 @@
-/** @type {import('next').NextConfig} */
+const isDev = process.env.NODE_ENV !== "production";
+
+// Local API origins are only reachable in development. Without them the CSP
+// connect-src blocked the dev server's own API, and every fetch failed with an
+// opaque "Failed to fetch" that looks like a network outage rather than a
+// policy denial. Production keeps the production API only.
+const devApiOrigins = isDev ? " http://localhost:5000 http://127.0.0.1:5000" : "";
+
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://assets.calendly.com https://va.vercel-scripts.com",
+  // React's dev-only debugging hooks call eval(); production never needs it.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://assets.calendly.com https://va.vercel-scripts.com`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob: https://res.cloudinary.com",
-  "connect-src 'self' https://api.shenodev.tech https://api.calendly.com https://calendly.com https://va.vercel-scripts.com",
+  `connect-src 'self'${devApiOrigins} https://api.shenodev.tech https://api.calendly.com https://calendly.com https://va.vercel-scripts.com`,
   "frame-src https://calendly.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self' https://api.shenodev.tech",
   "frame-ancestors 'self'",
-  "upgrade-insecure-requests",
+  ...(isDev ? [] : ["upgrade-insecure-requests"]),
 ].join("; ");
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   typedRoutes: false,

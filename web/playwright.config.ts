@@ -13,7 +13,10 @@ export default defineConfig({
   expect: { timeout: 15000 },
   reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
   use: {
-    baseURL: "https://www.shenodev.tech",
+    // Default to the live site. Override with E2E_BASE_URL to run the same
+    // suite against a local dev server, which is how logic changes get proven
+    // before they are deployed.
+    baseURL: process.env.E2E_BASE_URL ?? "https://www.shenodev.tech",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     navigationTimeout: 60000,

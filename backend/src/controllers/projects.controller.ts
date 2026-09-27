@@ -13,6 +13,21 @@ export const getProjects = async (_req: Request, res: Response, next: NextFuncti
   }
 };
 
+/**
+ * Guarded read used by the admin dashboard to verify the admin secret.
+ * Deliberately not cacheable: the response depends on a credential, and a
+ * shared cache must never keep it.
+ */
+export const getProjectsAdmin = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const projects = await listProjects();
+    res.set("Cache-Control", "private, no-store");
+    res.status(200).json({ data: projects });
+  } catch (err: unknown) {
+    next(err);
+  }
+};
+
 export const postProject = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     // multer.array("images", 10) populates req.files

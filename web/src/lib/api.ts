@@ -196,11 +196,14 @@ export const requestDataDeletion = async (payload: {
   });
 
 /**
- * Admin project list — always fresh (mutations must reflect immediately),
- * bypassing the public browser/CDN cache the public feed enjoys.
+ * Admin project list — always fresh, and served by the guarded
+ * `/api/projects/admin` route. The public `/api/projects` feed answers 200 to
+ * every caller regardless of the secret, so it cannot be used to check a
+ * password: any value would "verify". This route returns 401 unless the
+ * x-admin-secret header matches.
  */
 export const fetchProjectsAdmin = async (adminSecret: string): Promise<Project[]> => {
-  const res = await fetch(`${getApiUrl()}/api/projects`, {
+  const res = await fetch(`${getApiUrl()}/api/projects/admin`, {
     cache: "no-store",
     headers: { "x-admin-secret": adminSecret },
   });

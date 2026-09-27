@@ -42,6 +42,7 @@ export const AdminConsole = () => {
   const [listError, setListError] = useState("");
   const [notice, setNotice] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
+  const [verifying, setVerifying] = useState(false);
 
   const lock = useCallback((message?: string) => {
     setSecret(null);
@@ -53,6 +54,9 @@ export const AdminConsole = () => {
 
   const reload = useCallback((): void => setReloadKey((k) => k + 1), []);
 
+  // Refetch after a mutation. Deliberately keyed on reloadKey alone: unlock()
+  // has already loaded the list with the verified secret, so watching `secret`
+  // here would fire a second identical request on every successful unlock.
   useEffect(() => {
     if (!secret) return;
     let cancelled = false;
@@ -78,15 +82,35 @@ export const AdminConsole = () => {
     };
   }, [secret, reloadKey, lock]);
 
-  const unlock = (e: FormEvent<HTMLFormElement>): void => {
+  // Verify the password BEFORE treating the dashboard as unlocked. Setting
+  // `secret` first would render the dashboard for any input: a 401 is the only
+  // failure this component can recognise as a wrong password, so a CORS
+  // rejection, a 500, or a dropped connection all looked like success.
+  const unlock = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    if (!gatePassword.trim()) {
+    const candidate: string = gatePassword.trim();
+    if (!candidate) {
       setGateError("Enter the admin password.");
       return;
     }
     setGateError("");
     setNotice("");
-    setSecret(gatePassword);
+    setVerifying(true);
+    try {
+      const list: Project[] = await fetchProjectsAdmin(candidate);
+      setProjects(list);
+      setSecret(candidate);
+    } catch (err: unknown) {
+      if (err instanceof ApiError && err.status === 401) {
+        setGateError("Wrong password. Please try again.");
+      } else {
+        setGateError(
+          `Could not verify the password: ${toSafeString(err) || "request failed"}. Check the API connection and try again.`,
+        );
+      }
+    } finally {
+      setVerifying(false);
+    }
   };
 
   if (!secret) {
@@ -98,7 +122,7 @@ export const AdminConsole = () => {
           className="mb-10"
         />
         <Card intent="elevated" className="p-8 shadow-2xl">
-          <form className="space-y-5" onSubmit={unlock} noValidate>
+          <form className="space-y-5" onSubmit={(e) => void unlock(e)} noValidate>
             <Field id="gate-password" label="Admin password">
               <Input
                 id="gate-password"
@@ -113,8 +137,8 @@ export const AdminConsole = () => {
               />
             </Field>
             {gateError && <FormAlert tone="error">{gateError}</FormAlert>}
-            <Button type="submit" size="lg" className="w-full py-4 cursor-pointer">
-              Unlock dashboard
+            <Button type="submit" size="lg" className="w-full py-4 cursor-pointer" disabled={verifying}>
+              {verifying ? "Verifying…" : "Unlock dashboard"}
               <MaterialIcon name="lock_open" className="text-lg" />
             </Button>
           </form>

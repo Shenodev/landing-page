@@ -16,6 +16,38 @@ import privacyRouter from "./routes/privacy";
 import { notFoundHandler, globalErrorHandler } from "./middlewares/error-handler";
 import { globalLimiter } from "./middlewares/rate-limiters";
 
+const VERCEL_PREVIEW_ORIGIN = /^https:\/\/shenodev-.*\.vercel\.app$/;
+const SHENODEV_SUBDOMAIN_ORIGIN = /^https:\/\/.*\.shenodev\.tech$/;
+const DEV_LOCALHOST_ORIGIN = /^http:\/\/localhost:(3000|8081|5000)$/;
+
+/**
+ * Decide whether a request Origin may receive CORS response headers.
+ *
+ * Exported for direct unit testing: the cors package reports a denied origin
+ * only by withholding headers, so the policy itself needs its own coverage.
+ *
+ * A missing Origin is allowed. Browsers always attach Origin to cross-origin
+ * requests, so its absence means curl, an uptime monitor, or another
+ * server-to-server client - not a cross-site browser request. Real gates are
+ * the admin secret, the rate limiters, and schema validation.
+ */
+export const isOriginAllowed = (origin: string | undefined, isProd: boolean): boolean => {
+  if (!origin) return true;
+
+  // Configured origins come from ALLOWED_ORIGINS / FRONTEND_URL. Production
+  // drops localhost entries so a dev origin can never be trusted in prod.
+  const configured = (isProd ? allowedOrigins.filter((o) => !o.includes("localhost")) : allowedOrigins).filter(
+    (o) => o === origin,
+  );
+  if (configured.length > 0) return true;
+
+  if (VERCEL_PREVIEW_ORIGIN.test(origin)) return true;
+  if (SHENODEV_SUBDOMAIN_ORIGIN.test(origin)) return true;
+  if (!isProd && DEV_LOCALHOST_ORIGIN.test(origin)) return true;
+
+  return false;
+};
+
 export const createApp = (): Express => {
   const app: Express = express();
 
@@ -53,56 +85,26 @@ export const createApp = (): Express => {
   // CORS whitelist - strict production standard: ONLY allowed origins + FRONTEND_URL env var
   // Also supports Vercel preview deployments (e.g., https://shenodev-*.vercel.app)
   const corsOptions: CorsOptions = {
+    // A denied origin is a policy decision, not a server fault. Passing
+    // `false` makes cors omit the response headers so the browser blocks the
+    // read, while the route still answers normally. Passing an Error here
+    // (the previous behaviour) made cors rethrow into the error handler and
+    // turned every denied origin - including a curl request with no Origin -
+    // into a 500.
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      const isProd = env.NODE_ENV === "production";
-
-      // Build allowed origins list dynamically - filter out localhost in production
-      const prodOrigins = allowedOrigins.filter(o => !o.includes("localhost"));
-      const allowed = isProd
-        ? [
-            ...prodOrigins, // from ALLOWED_ORIGINS env var (no localhost)
-            ...(env.FRONTEND_URL ? [env.FRONTEND_URL.trim()] : []),
-            // Support Vercel preview deployments: https://shenodev-*.vercel.app
-            /^https:\/\/shenodev-.*\.vercel\.app$/,
-            // Support any shenodev.tech subdomain
-            /^https:\/\/.*\.shenodev\.tech$/,
-            
-          ]
-        : [
-            ...allowedOrigins, // from ALLOWED_ORIGINS env var (includes localhost for dev)
-            ...(env.FRONTEND_URL ? [env.FRONTEND_URL] : []),
-            // Support Vercel preview deployments: https://shenodev-*.vercel.app
-            /^https:\/\/shenodev-.*\.vercel\.app$/,
-            // Support any shenodev.tech subdomain
-            /^https:\/\/.*\.shenodev\.tech$/,
-            
-          ];
-
-      // In production, reject requests with no origin
-      if (!origin) {
-        if (isProd) {
-          callback(new Error("CORS: No origin in production"));
-          return;
-        }
+      const allowed: boolean = isOriginAllowed(origin, env.NODE_ENV === "production");
+      if (allowed) {
         callback(null, true);
         return;
       }
-
-      if (allowed.includes(origin)) {
-        callback(null, true);
-        return;
-      }
-
-      // Development: allow localhost on common ports
-      if (!isProd && /^http:\/\/localhost:(3000|8081|5000)$/.test(origin)) {
-        callback(null, true);
-        return;
-      }
-
-      callback(new Error(`CORS blocked for origin: ${origin}`));
+      console.warn(`[cors] Blocked origin: ${origin}`);
+      callback(null, false);
     },
     credentials: true,
-    methods: ["GET", "POST", "OPTIONS"], // Only allow necessary methods
+    // GET/POST/OPTIONS only broke browser admin edits: PUT and DELETE are real
+    // routes, so a preflight asking for them was answered without those methods
+    // and the browser refused the request before it reached the handler.
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     // x-admin-secret is required for the hidden admin upload — without it,
     // browsers block cross-origin admin POSTs at preflight.
     allowedHeaders: ["Content-Type", "Authorization", "x-admin-secret"],
