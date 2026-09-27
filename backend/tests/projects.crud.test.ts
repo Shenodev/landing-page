@@ -1,7 +1,6 @@
 import request from "supertest";
 import { createApp } from "../src/app";
 import { _clearMemoryProjects } from "../src/services/projects.service";
-import { _disconnectRedisForTest } from "../src/config/redis";
 
 const validProject = {
   title: "Crud Project",
@@ -18,13 +17,8 @@ describe("Projects API - update / delete / cache headers", () => {
 
   beforeEach(() => {
     process.env.ADMIN_SECRET = adminSecret;
-    delete process.env.REDIS_URL;
     _clearMemoryProjects();
     jest.clearAllMocks();
-  });
-
-  afterAll(async () => {
-    await _disconnectRedisForTest();
   });
 
   it("GET /api/projects sets public Cache-Control for browser + CDN", async () => {

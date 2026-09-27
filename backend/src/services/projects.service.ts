@@ -4,7 +4,6 @@ import { purifyString, hasInjectionAttempt } from "../lib/sanitize";
 import { hasValidFileSignature } from "../lib/security";
 import { Project } from "../models/Project";
 import { getConnectionState } from "../config/db";
-import { cacheDel, cacheGet, cacheSet } from "../config/redis";
 import { deleteFromCloudinary, uploadToCloudinary } from "./cloudinary.service";
 import { NotFoundError, ValidationError, UploadError } from "../errors/http-errors";
 import { ErrorIssue } from "../errors/api-error";
@@ -13,8 +12,6 @@ import { ProjectImage, ProjectResult, ProjectSubmission } from "../dto/project";
 // In-memory fallback for test/degraded mode when DB not connected
 const inMemoryProjects: Array<Record<string, unknown> & { _id: string; createdAt: string }> = [];
 
-const PROJECTS_CACHE_KEY = "projects:all";
-const PROJECTS_CACHE_TTL_SECONDS = 60;
 const ALLOWED_PROJECT_MIMES: readonly string[] = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 const parseJsonField = (raw: unknown): unknown => {
@@ -117,10 +114,6 @@ const validateAndPurify = (bodyForValidation: Record<string, unknown>): ProjectS
   return purified;
 };
 
-const invalidateProjectsCache = async (): Promise<void> => {
-  await cacheDel(PROJECTS_CACHE_KEY);
-};
-
 /** Fetch one project by id from DB or the memory fallback. Null when missing. */
 const findProjectById = async (id: string): Promise<Record<string, unknown> | null> => {
   if (getConnectionState() === 1) {
@@ -145,29 +138,18 @@ const assertValidId = (id: string): void => {
 };
 
 export const listProjects = async (): Promise<unknown[]> => {
-  // Layer 1: Redis (browser -> CDN -> Redis -> MongoDB)
-  try {
-    const cached: string | null = await cacheGet(PROJECTS_CACHE_KEY);
-    if (cached) {
-      return JSON.parse(cached) as unknown[];
-    }
-  } catch {
-    // Corrupt cache entry: fall through to DB.
-  }
-
+  // Caching happens in front of this function: the browser and the CDN (see the
+  // Cache-Control header in the controller). There is no server-side cache here.
   const dbState: number = getConnectionState();
   if (dbState === 1) {
     try {
-      const docs = (await Project.find().sort({ createdAt: -1 }).lean()) as unknown[];
-      // Populate cache for the next reader (fire-and-forget inside helper).
-      await cacheSet(PROJECTS_CACHE_KEY, JSON.stringify(docs), PROJECTS_CACHE_TTL_SECONDS);
-      return docs;
+      return (await Project.find().sort({ createdAt: -1 }).lean()) as unknown[];
     } catch (err: unknown) {
       const msg: string = err instanceof Error ? err.message : String(err);
       console.error("[projects] DB fetch failed, fallback to memory:", msg);
     }
   }
-  // Degraded / test fallback (never cached: memory is already fast + ephemeral)
+  // Degraded / test fallback
   return [...inMemoryProjects].reverse();
 };
 
@@ -179,7 +161,6 @@ export const createProject = async (body: unknown, files: Express.Multer.File[])
   if (dbState === 1) {
     try {
       const doc = await Project.create(purified);
-      await invalidateProjectsCache();
       return { data: doc, degraded: false };
     } catch (dbErr: unknown) {
       const msg: string = dbErr instanceof Error ? dbErr.message : String(dbErr);
@@ -241,7 +222,6 @@ export const updateProject = async (
     try {
       const doc = await Project.findByIdAndUpdate(id, purified, { new: true, runValidators: true }).lean();
       if (!doc) throw new NotFoundError("Project not found");
-      await invalidateProjectsCache();
       for (const pid of orphaned) {
         await deleteFromCloudinary(pid);
       }
@@ -278,7 +258,6 @@ export const deleteProject = async (id: string): Promise<{ id: string; degraded:
     if (res.deletedCount === 0) {
       throw new NotFoundError("Project not found");
     }
-    await invalidateProjectsCache();
     for (const im of images) {
       if (im.publicId) await deleteFromCloudinary(im.publicId);
     }

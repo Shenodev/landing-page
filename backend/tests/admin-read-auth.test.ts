@@ -1,7 +1,6 @@
 import request from "supertest";
 import { createApp } from "../src/app";
 import { _clearMemoryProjects } from "../src/services/projects.service";
-import { _disconnectRedisForTest } from "../src/config/redis";
 
 /**
  * The admin dashboard verifies the password by reading the project list. That
@@ -14,12 +13,7 @@ describe("Admin project read is guarded", () => {
 
   beforeEach(() => {
     process.env.ADMIN_SECRET = adminSecret;
-    delete process.env.REDIS_URL;
     _clearMemoryProjects();
-  });
-
-  afterAll(async () => {
-    await _disconnectRedisForTest();
   });
 
   it("keeps the public feed open and cacheable for the website", async () => {
