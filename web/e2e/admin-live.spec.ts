@@ -73,7 +73,11 @@ test.describe("admin gate against the live API", () => {
   test("the public projects feed is cacheable by browsers and CDNs", async ({ request }) => {
     const res = await request.get(`${API_URL}/api/projects`);
     expect(res.status()).toBe(200);
+    // `public` plus a browser max-age is the contract. Do NOT assert s-maxage
+    // here: Vercel's edge strips it and manages the shared-cache TTL itself,
+    // so a deployed response legitimately reads `public, max-age=30` while the
+    // origin locally still sends the full s-maxage / stale-while-revalidate.
     expect(res.headers()["cache-control"]).toContain("public");
-    expect(res.headers()["cache-control"]).toContain("s-maxage=");
+    expect(res.headers()["cache-control"]).toMatch(/max-age=\d+/);
   });
 });
