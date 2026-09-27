@@ -1,14 +1,29 @@
 import rateLimit from "express-rate-limit";
 import { env } from "../config/env";
+import { RateLimit } from "../models/RateLimit";
+import { createMongoRateLimitStore } from "../config/rate-limit-store";
 
 const envMax = (prodMax: number, testMax: number): number =>
   env.NODE_ENV === "test" ? testMax : prodMax;
+
+/**
+ * Shared hit counters, held in MongoDB.
+ *
+ * The default MemoryStore keeps counters in process memory, so on Vercel every
+ * instance enforced its own limit: a "20 per 15 minutes" admin limiter really
+ * allowed 20 x (instances), and the ceiling rose with traffic. Counters in
+ * MongoDB are seen by every instance, so the number written here is the number
+ * enforced. See src/config/rate-limit-store.ts for the fail-open behaviour when
+ * the database is unreachable.
+ */
+const sharedStore = createMongoRateLimitStore(RateLimit as never);
 
 /** Global limiter: 100 req / 15 min per IP (mounted on /api). */
 export const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: envMax(100, 1000),
   message: { error: "Too Many Requests", message: "Please try again later", statusCode: 429 },
+  store: sharedStore,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -18,6 +33,7 @@ export const contactLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: envMax(10, 1000),
   message: { error: "Too many requests", message: "Please try again after a minute", statusCode: 429 },
+  store: sharedStore,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -27,6 +43,7 @@ export const discoveryLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: envMax(10, 1000),
   message: { error: "Too many requests", message: "Please try again after a minute", statusCode: 429 },
+  store: sharedStore,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -36,6 +53,7 @@ export const projectsLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: envMax(100, 1000),
   message: { error: "Too Many Requests", message: "Please try again later", statusCode: 429 },
+  store: sharedStore,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -49,6 +67,7 @@ export const adminWriteLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: envMax(20, 1000),
   message: { error: "Too Many Requests", message: "Too many admin attempts. Please try again later.", statusCode: 429 },
+  store: sharedStore,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -62,6 +81,7 @@ export const privacyLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: envMax(10, 1000),
   message: { error: "Too Many Requests", message: "Please try again later", statusCode: 429 },
+  store: sharedStore,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -71,6 +91,7 @@ export const webhookLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: envMax(120, 10000),
   message: { error: "Too Many Requests", message: "Calendly webhook rate limited", statusCode: 429 },
+  store: sharedStore,
   standardHeaders: true,
   legacyHeaders: false,
 });
