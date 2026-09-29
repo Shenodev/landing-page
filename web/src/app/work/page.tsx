@@ -20,7 +20,7 @@ const WorkPage = () => {
         <div className="max-w-[1320px] mx-auto px-6 md:px-12 pt-10">
           <Breadcrumbs trail={[{ label: "Selected Work" }]} />
         </div>
-        <Suspense fallback={<WorkSkeleton />}>
+        <Suspense fallback={<WorkSkeleton showViewAll={false} level={1} />}>
           <WorkSection showViewAll={false} headingLevel={1} />
         </Suspense>
       </main>

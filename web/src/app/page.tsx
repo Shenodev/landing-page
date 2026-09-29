@@ -16,7 +16,7 @@ const Page = () => {
         <Hero />
         <TechMarquee />
         <Services />
-        <Suspense fallback={<WorkSkeleton />}>
+        <Suspense fallback={<WorkSkeleton showViewAll={true} level={2} />}>
           <WorkSection />
         </Suspense>
         <ContactSection />
