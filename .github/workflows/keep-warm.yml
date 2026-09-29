@@ -1,0 +1,31 @@
+name: Keep API Warm
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"  # Every 5 minutes
+  workflow_dispatch:        # Allow manual trigger
+
+jobs:
+  ping-projects:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping projects API
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://api.shenodev.tech/api/projects)
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "API returned non-200 status"
+            exit 1
+          fi
+
+  ping-homepage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping homepage
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://shenodev.tech)
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "Homepage returned non-200 status"
+            exit 1
+          fi
