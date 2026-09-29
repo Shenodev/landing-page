@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Ping homepage
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://shenodev.tech)
+          STATUS=$(curl -L -s -o /dev/null -w "%{http_code}" https://shenodev.tech)
           echo "HTTP status: $STATUS"
           if [ "$STATUS" != "200" ]; then
             echo "Homepage returned non-200 status"
