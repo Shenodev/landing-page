@@ -168,7 +168,8 @@ export const listProjects = async (): Promise<unknown[]> => {
   const dbState: number = getConnectionState();
   if (dbState === 1) {
     try {
-      return (await Project.find().sort({ createdAt: -1 }).lean()) as unknown[];
+      // Strip unused `images` array (public feed only renders imageUrl) and bound the response
+      return (await Project.find().sort({ createdAt: -1 }).select("-images").limit(20).lean()) as unknown[];
     } catch (err: unknown) {
       const msg: string = err instanceof Error ? err.message : String(err);
       console.error("[projects] DB fetch failed:", msg);

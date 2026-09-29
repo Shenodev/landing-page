@@ -1,15 +1,11 @@
-"use client";
-
 import Link from "next/link";
 import ProjectCard from "@/components/work/ProjectCard";
 import {
   WorkEmpty,
   WorkError,
   WorkHeading,
-  WorkSkeleton,
 } from "@/components/work/WorkStates";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
-import { useProjects } from "@/hooks/useProjects";
 import type { Project } from "@/lib/api";
 
 type WorkSectionProps = {
@@ -58,11 +54,23 @@ const ProjectGrid = ({ projects }: { projects: Project[] }) => {
   );
 };
 
-export const WorkSection = ({ showViewAll = true, headingLevel = 2 }: WorkSectionProps) => {
-  const { projects, loading, error } = useProjects();
+export const WorkSection = async ({ showViewAll = true, headingLevel = 2 }: WorkSectionProps) => {
+  let projects: Project[] = [];
+  let error = "";
 
-  if (loading) {
-    return <WorkSkeleton showViewAll={showViewAll} level={headingLevel} />;
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (apiUrl) {
+      const res = await fetch(`${apiUrl}/api/projects`, {
+        next: { revalidate: 300 },
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { data: Project[] } | Project[];
+        projects = Array.isArray(data) ? data : (data.data ?? []);
+      }
+    }
+  } catch (err) {
+    error = err instanceof Error ? err.message : "Failed to load projects";
   }
 
   if (error && projects.length === 0) {

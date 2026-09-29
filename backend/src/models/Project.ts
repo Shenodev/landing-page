@@ -41,4 +41,7 @@ const ProjectSchema: Schema<IProject> = new Schema<IProject>(
   }
 );
 
+// Index for the createdAt sort used in listProjects — avoids full collection scan
+ProjectSchema.index({ createdAt: -1 });
+
 export const Project: Model<IProject> = mongoose.models.Project ?? mongoose.model<IProject>("Project", ProjectSchema);

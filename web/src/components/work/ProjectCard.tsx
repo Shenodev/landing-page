@@ -71,6 +71,7 @@ const ProjectCard = ({ project, index, featured = false }: ProjectCardProps) => 
             src={project.imageUrl}
             alt={project.title}
             fill
+            priority
             sizes="(max-width: 1024px) 100vw, 60vw"
             className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />

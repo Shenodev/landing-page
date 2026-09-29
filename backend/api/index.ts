@@ -5,6 +5,11 @@ import { connectOnDemand } from "../src/config/db";
 // Initialize the Express app once per serverless instance.
 const app = createApp();
 
+// Warm the DB connection at module load so the first request doesn't pay the
+// MongoDB handshake cost. Fire-and-forget: if it fails, connectOnDemand on the
+// first request will retry (self-healing).
+void connectOnDemand();
+
 // Connect to the database on demand for every request (self-healing).
 // If the previous attempt failed (wrong env, Atlas allowlist, cold start), the
 // next request retries instead of staying degraded forever. connectOnDemand
