@@ -56,6 +56,24 @@ const nextConfig = {
       },
     ];
   },
+  // `/index` matched `/` and returned a 200 duplicate of the homepage (verified:
+  // X-Matched-Path: /), and Search Console reported one hard 404. These 308s
+  // collapse duplicates and alias the common stale paths to the page that
+  // replaces them. Extend the list with the exact URL from the GSC 404 row.
+  async redirects() {
+    return [
+      { source: "/index", destination: "/", permanent: true },
+      { source: "/home", destination: "/", permanent: true },
+      { source: "/about", destination: "/", permanent: true },
+      { source: "/services", destination: "/#services", permanent: true },
+      { source: "/pricing", destination: "/#services", permanent: true },
+      { source: "/contact", destination: "/#contact", permanent: true },
+      { source: "/projects", destination: "/work", permanent: true },
+      { source: "/portfolio", destination: "/work", permanent: true },
+      { source: "/apply", destination: "/discovery", permanent: true },
+      { source: "/quote", destination: "/discovery", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

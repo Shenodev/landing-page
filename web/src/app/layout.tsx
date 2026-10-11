@@ -54,7 +54,9 @@ export const metadata: Metadata = {
   },
   description:
     "ShenoDev builds fast, scalable, and intelligent web applications engineered for authoritative performance and seamless user experiences.",
-  alternates: { canonical: "https://shenodev.tech" },
+  // NOTE: do NOT set a site-wide `alternates.canonical` here. A canonical in the
+  // root layout is inherited by every route that doesn't declare its own — which
+  // made /unsubscribe and /404 point at the homepage. Each page owns its canonical.
   icons: {
     icon: [
       { url: "/assets/favicon-48x48.png", sizes: "48x48", type: "image/png" },
@@ -89,10 +91,9 @@ export const metadata: Metadata = {
       "Fast, scalable, and intelligent web applications engineered for authoritative performance and seamless user experiences.",
     images: [OG_IMAGE.url],
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  // No global `robots` block: "index, follow" is the crawler default, and setting
+  // it here leaked an `index, follow` tag onto the 404 route, contradicting the
+  // `noindex` Next injects for not-found. Pages opt out individually instead.
   // Populate from GSC after domain verification if using meta-tag verification
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? "",

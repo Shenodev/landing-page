@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Hero } from "@/components/Hero";
@@ -7,6 +8,10 @@ import { WorkSection } from "@/components/work/WorkSection";
 import { ContactSection } from "@/components/contact/ContactSection";
 import { Footer } from "@/components/layout/Footer";
 import { WorkSkeleton } from "@/components/work/WorkStates";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "https://shenodev.tech" },
+};
 
 const Page = () => {
   return (
