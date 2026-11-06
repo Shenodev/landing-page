@@ -17,7 +17,7 @@ const LEGAL_LINKS = [
 ] as const;
 
 export const Footer = () => (
-  <footer className="bg-surface-container-lowest border-t border-outline-variant/30">
+  <footer className="bg-surface-dim border-t border-white/10">
     <div className="w-full px-6 md:px-12 py-12 max-w-[1320px] mx-auto">
       <div className="flex flex-col md:flex-row justify-between gap-10">
         <div className="flex flex-col items-center md:items-start gap-3 max-w-sm">
@@ -45,14 +45,14 @@ export const Footer = () => (
               shenodev.tech
             </a>
           </p>
-          <p className="text-body-sm text-on-surface-variant">© 2026 ShenoDev. All rights reserved.</p>
+          <p className="text-body-sm text-on-surface-variant">© 2026 ShenoDev.</p>
         </div>
         <nav className="flex flex-col items-center md:items-start gap-2.5" aria-label="Services">
-          <p className="text-label-sm font-semibold uppercase tracking-wider text-on-surface">Explore</p>
+          <p className="text-sm font-semibold text-on-surface">Explore</p>
           {SERVICE_LINKS.map((link) => (
             <Link
               key={link.label}
-              className="text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+              className="text-body-sm text-on-surface-variant hover:text-primary transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
               href={link.href}
             >
               {link.label}
@@ -60,11 +60,11 @@ export const Footer = () => (
           ))}
         </nav>
         <nav className="flex flex-col items-center md:items-start gap-2.5" aria-label="Legal">
-          <p className="text-label-sm font-semibold uppercase tracking-wider text-on-surface">Legal</p>
+          <p className="text-sm font-semibold text-on-surface">Legal</p>
           {LEGAL_LINKS.map((link) => (
             <Link
               key={link.label}
-              className="text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+              className="text-body-sm text-on-surface-variant hover:text-primary transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
               href={link.href}
             >
               {link.label}

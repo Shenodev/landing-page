@@ -103,14 +103,12 @@ export const ContactSection = () => {
     <section className="py-24 max-w-[1320px] mx-auto px-6 md:px-12" id="contact">
       <div className="max-w-2xl mx-auto">
         <SectionHeading
-          title="Let&apos;s Build Something Extraordinary"
-          subtitle="Reach out directly with your parameters. We aim to respond with an architectural review and timeline within 24 hours."
+          title="Direct Technical Inquiry"
+          subtitle="Submit your architecture requirements, target stack, or operational timeline. We assess specifications and respond within 24 hours."
           className="mb-10"
         />
 
         <Card intent="elevated" className="relative p-8 md:p-10 shadow-2xl">
-          <div className="absolute top-0 left-12 right-12 h-px bg-gradient-to-r from-transparent via-primary-container/40 to-transparent" />
-
           <form className="space-y-6" onSubmit={handleSubmit} noValidate>
             <Field
               id="contact-name"
@@ -168,7 +166,7 @@ export const ContactSection = () => {
               />
             </Field>
 
-            <div className="space-y-3 rounded-lg bg-surface-container-lowest/50 border border-outline-variant/20 px-3.5 py-3">
+            <div className="space-y-3 rounded-xl bg-surface-dim/70 border border-white/10 px-4 py-3.5">
               <label className="flex items-start gap-3 cursor-pointer min-h-[24px]" htmlFor="contact-consent">
                 <input
                   id="contact-consent"
@@ -179,7 +177,7 @@ export const ContactSection = () => {
                   disabled={submitting}
                   required
                   aria-describedby={fieldErrors.privacyConsent ? "contact-consent-error" : undefined}
-                  className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-[#06b6d4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                  className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
                 />
                 <span className="text-body-sm text-on-surface-variant">
                   I agree to the processing of my details to handle this inquiry, as described in the{" "}
@@ -204,7 +202,7 @@ export const ContactSection = () => {
                   disabled={submitting}
                   required
                   aria-describedby={fieldErrors.ageConfirmed ? "contact-age-error" : undefined}
-                  className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-[#06b6d4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                  className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
                 />
                 <span className="text-body-sm text-on-surface-variant">
                   I confirm I am 16 years of age or older.
@@ -217,10 +215,10 @@ export const ContactSection = () => {
               )}
             </div>
 
-            <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-lg bg-surface-container-lowest/50 border border-outline-variant/20">
-              <MaterialIcon name="bolt" className="text-primary text-base" />
+            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-surface-dim/70 border border-white/10">
+              <MaterialIcon name="verified_user" className="text-primary text-base" />
               <span className="text-body-sm text-on-surface-variant">
-                Automated Welcome Email Powered by Resend API • Zod + DOMPurify
+                Direct engineer review. Mutual NDA provided prior to technical discovery.
               </span>
             </div>
 
@@ -231,8 +229,8 @@ export const ContactSection = () => {
               <FormAlert tone="error">{errorMsg || "Failed to send message. Please try again."}</FormAlert>
             )}
 
-            <Button type="submit" size="lg" className="w-full py-4 cursor-pointer" disabled={submitting}>
-              {submitting ? "Sending..." : "Send Message / Get Started"}
+            <Button type="submit" size="lg" className="w-full cursor-pointer" disabled={submitting}>
+              {submitting ? "Sending..." : "Send Technical Inquiry"}
               <MaterialIcon name="send" className="text-lg" />
             </Button>
           </form>

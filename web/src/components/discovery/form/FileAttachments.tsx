@@ -24,7 +24,7 @@ export const FileAttachments = ({ files, maxFiles, onChange }: FileAttachmentsPr
 
   return (
     <div className="space-y-2">
-      <div className="border-2 border-dashed border-outline-variant/50 hover:border-primary/60 bg-surface-container-lowest/60 rounded-xl p-6 text-center transition-colors">
+      <div className="border-2 border-dashed border-white/20 hover:border-primary/50 bg-surface-dim/60 rounded-xl p-6 text-center transition-colors duration-150">
         <input
           key={inputKey}
           type="file"
@@ -41,8 +41,8 @@ export const FileAttachments = ({ files, maxFiles, onChange }: FileAttachmentsPr
               ? `${files.length} file${files.length > 1 ? "s" : ""} selected`
               : "Drag & drop files or browse"}
           </span>
-          <span className="text-label-sm text-outline">
-            PDF, images, DOCX, ZIP (up to {maxFiles} files, 10MB each) — stored via Cloudinary
+          <span className="text-xs text-outline">
+            PDF, images, DOCX, ZIP (up to {maxFiles} files, 10MB each)
           </span>
         </label>
       </div>
@@ -52,7 +52,7 @@ export const FileAttachments = ({ files, maxFiles, onChange }: FileAttachmentsPr
           {files.map((file, index) => (
             <li
               key={`${file.name}-${index}`}
-              className="flex items-center justify-between gap-3 bg-surface-container-lowest/80 border border-outline-variant/40 rounded-lg px-3 py-2"
+              className="flex items-center justify-between gap-3 bg-surface-dim/80 border border-white/10 rounded-xl px-3.5 py-2.5"
             >
               <div className="flex items-center gap-2 min-w-0">
                 <MaterialIcon name="attach_file" className="text-primary text-base" />

@@ -53,8 +53,7 @@ export const AdminProjectForm = ({ fixedSecret, onSaved, onUnauthorized }: Admin
   // Lightweight client-side throttle against password guessing. Real
   // brute-force protection is the server's adminWriteLimiter (20/15min/IP).
   const [failedAttempts, setFailedAttempts] = useState<number>(0);
-  const [lockoutUntil, setLockoutUntil] = useState<number>(0);
-  const locked: boolean = Date.now() < lockoutUntil;
+  const [locked, setLocked] = useState<boolean>(false);
 
   const techPreview = useMemo(() => parseTechStack(form.techStackInput), [form.techStackInput]);
   const submitting = status === "submitting";
@@ -63,7 +62,8 @@ export const AdminProjectForm = ({ fixedSecret, onSaved, onUnauthorized }: Admin
     const next: number = failedAttempts + 1;
     setFailedAttempts(next);
     if (next >= 5) {
-      setLockoutUntil(Date.now() + 60 * 1000);
+      setLocked(true);
+      setTimeout(() => setLocked(false), 60 * 1000);
       setFailedAttempts(0);
       setMessage("Too many failed attempts. Locked for 60 seconds.");
     } else {
@@ -110,7 +110,7 @@ export const AdminProjectForm = ({ fixedSecret, onSaved, onUnauthorized }: Admin
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    if (Date.now() < lockoutUntil) {
+    if (locked) {
       setMessage("Too many failed attempts. Locked for 60 seconds.");
       setStatus("error");
       return;
@@ -166,7 +166,7 @@ export const AdminProjectForm = ({ fixedSecret, onSaved, onUnauthorized }: Admin
       const res = await submitProject(payload, files, parsed.data.adminSecret);
       setStatus("success");
       setFailedAttempts(0);
-      setLockoutUntil(0);
+      setLocked(false);
       setMessage(res.message || "Project created. It now appears in the Work section.");
       setForm((prev) => ({ ...EMPTY, adminSecret: prev.adminSecret }));
       setFiles([]);
@@ -269,12 +269,12 @@ export const AdminProjectForm = ({ fixedSecret, onSaved, onUnauthorized }: Admin
             multiple
             onChange={handleFiles}
             disabled={submitting}
-            className="w-full text-body-sm text-on-surface-variant file:mr-4 file:px-4 file:py-2.5 file:rounded-lg file:border-0 file:bg-primary-container file:text-on-primary-container file:font-semibold hover:file:bg-primary file:cursor-pointer cursor-pointer"
+            className="w-full text-body-sm text-on-surface-variant file:mr-4 file:px-4 file:py-2.5 file:rounded-xl file:border-0 file:bg-primary file:text-slate-950 file:font-semibold hover:file:bg-cyan-400 file:cursor-pointer cursor-pointer"
           />
           {previews.length > 0 && (
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 pt-3">
               {previews.map((src, i) => (
-                <div key={`${src}-${i}`} className="relative group rounded-lg overflow-hidden border border-outline-variant/30 bg-surface-container-lowest">
+                <div key={`${src}-${i}`} className="relative group rounded-xl overflow-hidden border border-white/10 bg-surface-dim">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={src} alt={`Upload preview ${i + 1}`} className="h-20 w-full object-cover" />
                   <button
@@ -310,7 +310,7 @@ export const AdminProjectForm = ({ fixedSecret, onSaved, onUnauthorized }: Admin
               {techPreview.map((tech) => (
                 <li
                   key={tech}
-                  className="px-2.5 py-1 rounded-full bg-surface-container-high border border-outline-variant/30 text-label-sm font-medium text-on-surface-variant"
+                  className="px-2.5 py-1 rounded-xl bg-surface-dim border border-white/10 text-label-sm font-medium text-on-surface-variant"
                 >
                   {tech}
                 </li>

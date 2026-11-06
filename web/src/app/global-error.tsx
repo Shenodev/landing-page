@@ -26,7 +26,7 @@ const GlobalError = ({ error, reset }: GlobalErrorProps) => {
         <button
           onClick={reset}
           type="button"
-          className="inline-flex items-center justify-center bg-primary-container hover:bg-primary text-on-primary-container text-[14px] font-medium px-6 py-3 rounded-lg font-semibold glow-button"
+          className="inline-flex items-center justify-center bg-primary hover:bg-cyan-400 text-slate-950 text-sm font-semibold px-6 py-3 rounded-xl glow-button cursor-pointer transition-colors"
         >
           Reload
         </button>

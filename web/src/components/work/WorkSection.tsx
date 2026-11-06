@@ -19,8 +19,8 @@ const PopulatedHeading = ({ count, level }: { count: number; level: 1 | 2 }) => 
   return (
     <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
       <div className="max-w-2xl">
-        <p className="text-label-sm font-semibold uppercase tracking-[0.14em] text-primary">Portfolio</p>
-        <TitleTag className="font-display text-headline-lg-mobile md:text-headline-lg text-on-surface tracking-tight mt-3 text-balance">
+        <span className="text-xs font-semibold text-primary">Portfolio</span>
+        <TitleTag className="font-display text-headline-lg-mobile md:text-headline-lg text-on-surface tracking-tight mt-2 text-balance">
           Selected work
         </TitleTag>
         <p className="text-body-md text-on-surface-variant mt-3 tabular-nums">

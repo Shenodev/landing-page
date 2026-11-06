@@ -37,16 +37,15 @@ export const DiscoveryScheduler = ({ formData, files, onSuccess, onBack }: Disco
 
   return (
     <div className="space-y-6">
-      <Card intent="elevated" className="relative border-primary/30 p-6 md:p-8 space-y-4">
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-t-xl" />
+      <Card intent="elevated" className="relative border border-white/10 p-6 md:p-8 space-y-4">
         <h2 className="text-title-md text-on-surface">Schedule Your Discovery Call</h2>
         <p className="text-body-sm text-on-surface-variant">
           Pick a time that works for you. Your project details for{" "}
-          <strong className="text-on-surface">{formData.companyName}</strong> are saved — scheduling will auto-submit.
+          <strong className="text-on-surface">{formData.companyName}</strong> are saved. Scheduling will complete your submission.
         </p>
 
         {calendlyUrl ? (
-          <div className="rounded-xl overflow-hidden border border-outline-variant/30 bg-white" style={{ height: 700 }}>
+          <div className="rounded-xl overflow-hidden border border-white/10 bg-white" style={{ height: 700 }}>
             <InlineWidget
               url={calendlyUrl}
               styles={{ height: "100%", width: "100%" }}
@@ -54,7 +53,7 @@ export const DiscoveryScheduler = ({ formData, files, onSuccess, onBack }: Disco
             />
           </div>
         ) : (
-          <div className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest/60 p-8 text-center space-y-3">
+          <div className="rounded-xl border border-white/10 bg-surface-dim/60 p-8 text-center space-y-3">
             <MaterialIcon name="event_busy" className="text-outline text-3xl mx-auto block" />
             <p className="text-label-md text-on-surface">Scheduling link not configured</p>
             <p className="text-body-sm text-on-surface-variant max-w-md mx-auto">
@@ -70,7 +69,7 @@ export const DiscoveryScheduler = ({ formData, files, onSuccess, onBack }: Disco
 
         {submitting && (
           <p className="text-body-sm text-primary animate-pulse" role="status">
-            Submitting your discovery + meeting details...
+            Submitting your discovery and meeting details…
           </p>
         )}
         {error && <FormAlert tone="error">{error}</FormAlert>}

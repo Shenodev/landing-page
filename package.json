@@ -1,0 +1,15 @@
+{
+  "name": "shenodev-landing-page",
+  "version": "2.0.0",
+  "private": true,
+  "description": "ShenoDev landing page and API ecosystem",
+  "scripts": {
+    "dev": "npm --prefix web run dev",
+    "dev:web": "npm --prefix web run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "build": "npm --prefix web run build",
+    "build:backend": "npm --prefix backend run build",
+    "lint": "npm --prefix web run lint",
+    "typecheck": "npm --prefix web run typecheck"
+  }
+}

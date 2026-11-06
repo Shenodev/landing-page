@@ -59,21 +59,15 @@ export const DiscoveryPage = () => {
                   Help us engineer the ideal digital architecture for your business. Fill out this discovery
                   questionnaire to get a precise scope, roadmap, and proposal.
                 </p>
-                <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-label-sm text-outline">
-                  <span className="flex items-center gap-2">
-                    <MaterialIcon name="schedule" className="text-primary text-base" /> ~5-7 minutes
+                <div className="pt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-on-surface-variant">
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface/80 border border-white/10">
+                    <MaterialIcon name="schedule" className="text-primary text-sm" /> 5-7 min scope
                   </span>
-                  <span className="hidden sm:inline text-outline-variant/50" aria-hidden="true">
-                    •
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface/80 border border-white/10">
+                    <MaterialIcon name="verified" className="text-primary text-sm" /> 5 sections
                   </span>
-                  <span className="flex items-center gap-2">
-                    <MaterialIcon name="verified" className="text-tertiary text-base" /> 5 Steps
-                  </span>
-                  <span className="hidden sm:inline text-outline-variant/50" aria-hidden="true">
-                    •
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <MaterialIcon name="lock" className="text-primary text-base" /> NDA Protected
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface/80 border border-white/10">
+                    <MaterialIcon name="lock" className="text-primary text-sm" /> Mutual NDA
                   </span>
                 </div>
               </div>

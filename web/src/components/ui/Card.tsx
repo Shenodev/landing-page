@@ -1,13 +1,13 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-const cardVariants = cva("rounded-xl", {
+const cardVariants = cva("rounded-xl transition-colors duration-200", {
   variants: {
     intent: {
-      default: "bg-surface-container/70 border border-outline-variant/40 backdrop-blur-md",
+      default: "bg-surface/80 border border-white/10 backdrop-blur-md",
       highlighted:
-        "relative bg-surface-container/90 border border-primary-container/60 backdrop-blur-lg glow-cyan-card",
-      elevated: "bg-surface-container/80 border border-primary-container/20 backdrop-blur-xl",
+        "relative bg-surface/90 border border-primary/40 backdrop-blur-lg glow-cyan-card",
+      elevated: "bg-surface/90 border border-white/10 shadow-xl backdrop-blur-xl",
     },
   },
   defaultVariants: {

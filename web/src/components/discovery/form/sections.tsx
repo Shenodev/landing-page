@@ -148,7 +148,7 @@ export const ConsentSection = ({ register, errors }: SectionProps) => (
           type="checkbox"
           {...register("privacyConsent")}
           aria-describedby={errors.privacyConsent ? "discovery-consent-error" : undefined}
-          className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-[#06b6d4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+          className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
         />
         <span className="text-body-sm text-on-surface-variant">
           I agree to the processing of my details to scope this project and arrange a discovery call, as described
@@ -170,7 +170,7 @@ export const ConsentSection = ({ register, errors }: SectionProps) => (
           type="checkbox"
           {...register("ageConfirmed")}
           aria-describedby={errors.ageConfirmed ? "discovery-age-error" : undefined}
-          className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-[#06b6d4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+          className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
         />
         <span className="text-body-sm text-on-surface-variant">I confirm I am 16 years of age or older.</span>
       </label>

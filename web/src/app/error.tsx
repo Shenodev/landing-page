@@ -23,7 +23,7 @@ const Error = ({ error, reset }: ErrorProps) => {
       </p>
       <button
         onClick={reset}
-        className="inline-flex items-center justify-center bg-primary-container hover:bg-primary text-on-primary-container text-[14px] font-medium px-6 py-3 rounded-lg font-semibold glow-button active:scale-95 transition-all"
+        className="inline-flex items-center justify-center bg-primary hover:bg-cyan-400 text-slate-950 text-sm font-semibold px-6 py-3 rounded-xl glow-button active:scale-[0.98] transition-colors cursor-pointer"
         type="button"
       >
         Try again

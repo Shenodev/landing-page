@@ -70,7 +70,7 @@ export const metadata: Metadata = {
       {
         rel: "mask-icon",
         url: "/assets/Logo Horizontal without slugan.svg",
-        color: "#0b1326",
+        color: "#0F172A",
       },
     ],
   },
@@ -101,7 +101,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b1326",
+  themeColor: "#0F172A",
 };
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -116,7 +116,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         />
       </head>
       <body
-        className={`${inter.variable} ${sora.variable} bg-background text-on-surface antialiased overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col justify-between font-sans`}
+        className={`${inter.variable} ${sora.variable} bg-background text-on-surface antialiased overflow-x-clip selection:bg-primary/20 selection:text-primary min-h-screen flex flex-col justify-between font-sans`}
       >
         <Script id="bigint-shim" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: BIGINT_SHIM }} />
         <SkipLink />

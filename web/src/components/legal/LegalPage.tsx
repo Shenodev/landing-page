@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
-import type { Crumb } from "@/components/seo/JsonLd";
 import { Card } from "@/components/ui/Card";
 
 export type LegalSection = {
@@ -53,9 +52,8 @@ export const LegalPage = ({ title, intro, effectiveDate, sections, children, cru
           {sections.map((section) => (
             <Card
               key={section.title}
-              className="relative border-outline-variant/30 hover:border-primary/40 transition-colors p-6 md:p-8 bg-surface-container-low/70 backdrop-blur-md"
+              className="relative border-white/10 hover:border-primary/40 transition-colors duration-200 p-6 md:p-8 bg-surface/80 backdrop-blur-md"
             >
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-t-xl" />
               <h2 className="font-display text-title-md text-on-surface mb-3">{section.title}</h2>
               {section.body && <p className="text-body-sm leading-[22px] text-on-surface-variant">{section.body}</p>}
               {section.items && (
@@ -75,14 +73,14 @@ export const LegalPage = ({ title, intro, effectiveDate, sections, children, cru
         {children}
 
         <nav aria-label="Related policies" className="mt-10">
-          <Card className="p-6 md:p-8 bg-surface-container-low/70 backdrop-blur-md">
+          <Card className="p-6 md:p-8 bg-surface/80 border border-white/10 backdrop-blur-md">
             <h2 className="font-display text-title-md text-on-surface mb-4">Related policies</h2>
             <ul className="grid sm:grid-cols-2 gap-2.5">
               {RELATED_LINKS.filter((link) => link.label !== title).map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-body-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                    className="text-body-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
                   >
                     {link.label}
                   </Link>

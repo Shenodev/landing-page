@@ -53,8 +53,8 @@ export const Services = () => {
   return (
     <section className="py-24 max-w-[1320px] mx-auto px-6 md:px-12" id="services">
       <SectionHeading
-        title="Transparent Pricing &amp; High-Impact Services"
-        subtitle="Tailored engineering solutions designed to turn complex business architectures into seamless, scalable, and conversion-ready digital platforms."
+        title="Engineering Services & Transparent Pricing"
+        subtitle="Fixed-scope architectures for corporate web platforms, internal business dashboards, and distributed systems."
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">

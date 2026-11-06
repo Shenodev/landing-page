@@ -13,8 +13,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     <input
       ref={ref}
       className={cn(
-        "w-full bg-surface-container-lowest/80 border rounded-lg px-4 py-3 text-body-md text-on-surface placeholder-outline focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none",
-        invalid ? "border-error" : "border-outline-variant/40",
+        "w-full bg-surface-dim/80 border rounded-xl px-4 py-3 text-body-md text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-150 outline-none",
+        invalid ? "border-error" : "border-white/10 hover:border-white/20",
         className,
       )}
       {...(invalid ? { "aria-invalid": true } : {})}

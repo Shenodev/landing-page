@@ -17,7 +17,7 @@ const HELPFUL_LINKS = [
 const NotFound = () => {
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center px-6 py-12 text-center bg-background">
-      <div className="w-16 h-16 rounded-xl bg-surface-container-high border border-outline-variant/30 flex items-center justify-center mb-6">
+      <div className="w-16 h-16 rounded-xl bg-surface border border-white/10 flex items-center justify-center mb-6">
         <span className="material-symbols-outlined text-primary text-3xl" aria-hidden="true">search_off</span>
       </div>
       <h1 className="font-display text-headline-lg-mobile md:text-headline-lg text-on-surface tracking-tight mb-2">
@@ -32,7 +32,7 @@ const NotFound = () => {
             <li key={link.href + link.label}>
               <Link
                 href={link.href}
-                className="inline-flex items-center justify-center bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/40 text-on-surface text-body-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+                className="inline-flex items-center justify-center bg-surface hover:bg-surface-bright border border-white/10 text-on-surface text-body-sm font-medium px-5 py-2.5 rounded-xl transition-colors"
               >
                 {link.label}
               </Link>
@@ -42,7 +42,7 @@ const NotFound = () => {
       </nav>
       <Link
         href="/"
-        className="inline-flex items-center justify-center bg-primary-container hover:bg-primary text-on-primary-container text-[14px] font-medium px-6 py-3 rounded-lg font-semibold glow-button"
+        className="inline-flex items-center justify-center bg-primary hover:bg-cyan-400 text-slate-950 text-sm font-semibold px-6 py-3 rounded-xl glow-button transition-colors"
       >
         Back to home
       </Link>

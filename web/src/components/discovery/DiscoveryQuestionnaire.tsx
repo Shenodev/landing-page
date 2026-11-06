@@ -59,7 +59,7 @@ export const DiscoveryQuestionnaire = ({
 
       <button
         type="submit"
-        className="w-full py-4 px-8 rounded-xl bg-gradient-to-r from-primary-container to-secondary-container text-surface-container-lowest font-bold tracking-wide flex items-center justify-center gap-3 shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5 transition-all active:scale-[0.99]"
+        className="w-full py-4 px-8 rounded-xl bg-primary hover:bg-cyan-400 text-slate-950 font-bold tracking-wide flex items-center justify-center gap-2 glow-button transition-colors duration-150 active:scale-[0.99] cursor-pointer"
       >
         Continue to Scheduling <MaterialIcon name="arrow_forward" className="text-xl" />
       </button>

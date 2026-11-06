@@ -30,9 +30,11 @@ export const CookieBanner = () => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (readConsent() === null) {
-      setVisible(true);
-    }
+    queueMicrotask(() => {
+      if (readConsent() === null) {
+        setVisible(true);
+      }
+    });
   }, []);
 
   const choose = (value: ConsentValue): void => {
@@ -51,11 +53,11 @@ export const CookieBanner = () => {
       role="dialog"
       aria-live="polite"
       aria-label="Cookie consent"
-      className="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:right-6 sm:bottom-6 sm:max-w-md z-[60] rounded-xl border border-outline-variant/40 bg-surface-container/95 backdrop-blur-md p-5 shadow-2xl"
+      className="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:right-6 sm:bottom-6 sm:max-w-md z-[60] rounded-xl border border-white/10 bg-surface/95 backdrop-blur-md p-5"
     >
-      <p className="text-body-sm text-on-surface font-semibold mb-1.5">Cookies, minus the creepy part</p>
+      <p className="text-body-sm text-on-surface font-semibold mb-1.5">Cookie Preferences</p>
       <p className="text-body-sm leading-[20px] text-on-surface-variant mb-4">
-        No ad trackers here. We only remember this choice on your device. Details in our{" "}
+        We use essential local state only to remember your preferences without third-party tracking. Details in our{" "}
         <Link href="/cookies" className="text-primary hover:underline">
           Cookie Policy
         </Link>
@@ -65,14 +67,14 @@ export const CookieBanner = () => {
         <button
           type="button"
           onClick={() => choose("declined")}
-          className="flex-1 px-4 py-2.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/60 text-on-surface text-body-sm font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="flex-1 px-4 py-2.5 rounded-xl bg-surface-dim hover:bg-surface border border-white/10 text-on-surface text-body-sm font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           Decline
         </button>
         <button
           type="button"
           onClick={() => choose("accepted")}
-          className="flex-1 px-4 py-2.5 rounded-lg bg-primary-container hover:bg-primary text-on-primary-container text-body-sm font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container"
+          className="flex-1 px-4 py-2.5 rounded-xl bg-primary hover:bg-cyan-400 text-slate-950 text-body-sm font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           Accept
         </button>

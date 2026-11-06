@@ -60,8 +60,12 @@ export const AdminConsole = () => {
   useEffect(() => {
     if (!secret) return;
     let cancelled = false;
-    setLoading(true);
-    setListError("");
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setLoading(true);
+        setListError("");
+      }
+    });
     fetchProjectsAdmin(secret)
       .then((list) => {
         if (!cancelled) setProjects(list);
@@ -165,10 +169,10 @@ export const AdminConsole = () => {
           role="tab"
           aria-selected={tab === "list"}
           onClick={() => setTab("list")}
-          className={`px-5 py-2.5 rounded-lg text-body-sm font-semibold transition-colors cursor-pointer ${
+          className={`px-5 py-2.5 rounded-xl text-body-sm font-semibold transition-colors cursor-pointer ${
             tab === "list"
-              ? "bg-primary-container text-on-primary-container"
-              : "bg-surface-container-high text-on-surface-variant hover:text-on-surface"
+              ? "bg-primary text-slate-950 shadow-md shadow-cyan-500/20"
+              : "bg-surface-dim border border-white/10 text-on-surface-variant hover:text-on-surface hover:border-white/20"
           }`}
         >
           Projects ({projects.length})
@@ -178,10 +182,10 @@ export const AdminConsole = () => {
           role="tab"
           aria-selected={tab === "add"}
           onClick={() => setTab("add")}
-          className={`px-5 py-2.5 rounded-lg text-body-sm font-semibold transition-colors cursor-pointer ${
+          className={`px-5 py-2.5 rounded-xl text-body-sm font-semibold transition-colors cursor-pointer ${
             tab === "add"
-              ? "bg-primary-container text-on-primary-container"
-              : "bg-surface-container-high text-on-surface-variant hover:text-on-surface"
+              ? "bg-primary text-slate-950 shadow-md shadow-cyan-500/20"
+              : "bg-surface-dim border border-white/10 text-on-surface-variant hover:text-on-surface hover:border-white/20"
           }`}
         >
           Add new
@@ -190,7 +194,7 @@ export const AdminConsole = () => {
         <button
           type="button"
           onClick={() => lock()}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-body-sm font-medium text-on-surface-variant hover:text-error transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-body-sm font-medium text-on-surface-variant hover:text-error transition-colors cursor-pointer"
         >
           <MaterialIcon name="lock" className="text-base" /> Lock
         </button>
@@ -279,8 +283,7 @@ const ProjectRow = ({
         <img
           src={project.imageUrl}
           alt=""
-          className="h-14 w-20 shrink-0 rounded-lg object-cover bg-surface-container-lowest"
-          loading="lazy"
+          className="h-14 w-20 shrink-0 rounded-xl object-cover bg-surface-dim"
         />
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-on-surface truncate">{project.title}</p>
@@ -295,7 +298,7 @@ const ProjectRow = ({
             setConfirming(false);
             setError("");
           }}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-body-sm font-semibold bg-surface-container-high hover:bg-surface-container-highest text-on-surface transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-body-sm font-semibold bg-surface-dim hover:bg-surface border border-white/10 text-on-surface transition-colors cursor-pointer"
         >
           <MaterialIcon name="edit" className="text-base" /> {editing ? "Close" : "Edit"}
         </button>
@@ -303,7 +306,7 @@ const ProjectRow = ({
           type="button"
           onClick={() => void remove()}
           disabled={busy}
-          className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-body-sm font-semibold transition-colors cursor-pointer disabled:opacity-60 ${
+          className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-body-sm font-semibold transition-colors cursor-pointer disabled:opacity-60 ${
             confirming ? "bg-error text-white hover:opacity-90" : "text-error hover:bg-error-container/20"
           }`}
         >
@@ -321,7 +324,7 @@ const ProjectRow = ({
         </div>
       )}
       {editing && (
-        <div className="mt-5 border-t border-outline-variant/30 pt-5">
+        <div className="mt-5 border-t border-white/10 pt-5">
           <ProjectEditForm
             project={project}
             secret={secret}
@@ -478,7 +481,7 @@ const ProjectEditForm = ({
           multiple
           onChange={onFiles}
           disabled={submitting}
-          className="w-full text-body-sm text-on-surface-variant file:mr-4 file:px-4 file:py-2.5 file:rounded-lg file:border-0 file:bg-primary-container file:text-on-primary-container file:font-semibold hover:file:bg-primary file:cursor-pointer cursor-pointer"
+          className="w-full text-body-sm text-on-surface-variant file:mr-4 file:px-4 file:py-2.5 file:rounded-xl file:border-0 file:bg-primary file:text-slate-950 file:font-semibold hover:file:bg-cyan-400 file:cursor-pointer cursor-pointer"
         />
         {files.length > 0 && <p className="text-body-sm text-on-surface-variant pt-2">{files.length} new image{files.length === 1 ? "" : "s"} will replace the gallery.</p>}
       </Field>

@@ -28,7 +28,7 @@ export const Navbar = () => {
   return (
     <header
       onKeyDown={handleKeyDown}
-      className="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm"
+      className="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-white/10 shadow-sm"
     >
       <div className="flex justify-between items-center w-full px-6 md:px-12 max-w-[1320px] mx-auto h-20">
         <Link
@@ -67,7 +67,7 @@ export const Navbar = () => {
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
             aria-controls="mobile-menu"
-            className="md:hidden text-on-surface p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+            className="md:hidden text-on-surface p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl"
             onClick={() => setMobileOpen((prev) => !prev)}
             type="button"
           >
@@ -77,7 +77,7 @@ export const Navbar = () => {
       </div>
 
       <div
-        className={`${mobileOpen ? "flex" : "hidden"} md:hidden px-6 py-4 bg-surface-container-high border-b border-outline-variant/30 flex-col gap-4`}
+        className={`${mobileOpen ? "flex" : "hidden"} md:hidden px-6 py-4 bg-surface/95 border-b border-white/10 flex-col gap-4`}
         id="mobile-menu"
       >
         {NAV_LINKS.map((link) => (
